@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Prepare the latest blocklist and check for parsing errors
-# Run as root via cron to install automatically or run as normal user to check manually before installing
+# Run as root via cron to install automatically or run as a normal user to check manually before installing
 
 # Crontab to run every 12 hours:
 # 0 */12 * * * /bin/bash /opt/unbound-update-blocklist.sh
@@ -30,6 +30,7 @@ done
 # Parse hosts files to unbound.conf format; handles removing CRLF line terminators and empty lines
 cat ./*.txt | sed '/^$/d' | sed 's/\r//g' | sed '/^#/!s/^0.0.0.0[[:space:]]//g' | sed '/^#/!s/^127.0.0.1[[:space:]]//g' | sed '/^#/!s/$[[:space:]]//g' | sed '/^#/!s/^/local-zone: "/g' | sed '/^#/!s/$/" always_nxdomain/g' > "$(date +%Y-%m-%d_%H:%M:%S_)"blocklist.conf
 # Example filename: 2021-08-01_08:00:00_blocklist.conf
+# We use for loops to match the filename because it's based on an exact time
 
 function checkErrors() {
 	# Here we want to make sure every line is properly formatted
@@ -49,6 +50,7 @@ function checkErrors() {
 		done
 	else
 		for file in ./*blocklist.conf; do
+			# file.FAIL contains the lines that did not pass the formatting check
 			mv checkerrors.out /home/"$UID1000"/"$file".FAIL && mv "$file" /home/"$UID1000"/
 		done
 		echo "$file failed formatting check. Quitting."
@@ -67,14 +69,16 @@ else
 	for file in ./*blocklist.conf; do
 		# Automatically install the updated conf via cron, or by running manually as root
 		if [ -e '/etc/unbound/unbound.conf.d/blocklist.conf' ]; then
-			rm /etc/unbound/unbound.conf.d/blocklist.conf
+			mv /etc/unbound/unbound.conf.d/blocklist.conf /tmp/blocklist.conf.bkup
 		fi
 		cp "$file" /etc/unbound/unbound.conf.d/blocklist.conf
 		if ! (unbound-checkconf | grep 'no errors'); then
 			echo "Error with unbound configuration. Quitting."
+			mv /tmp/blocklist.conf.bkup /etc/unbound/unbound.conf.d/blocklist.conf
 			exit 1
 		fi
 		systemctl restart unbound
+		rm /tmp/blocklist.conf.bkup
 	done
 fi
 
