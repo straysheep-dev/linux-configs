@@ -75,7 +75,7 @@ sudo setup-firewall
 
 **Overview**
 
-This file takes the base configurations from a fresh pfSense install, adjusts it to work with ubuntu server (unbound+apparmor instead of chroot), enforces DNS over TLS resolution, and logs all replies to syslog.
+This file takes the [base configurations](https://github.com/pfsense/pfsense/blob/master/src/etc/inc/unbound.inc) from a fresh pfSense install, adjusts it to work with ubuntu server (unbound+apparmor instead of chroot), enforces DNS over TLS resolution, and logs all replies to syslog.
 
 ### Why?
 
@@ -247,6 +247,8 @@ https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml
 <https://github.com/pi-hole/pi-hole>
 
 <https://github.com/NLnetLabs/unbound/blob/master/doc/example.conf.in>
+
+<https://github.com/pfsense/pfsense/blob/master/src/etc/inc/unbound.inc>
 
 <https://github.com/pfsense/docs/blob/master/source/dns/unbound-dns-resolver.rst>
 
