@@ -5,15 +5,41 @@ Various configuration files for unix/linux operating systems
 Unless a different license is included with a file as `<filename>.copyright-notice` all files are released under the GPL-3.0
 
 # To do:
-- [ ] create table of contents
+- [x] create table of contents
 - [ ] add apparmor profiles
+- [ ] write overview/summary of the firefox policies
 - [ ] add other configurations for ufw
 - [ ] add other configurations for iptables
 - [ ] add bind9 dns setup and implementation
 
+## Contents
+- [Firefox Configuration](firefox/)
+    * [Policy Overview](firefox#policy-overview)
+    * [Thanks and References](firefox#thanks-and-references)
+    * [Differences from SSG Firefox Guide STIG](firefox#differences-from-ssg-firefox-guide-stig)
+- [Chromium Configuration](chromium/)
+    * [Policy Overview](chromium#policy-overview)
+    * [Thanks and References](chromium#thanks-and-references)
+    * [Differences from SSG Chromium Guide STIG](chromium#differences-from-ssg-chromium-guide-stig)
+- [GnuPG](#gnupg)
+    * [The Configuration Files](#the-configuration-files)
+    * [Sources](#sources)
+- [Firewall Scripts](#firewall-scripts)
+    * [Why?](#why)
+    * [Example Usage](#example-usage)
+- [unbound](#unbound)
+    * [Overview](#overview)
+    * [Why?](#why)
+    * [Blocking Domains In unbound.conf](#blocking-domains-in-unboundconf)
+    * [Hosts Files](#hosts-files)
+    * [Dns Blocklist Resources](#dns-blocklist-resources)
+    * [Parsing Hosts Files to a File Formatted for unbound](#parsing-hosts-files-to-a-file-formatted-for-unbound)
+    * [Dns Response Codes](#dns-response-codes)
+    * [References](#references)
+
 # GnuPG
 
-### What these do:
+### The Configuration Files:
 
 `gpg.conf` specifies strong default settings for gpg. See the original source below for more options.
 
@@ -25,6 +51,7 @@ Two commands to memorize:
 gpg-connect-agent updatestartuptty /bye
 
 # when using one identity on multiple keys, ie; using a backup key, gpg associates id's with key serial numbers
+# use this command after removing key 1 and inserting key 2
 gpg-connect-agent "scd serialno" "learn --force" /bye
 ```
 Other commands to know:
@@ -37,7 +64,7 @@ In all of the above cases, you can confirm your key is being detected properly i
 gpg --card-status
 ```
 
-**Sources:**
+### Sources:
 
 <https://github.com/drduh/YubiKey-Guide/>
 
@@ -73,7 +100,7 @@ sudo setup-firewall
 
 # unbound
 
-**Overview**
+### Overview
 
 This file takes the [base configurations](https://github.com/pfsense/pfsense/blob/master/src/etc/inc/unbound.inc) from a fresh pfSense install, adjusts it to work with ubuntu server (unbound+apparmor instead of chroot), enforces DNS over TLS resolution, and logs all replies to syslog.
 
@@ -83,7 +110,7 @@ This file takes the [base configurations](https://github.com/pfsense/pfsense/blo
 * Blocking known malicious or unwanted domains as part of a defense in depth strategy
 * To summarize a setup process with examples, adapt these to your own environment
 
-## Blocking Domains In unbound.conf:
+## Blocking Domains In unbound.conf
 
 **Method 1 (old):**
 ```
@@ -114,7 +141,7 @@ Use this line anywhere in the file to include the parameters of 'otherfile.conf'
 include: "otherfile.conf"
 ```
 
-## Hosts files
+## Hosts Files
 
 <https://github.com/StevenBlack/hosts>
 
@@ -132,7 +159,7 @@ To modify your current hosts file, look for it in the following places and modif
 * macOS Catalina: /private/etc/hosts file.
 * Windows: %SystemRoot%\system32\drivers\etc\hosts file.
 
-## DNS blocklist resources:
+## Dns Blocklist Resources:
 ```bash
 # meta list of many malware, tracker, and ad servers - you would normally use this list alone
 curl -Lf 'https://raw.githubusercontent.com/StevenBlack/hosts/master/hosts' > 'meta-hosts.txt'
@@ -144,7 +171,7 @@ curl 'https://urlhaus.abuse.ch/downloads/hostfile/' > 'urlhaus.txt'
 curl -Lf 'https://raw.githubusercontent.com/StevenBlack/hosts/master/data/yoyo.org/hosts' > 'yoyo.txt'
 ```
 
-## Parsing hosts files to a file formatted for Unbound
+## Parsing Hosts Files to a File Formatted for unbound
 
 * To avoid parsing errors by working only with the beginning / end of lines
 * The goal is adding `local-zone: "` in front and `" always_nxdomain` to the end of each line
@@ -240,7 +267,7 @@ https://www.iana.org/assignments/dns-parameters/dns-parameters.xhtml
 	# local-data-ptr: "192.0.2.3 www.example.com"
 ```
 
-### Other references:
+### References:
 
 <https://docs.pi-hole.net/ftldns/blockingmode/>
 
