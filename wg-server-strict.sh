@@ -65,6 +65,7 @@ function setFirewall() {
 	ufw disable
 	ufw enable
 	ufw allow out on "${SERVER_PUB_NIC}" to any proto tcp port 80,443,853
+	ufw allow out on "${SERVER_PUB_NIC}" to any proto udp port 123
 	# Check for unbound running
 	systemctl is-active --quiet "unbound"
 	UNBOUND_RUNNING=$?
