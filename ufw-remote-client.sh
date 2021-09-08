@@ -68,6 +68,7 @@ function setFirewall() {
 	ufw enable
 	ufw allow out on "${PUB_NIC}" to any proto tcp port 80,443,853
 	ufw allow out on "${PUB_NIC}" to any proto udp port 53
+	ufw allow out on "${PUB_NIC}" to any proto udp port 123
 	# Add endpoints
 	# No double quotes "" for $ENDPOINTS4/6 as each value needs to be invoked separately, not as a single string, see `info bash` QUOTING
 	for ip in $ENDPOINTS4; do
