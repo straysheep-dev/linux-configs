@@ -41,6 +41,7 @@ function setFirewall() {
 	ufw enable
 	ufw allow out on "${PUB_NIC}" to any proto tcp port 80,443
 	ufw allow out on "${PUB_NIC}" to any proto udp port 53
+	ufw allow out on "${PUB_NIC}" to any proto udp port 123
 	ufw prepend deny out to 192.168.0.0/16
 	ufw prepend deny out to 172.16.0.0/12
 	ufw prepend deny out to 169.254.0.0/16
