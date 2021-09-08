@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Prepare the latest blocklist and check for parsing errors
-# Run as root via cron to install automatically or run as a normal user to check manually before installing
+# Run as root via cron to install automatically or run as root manually to update immediately
 
 # Crontab to run every 12 hours:
 # 0 */12 * * * /bin/bash /opt/unbound-update-blocklist.sh
@@ -44,6 +44,7 @@ cd "$UPDATE_DIR" || (echo "Failed creating temporary directory. Quitting." && ec
 # Download blocklists
 curl -sS 'https://urlhaus.abuse.ch/downloads/hostfile/' > 'urlhaus.txt'
 curl -sSLf 'https://raw.githubusercontent.com/StevenBlack/hosts/master/data/yoyo.org/hosts' > 'yoyo.txt'
+# add more blocklists here
 
 # Make sure download was successful and filetype matches what's expected
 for list in ./*.txt; do
