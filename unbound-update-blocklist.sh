@@ -101,8 +101,13 @@ checkFormatting
 if [ -e '/etc/unbound/unbound.conf.d/blocklist.conf' ]; then
 	mv /etc/unbound/unbound.conf.d/blocklist.conf /tmp/blocklist.conf.bkup
 fi
+
 cp ./blocklist.conf /etc/unbound/unbound.conf.d/blocklist.conf
-if ! (unbound-checkconf | grep 'no errors'); then
+
+# Specify full command path else execution fails, and use the exit code `$?` environment variable to check output
+/usr/sbin/unbound-checkconf
+CHECKCONF="$?"
+if ! [[ "$CHECKCONF" -eq 0 ]]; then
 	echo 'Error loading new blocklist, previous configuration restored. Quitting'
 	echo "# [WARNING]: $(date +%Y-%m-%d) $(date +%H:%M:%S) Error loading new blocklist, previous configuration restored." >> /var/log/"$LOGFILE"
 	mv /tmp/blocklist.conf.bkup /etc/unbound/unbound.conf.d/blocklist.conf
