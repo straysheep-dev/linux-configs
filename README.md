@@ -23,6 +23,8 @@ Unless a different license is included with a file as `<filename>.copyright-noti
     * [Differences from SSG Chromium Guide STIG](web-browsers/chromium#differences-from-ssg-chromium-guide-stig)
 - [GnuPG](gnupg/#gnupg)
     * [The Configuration Files](gnupg/#the-configuration-files)
+    * [yubi-mode.sh](gnupg/#yubi-modesh)
+    * [Commands](gnupg#commands)
     * [Sources](gnupg/#sources)
 - [Firewall Scripts](firewall/#firewall-scripts)
     * [Why?](firewall/#why)
