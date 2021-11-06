@@ -1,10 +1,25 @@
 # GnuPG
 
-### The Configuration Files:
+### The Configuration Files
 
 `gpg.conf` specifies strong default settings for gpg. See the original source below for more options.
 
 `gpg-agent.conf` and `gpg-bachrc` are the configurations for using gpg and ssh with a smartcard such as a YubiKey. PIN entry is handled by pinentry-curses via the terminal.
+
+### yubi-mode.sh
+
+```
+Usage:
+yubi-mode [gpg|otp]
+```
+
+Script to change between the pcscd daemon included with the [yubioath-desktop snap](https://snapcraft.io/yubioath-desktop), and the pcscd daemon from apt.
+
+Useful if you use both otp codes and gpg functions via a yubikey, yubikeys cannot access both daemons simultaneously.
+
+Install this script to your preferred location, with the correct permissions (root:root, 755) and add it to your PATH.
+
+### Commands
 
 Two commands to memorize:
 ```bash
