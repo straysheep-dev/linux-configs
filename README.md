@@ -13,14 +13,14 @@ Unless a different license is included with a file as `<filename>.copyright-noti
 - [ ] add bind9 dns setup and implementation
 
 ## Contents
-- [Firefox Configuration](firefox/)
-    * [Policy Overview](firefox#policy-overview)
-    * [Thanks and References](firefox#thanks-and-references)
-    * [Differences from SSG Firefox Guide STIG](firefox#differences-from-ssg-firefox-guide-stig)
-- [Chromium Configuration](chromium/)
-    * [Policy Overview](chromium#policy-overview)
-    * [Thanks and References](chromium#thanks-and-references)
-    * [Differences from SSG Chromium Guide STIG](chromium#differences-from-ssg-chromium-guide-stig)
+- [Firefox Configuration](web-browsers/firefox/)
+    * [Policy Overview](web-browsers/firefox#policy-overview)
+    * [Thanks and References](web-browsers/firefox#thanks-and-references)
+    * [Differences from SSG Firefox Guide STIG](web-browsers/firefox#differences-from-ssg-firefox-guide-stig)
+- [Chromium Configuration](web-browsers/chromium/)
+    * [Policy Overview](web-browsers/chromium#policy-overview)
+    * [Thanks and References](web-browsers/chromium#thanks-and-references)
+    * [Differences from SSG Chromium Guide STIG](web-browsers/chromium#differences-from-ssg-chromium-guide-stig)
 - [GnuPG](#gnupg)
     * [The Configuration Files](#the-configuration-files)
     * [Sources](#sources)
