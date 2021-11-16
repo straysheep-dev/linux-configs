@@ -11,16 +11,15 @@ sudo dnf install -y snapd
 chmod +x setup-chromium.sh
 sudo ./setup-chromium.sh
 snap download chromium
-sudo snap ack $(ls | grep -E "chromium_([0-9]{4}).assert")
-sudo snap install ./$(ls -l | grep -E "chromium_([0-9]{4}).snap")
+sudo snap ack ./chromium_<version>.assert
+sudo snap install ./chromium_<version>.snap
 ```
 
 ## Policy Overview:
-* Based on the [OpenSCAP security guide for Google Chrome STIG configuration](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html#)
+* Based on the [OpenSCAP security guide for Google Chrome STIG configuration](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html)
 * DuckDuckGo default search engine
   - Examples for Google as default search engine provided below
-* Clear all browser data on shutdown (auth / login cookies and tokens)
-  - History persists until manually cleared
+* Clear all browser data on shutdown (auth / login cookies and tokens / history)
 * Prevents account sign-in, and account sync
   - Local profiles can still be created and used
   - Incognito mode is disabled
@@ -42,11 +41,11 @@ If you prefer to avoid installing any extensions, remove both `ExtensionInstallA
 ## Thanks and References:
 
 * https://github.com/OpenSCAP/openscap
-* https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html#!
+* https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html
 * https://public.cyber.mil/stigs/downloads/?_dl_facet_stigs=app-security%2Cbrowser-guidance
 * https://chromeenterprise.google/policies/
 
-The setup script uses all of the [recommended](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html#!) settings as a base
+The setup script uses all of the [recommended](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html) settings as a base
 
 Differences have been noted below, and made either for compatability / usability reasons, or the policy has been deprecated / replaced
 
@@ -82,13 +81,13 @@ Change them to your preferred default search provider. Examples are given below 
 
 * AuthSchemes
 
-Choose any number or combination among these four:
+[Edge v95 security baseline](https://www.microsoft.com/en-us/download/details.aspx?id=55319) uses the following:
 
 ```
-basic,digest,ntlm,negotiate
+ntlm,negotiate
 ```
 
-### Differences from [SSG-Chromium-Guide-STIG](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html#!)
+### Differences from [SSG-Chromium-Guide-STIG](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html)
 
 The following lists changes made to rules found in the Open-SCAP security guide from their recommended defaults:
 
@@ -144,9 +143,7 @@ The following lists changes made to rules found in the Open-SCAP security guide 
   "HomepageLocation": "https://duckduckgo.com"
 
 # Enable Saving The Browser History
-# Browser history will persist despite it being listed under `ClearBrowsingDataOnExitList` in this script.
-# `Settings > Clear browsing data > (All time) Clear data` is required to clear history.
-# Setting this to `true` will disable browser history completely.
+# Browser history can be saved before exiting and clearing the session. Setting this to `true` will disable browser history completely.
   "SavingBrowserHistoryDisabled": false,
 
 # Enable Plugins Only For Approved URLs (deprecated, not available on https://chromeenterprise.google/policies/)
