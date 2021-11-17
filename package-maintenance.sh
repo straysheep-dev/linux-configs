@@ -25,7 +25,7 @@ function runMaintenance() {
 	HYPERVISOR="$(cat /sys/devices/virtual/dmi/id/bios_ve* | grep -E "(VMware|VirtualBox)")"
 	if ! [[ "$HYPERVISOR" == "" ]]; then
 		echo "$HYPERVISOR detected. Checking disk usage..."
-		DISK_USAGE="$(du -h -d1 / 2>/dev/null | grep "^.*/$" | cut -d 'G' -f 1)"
+		DISK_USAGE="$(du -h -d1 / 2>/dev/null | grep "^.*/$" | cut -d 'G' -f 1 | cut -d '.' -f 1)"
 		if [[ "$DISK_USAGE" -gt "20" ]]; then
 			echo "Disk usage above 20GB."
 			echo "Compact virtual appliance with one of the following:"
@@ -38,6 +38,8 @@ function runMaintenance() {
 			echo "$ rm zerofill"
 			echo "$ poweroff"
 			echo "Clone VM > Full Clone"
+		else
+			echo "OK"
 		fi
 	fi
 }
