@@ -55,7 +55,7 @@ function accounts() {
 	echo '#[v] active sessions'
 	echo ''
 	w
-	
+
 	echo '#======================================================================'
 	echo "# [v] login history"
 	echo ''
@@ -96,7 +96,7 @@ function kernel() {
 	echo '#[v] secureboot'
 	echo ''
 	if (command -v mokutil); then
-		mokutil --sb-state
+		mokutil --sb-state 2>&1
 	fi
 
 	echo '#======================================================================'
@@ -219,7 +219,7 @@ function network() {
 	cat /etc/resolv.conf
 }
 
-function processes() {	
+function processes() {
 	echo '#======================================================================'
 	echo '#[v] process tree'
 	echo ''
@@ -228,11 +228,16 @@ function processes() {
 
 function services() {
 	echo '#======================================================================'
+	echo '#[v] timers'
+	echo ''
+	systemctl list-timers --all
+
+	echo '#======================================================================'
 	echo '#[v] crontabs'
 	echo ''
 	cat /etc/crontab
 
-	for crontab in /var/spool/cron/crontabs/* ; do 
+	for crontab in /var/spool/cron/crontabs/* ; do
 		echo '#======================================================================'
 		echo "#[v] $crontab"
 		echo ''
