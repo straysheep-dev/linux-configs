@@ -125,7 +125,7 @@
         },
         "ircs": {
           "action": "useSystemDefualt",
-          "ask": true 
+          "ask": true
         }
       },
       "extensions": {
@@ -134,18 +134,18 @@
           "ask": true,
           "handlers": [{
             "name": "Evince",
-            "path": "/usr/bin/evince" 
+            "path": "/usr/bin/evince"
           }]
-        },
-        "xml": {
-          "action": "useSystemDefault",
-          "ask": true
         },
         "svg": {
           "action": "useSystemDefault",
           "ask": true
         },
         "webp": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "xml": {
           "action": "useSystemDefault",
           "ask": true
         }
@@ -227,6 +227,10 @@
       },
       "dom.event.contextmenu.enabled": {
         "Value": false,
+        "Status": "locked"
+      },
+      "dom.security.https_only_mode": {
+        "Value": true,
         "Status": "locked"
       },
       "extensions.blocklist.enabled": {
