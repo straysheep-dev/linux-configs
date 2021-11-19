@@ -160,7 +160,7 @@ pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.j
         },
         "ircs": {
           "action": "useSystemDefualt",
-          "ask": true 
+          "ask": true
         }
       },
       "extensions": {
@@ -169,18 +169,18 @@ pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.j
           "ask": true,
           "handlers": [{
             "name": "Evince",
-            "path": "/usr/bin/evince" 
+            "path": "/usr/bin/evince"
           }]
-        },
-        "xml": {
-          "action": "useSystemDefault",
-          "ask": true
         },
         "svg": {
           "action": "useSystemDefault",
           "ask": true
         },
         "webp": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "xml": {
           "action": "useSystemDefault",
           "ask": true
         }
@@ -262,6 +262,10 @@ pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.j
       },
       "dom.event.contextmenu.enabled": {
         "Value": false,
+        "Status": "locked"
+      },
+      "dom.security.https_only_mode": {
+        "Value": true,
         "Status": "locked"
       },
       "extensions.blocklist.enabled": {
