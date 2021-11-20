@@ -4,14 +4,16 @@
 # Optionally make the script readable only by root.
 
 # To do:
-# filesystem io
-# unix sockets
-# mail server checks
-# webserver checks
-# fedora / bsd compatibility
-# selinux / tripwire / other security checks
-# auth / pam / other log checks
-# diff between daily system states
+# [x] filesystem io
+#	see `sar` and `iostat`
+#	sudo apt install -y sysstat
+# [x] unix sockets
+# [ ] mail server checks
+# [ ] webserver checks
+# [ ] fedora / bsd compatibility
+# [ ] selinux / tripwire / other security checks
+# [ ] auth / pam / other log checks
+# [ ] diff between daily system states
 
 # Crontab to run every day at 12:
 # 0 12 * * * /bin/bash /opt/system-summary.sh
@@ -64,12 +66,12 @@ function accounts() {
 	echo '#======================================================================'
 	echo "# [v] uid list"
 	echo ''
-	for user in $(cat /etc/passwd |cut -f1 -d":"); do id "$user" | column -t; done
+	for user in $(cut -d":" -f1 < /etc/passwd); do id "$user" | column -t; done
 
 	echo '#======================================================================'
 	echo "# [v] groups"
 	echo ''
-	cat /etc/group | column -t -s ':'
+	column -t -s ':' < /etc/group
 
 	echo '#======================================================================'
 	echo '#[v] environemnt'
@@ -166,17 +168,25 @@ function network() {
 	echo '#======================================================================'
 	echo '#[v] routing table'
 	echo ''
-	route
+	route -n
 
 	echo '#======================================================================'
 	echo '#[v] network interfaces'
 	echo ''
-	ip a
+	if (command -v ip); then
+		ip a
+	elif (command -v ifconfig); then
+		ifconfig
+	fi
 
 	echo '#======================================================================'
 	echo '#[v] open ports'
 	echo ''
-	netstat -pan -A inet,inet6
+	if (command -v netstat); then
+		netstat -anp -A inet,inet6
+	elif (command -v ss); then
+		ss -anp -A inet
+	fi
 
 	echo '#======================================================================'
 	echo '#[v] firewall rules'
@@ -217,6 +227,24 @@ function network() {
 	echo "# [v] resolv.conf"
 	echo ''
 	cat /etc/resolv.conf
+
+	echo '#======================================================================'
+	echo "# [v] listening sockets"
+	echo ''
+	if (command -v netstat);then
+		netstat -lnp -A unix
+	elif (command -v ss); then
+		ss -lnp -A unix
+	fi
+	
+	echo '#======================================================================'
+	echo "# [v] connected sockets"
+	echo ''
+	if (command -v netstat); then
+		netstat -np -A unix
+	elif (command -v ss); then
+		ss -np -A unix
+	fi
 }
 
 function processes() {
@@ -318,9 +346,23 @@ function filesystem() {
 	df -h
 
 	echo '#======================================================================'
-	echo '#[v] io'
+	echo '#[v] io stats'
 	echo ''
-	echo 'to do'
+	vmstat -a -w
+	echo ''
+	vmstat -a -w -d
+	echo ''
+
+	echo '#======================================================================'
+	echo '#[v] memory io'
+	echo ''
+	vmstat -a -w -s
+	echo ''
+
+	echo '#======================================================================'
+	echo '#[v] disk io'
+	echo ''
+	vmstat -a -w -D
 }
 
 function logs() {
