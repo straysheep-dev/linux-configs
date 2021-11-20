@@ -6,7 +6,6 @@ function isRoot() {
                 exit 1
         fi
 }
-
 isRoot
 
 function checkVersion() {
@@ -20,8 +19,21 @@ function checkVersion() {
 		FF_DIR=/usr/lib64/firefox
 	fi
 }
-
 checkVersion
+
+function checkSysprefs() {
+	# Check for pre-installed policies and preferences
+	# Examples:
+	# /etc/firefox/policies/policies.json    # This location works on Debian, Ubuntu, and Fedora
+	# /etc/firefox/syspref.js                # syspref.js doesn't seem to be read here on some systems or releases of firefox
+	# /etc/firefox/prefs/local.js
+	if [ -d '/etc/firefox' ]; then
+		find /etc/firefox -type f -print0 | xargs -0 rm
+	elif [ -d '/etc/firefox-esr' ]; then
+		find /etc/firefox-esr -type f -print0 | xargs -0 rm
+	fi
+}
+checkSysprefs
 
 function setupFirefox() {
 	# Write firefox.cfg
@@ -325,5 +337,4 @@ pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.j
 		sed -i 's/"DisableDeveloperTools": true,$/"DisableDeveloperTools": false,/' "${FF_DIR}/distribution/policies.json"
 	fi
 }
-
 setupFirefox
