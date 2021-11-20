@@ -22,7 +22,7 @@ Tested on:
 
 NOTE: If you're using the [Firefox Snap package](https://snapcraft.io/firefox) you'll need to create a `user.js` file instead until the snap package can read the default policy file locations in the filesystem (outside of it's security sandbox).
 
-Once it's created and added to your `~/snap/firefox/` folder, to lock the policy file:
+Once it's created and added to your `~/snap/firefox/common/.mozilla/firefox/<string>.default-release` folder, to lock the policy file:
 ```bash
 sudo chattr +i user.js
 ```
