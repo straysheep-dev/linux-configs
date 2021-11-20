@@ -6,7 +6,7 @@ Unless a different license is included with a file as `<filename>.copyright-noti
 
 ## To do:
 - [x] create table of contents
-- [ ] add apparmor profiles
+- [x] add apparmor profiles
 - [ ] write overview/summary of the firefox policies
 - [ ] add other configurations for ufw
 - [ ] add other configurations for iptables
