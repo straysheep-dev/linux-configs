@@ -84,7 +84,9 @@ function kernel() {
 	echo "# [v] kernel"
 	echo ''
 	uname -mrs
-	dpkg --print-architecture
+	if (command -v dpkg); then
+		dpkg --print-architecture
+	fi
 	cat /proc/version
 
 	echo '#======================================================================'
@@ -126,10 +128,13 @@ function kernel() {
 	head -n -0 /sys/devices/system/cpu/vulnerabilities/*
 
 	echo '#======================================================================'
-	echo '#[v] apparmor status'
+	echo '#[v] mac status'
 	echo ''
-	# to do: selinux status
-	aa-status
+	if (command -v aa-status); then
+		aa-status
+	elif (command -v sestatus); then
+		sestatus
+	fi
 
 	echo '#======================================================================'
 	echo "# [v] loaded kernel modules"
