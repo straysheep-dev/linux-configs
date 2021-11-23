@@ -70,6 +70,7 @@ function setupChromium() {
   "ExtensionInstallBlocklist": ["*"],
   "ExtensionInstallForcelist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
   "HomepageLocation": "https://duckduckgo.com/",
+  "HttpsOnlyMode": "force_enabled",
   "ImportSavedPasswords": false,
   "IncognitoModeAvailability": 1,
   "MetricsReportingEnabled": false,

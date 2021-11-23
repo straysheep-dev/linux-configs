@@ -1,0 +1,12 @@
+# Site-specific additions and overrides for usr.bin.firefox.
+# For more details, please see /etc/apparmor.d/local/README.
+  deny @{HOME}/Desktop/ r,
+  deny @{HOME}/Documents/ r,
+  deny @{HOME}/Templates/ r,
+  deny @{HOME}/Music/ r,
+  deny @{HOME}/Pictures/ r,
+  deny @{HOME}/Videos/ r,
+  deny @{HOME}/snap/ r,
+  deny /boot/ r,
+  deny /opt/ r,
+  deny /snap/ r,
