@@ -1,5 +1,12 @@
 #!/bin/bash
 
+BLUE="\033[01;34m"   # information
+GREEN="\033[01;32m"  # information
+YELLOW="\033[01;33m" # warnings
+RED="\033[01;31m"    # errors
+BOLD="\033[01;01m"   # highlight
+RESET="\033[00m"     # reset
+
 function isRoot() {
         if [ "${EUID}" -ne 0 ]; then
                 echo "You need to run this script as root"
@@ -8,8 +15,27 @@ function isRoot() {
 }
 isRoot
 
-function checkVersion() {
-	# Check Firefox version
+function MakeTemp() {
+
+    # Make a temporary working directory
+#    if [ -d /tmp/firefox/ ]; then
+#        rm -rf /tmp/firefox
+#    fi
+
+    if ! [ -d /tmp/firefox ]; then
+        mkdir /tmp/firefox
+    fi
+
+    SETUPDIR=/tmp/firefox
+    export SETUPDIR
+
+    cd "$SETUPDIR" || (echo "Failed changing into setup directory. Quitting." && exit 1)
+    echo -e "${BLUE}[i]Changing working directory to $SETUPDIR${RESET}"
+
+}
+
+function libPath() {
+	# Check Firefox version for /usr/lib directory path
 	# Temporary solution until more OS's can be tested
 	if [[ -d '/usr/lib/firefox' ]]; then
 		FF_DIR=/usr/lib/firefox
@@ -19,31 +45,61 @@ function checkVersion() {
 		FF_DIR=/usr/lib64/firefox
 	fi
 }
-checkVersion
 
-function checkSysprefs() {
-	# Check for pre-installed policies and preferences
-	# Examples:
-	# /etc/firefox/policies/policies.json    # This location works on Debian, Ubuntu, and Fedora
-	# /etc/firefox/syspref.js                # syspref.js doesn't seem to be read here on some systems or releases of firefox
-	# /etc/firefox/prefs/local.js
-	if [ -d '/etc/firefox' ]; then
-		find /etc/firefox -type f -print0 | xargs -0 rm
-	elif [ -d '/etc/firefox-esr' ]; then
-		find /etc/firefox-esr -type f -print0 | xargs -0 rm
+function etcPath() {
+	# Check Firefox version for /etc/ directory path
+	# Check for esr first
+	if [[ -d '/etc/firefox-esr' ]]; then
+		FF_DIR=/etc/firefox-esr
+	elif [[ -d '/etc/firefox' ]]; then
+		FF_DIR=/etc/firefox
 	fi
 }
-checkSysprefs
 
-function setupFirefox() {
+function removeConfigs() {
+	# Check for pre-installed policies and preferences in /etc, and remove them before writing our own
+	if [ -e /etc/firefox ]; then
+		find /etc/firefox -type f -print0 | xargs -0 rm 2>/dev/null 
+	fi
+	if [ -e /etc/firefox-esr ]; then
+		find /etc/firefox-esr -type f -print0 | xargs -0 rm 2>/dev/null 
+	fi
+	# Call libPath to detect these files if they exist, and remove them to avoid conflicts if changing path to /etc
+	libPath
+	if [ -e "$FF_DIR"/firefox.cfg ]; then
+		rm "$FF_DIR"/firefox.cfg
+	fi
+	if [ -e "$FF_DIR"/defaults/pref/autoconfig.js ]; then
+		rm "$FF_DIR"/defaults/pref/autoconfig.js
+	fi
+	if [ -e "$FF_DIR"/distribution/policies.json ]; then
+		rm "$FF_DIR"/distribution/policies.json
+	fi
+}
+
+function writeSysprefs() {
+	# Examples:
+	# /etc/firefox/policies/*.json
+	# /etc/firefox/syspref.js
+	# /etc/firefox/prefs/local.js
+	echo '// This file can be used to configure global preferences for Firefox
+pref("general.config.obscure_value",0,locked);
+pref("xpinstall.whitelist.required",true,locked);' > "$SETUPDIR"/syspref.js
+}
+
+function writeCfg() {
 	# Write firefox.cfg
 	echo '// IMPORTANT: Start your code on the second line - this file must be in the top level of the Firefox directory
-lockPref("xpinstall.whitelist.required", true);' >"${FF_DIR}/firefox.cfg"
+lockPref("xpinstall.whitelist.required", true);' > "$SETUPDIR"/firefox.cfg
+}
 
+function writeAutoconfig() {
 	# Write autoconfig.js
 	echo 'pref("general.config.filename", "firefox.cfg");
-pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.js"
+pref("general.config.obscure_value", 0);' > "$SETUPDIR"/autoconfig.js
+}
 
+function writePolicies() {
 	# Write policies.json
         echo '{
   "policies": {
@@ -51,7 +107,7 @@ pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.j
     "BlockAboutConfig": false,
     "BlockAboutProfiles": false,
     "BlockAboutSupport": false,
-    "DisableDeveloperTools": true,
+    "DisableDeveloperTools": false,
     "DisableFeedbackCommands": false,
     "DisableFirefoxAccounts": true,
     "DisableFirefoxScreenshots": true,
@@ -330,11 +386,58 @@ pref("general.config.obscure_value", 0);' >"${FF_DIR}/defaults/pref/autoconfig.j
       }
     }
   }
-}' >"${FF_DIR}/distribution/policies.json"
-
-	# Kali specific
-	if [ "${FF_DIR}" == /usr/lib/firefox-esr ] && (grep -q "^ID=kali$" /etc/os-release); then
-		sed -i 's/"DisableDeveloperTools": true,$/"DisableDeveloperTools": false,/' "${FF_DIR}/distribution/policies.json"
-	fi
+}' > "$SETUPDIR"/policies.json
 }
-setupFirefox
+
+# Prompt
+echo -e "${BOLD}Which path will be used for the configuration files?${RESET}"
+echo ""
+echo -e "${BLUE}[/etc]${RESET}      ${BOLD}system-wide, both package manager and snap packages can read these (snap package cannot read the .js files)${RESET}"
+echo "    /etc/firefox/syspref.js"
+echo "    /etc/firefox/policies/"
+echo "    /etc/firefox/policies/policies.json"
+echo "    /etc/firefox/pref/"
+echo "    /etc/firefox/pref/local.js"
+echo "    /etc/firefox/profile"
+echo ""
+echo -e "${BLUE}[/usr/lib]${RESET}  ${BOLD}system-wide, but only for the package installed by the package manager (snap package cannot read these)${RESET}"
+echo "    /usr/lib/firefox/firefox.cfg"
+echo "    /usr/lib/firefox/distribution/policies.json"
+echo "    /usr/lib/firefox/defaults/pref/autoconfig.js"
+echo ""
+until [[ $CONFIG_DIR =~ ^(etc|lib)$ ]]; do
+	read -rp "Configuration directory [etc|lib]: " CONFIG_DIR
+done
+if [[ $CONFIG_DIR == "etc" ]]; then
+	removeConfigs
+	etcPath
+	echo -e "${BLUE}[i]Using $FF_DIR as configuration path...${RESET}"
+	writeSysprefs
+	writePolicies
+	# This is always the policies.json path for firefox or firefox-esr
+	mkdir -p /etc/firefox/policies
+	# Firefox-esr still uses /etc/firefox-esr for syspref.js
+	cp "$SETUPDIR"/syspref.js "$FF_DIR"
+	cp "$SETUPDIR"/policies.json /etc/firefox/policies
+elif [[ $CONFIG_DIR == "lib" ]]; then
+	removeConfigs
+	libPath
+	echo -e "${BLUE}[i]Using $FF_DIR as configuration path...${RESET}"
+	writeCfg
+	writeAutoconfig
+	writePolicies
+	cp "$SETUPDIR"/firefox.cfg "$FF_DIR"
+	cp "$SETUPDIR"/autoconfig.js "$FF_DIR"/defaults/pref
+	cp "$SETUPDIR"/policies.json "$FF_DIR"/distribution
+fi
+
+# Kali specific
+#if (grep -q "^ID=kali$" /etc/os-release); then
+#	# add extension 1
+#	# add extension 2
+#	# etc...
+#fi
+
+echo -e "${BLUE}[i]Done.${RESET}"
+
+exit 0
