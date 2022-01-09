@@ -10,19 +10,24 @@ Tested on:
 
 ```
 # Directories:
+/etc/firefox[-esr]    # default / any
+or
 /usr/lib/firefox/     # default / ubuntu
 /usr/lib64/firefox/   # default / fedora
 /usr/lib/firefox-esr/ # esr / kali
 
 # File locations:
+/etc/firefox/syspref.js
+/etc/firefox/policies/policies.json
+or
 /usr/lib/firefox/firefox.cfg
 /usr/lib/firefox/defaults/pref/autoconfig.js
 /usr/lib/firefox/distribution/policies.json
 ```
 
-NOTE: If you're using the [Firefox Snap package](https://snapcraft.io/firefox) you'll need to create a `user.js` file instead until the snap package can read the default policy file locations in the filesystem (outside of it's security sandbox).
+NOTE: Previously the [Firefox Snap package](https://snapcraft.io/firefox) required a `user.js` file to be configured. This was before it could read the policy file at `/etc/firefox/policies/*.json` (there's now an automatic snap connection to provide it read access to this location, however it still cannot read any syspref.js or other .js files in the /etc/firefox* directories).
 
-Once it's created and added to your `~/snap/firefox/common/.mozilla/firefox/<string>.default-release` folder, to lock the policy file:
+If you still need/want to create a user.js file, create it within your `~/snap/firefox/common/.mozilla/firefox/<string>.default-release` folder, then to lock the policy file:
 ```bash
 sudo chattr +i user.js
 ```
@@ -38,6 +43,7 @@ rm: cannot remove 'user.js': Operation not permitted
 
 ## Thanks and References:
 * https://github.com/OpenSCAP/openscap
+* https://github.com/ComplianceAsCode/content
 * https://static.open-scap.org/ssg-guides/ssg-firefox-guide-stig.html
 * https://public.cyber.mil/stigs/downloads/?_dl_facet_stigs=app-security%2Cbrowser-guidance
 * https://github.com/mozilla/policy-templates
