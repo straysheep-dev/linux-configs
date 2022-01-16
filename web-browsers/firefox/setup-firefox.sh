@@ -169,7 +169,7 @@ function writePolicies() {
     },
     "FlashPlugin": {
       "Allow": [],
-      "Block": ["*"],
+      "Block": [],
       "Default": false,
       "Locked": true
     },
@@ -181,31 +181,31 @@ function writePolicies() {
     "Permissions": {
       "Camera": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Microphone": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Location": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Notifications": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Autoplay": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "Default": "block-audio-video",
         "Locked": true
       }
@@ -223,15 +223,19 @@ function writePolicies() {
           "ask": true
         },
         "irc": {
-          "action": "useSystemDefualt",
+          "action": "useSystemDefault",
           "ask": true
         },
         "ircs": {
-          "action": "useSystemDefualt",
+          "action": "useSystemDefault",
           "ask": true
         }
       },
       "extensions": {
+        "avif": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
         "pdf": {
           "action": "useHelperApp",
           "ask": true,
