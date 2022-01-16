@@ -4,7 +4,7 @@
     "BlockAboutConfig": false,
     "BlockAboutProfiles": false,
     "BlockAboutSupport": false,
-    "DisableDeveloperTools": true,
+    "DisableDeveloperTools": false,
     "DisableFeedbackCommands": false,
     "DisableFirefoxAccounts": true,
     "DisableFirefoxScreenshots": true,
@@ -66,7 +66,7 @@
     },
     "FlashPlugin": {
       "Allow": [],
-      "Block": ["*"],
+      "Block": [],
       "Default": false,
       "Locked": true
     },
@@ -78,31 +78,31 @@
     "Permissions": {
       "Camera": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Microphone": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Location": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Notifications": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "BlockNewRequests": true,
         "Locked": true
       },
       "Autoplay": {
         "Allow": [],
-        "Block": ["*"],
+        "Block": [],
         "Default": "block-audio-video",
         "Locked": true
       }
@@ -120,15 +120,19 @@
           "ask": true
         },
         "irc": {
-          "action": "useSystemDefualt",
+          "action": "useSystemDefault",
           "ask": true
         },
         "ircs": {
-          "action": "useSystemDefualt",
+          "action": "useSystemDefault",
           "ask": true
         }
       },
       "extensions": {
+        "avif": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
         "pdf": {
           "action": "useHelperApp",
           "ask": true,
