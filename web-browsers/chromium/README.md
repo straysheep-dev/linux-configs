@@ -4,7 +4,7 @@ Automatically generate a hardened policy file and the [correct](https://bugs.lau
 
 Tested on: 
 * Ubuntu 20.04 
-* Fedora 34
+* Fedora 34, 35
 
 ```bash
 sudo dnf install -y snapd
