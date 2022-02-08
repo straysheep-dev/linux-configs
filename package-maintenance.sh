@@ -10,22 +10,32 @@ fi
 
 function runMaintenance() {
 
-        apt update && \
-        apt upgrade -y
+	if (command -v apt > /dev/null); then
+		apt update && \
+		apt upgrade -y
 
-        sleep 2
+		sleep 1
 
-        apt autoremove --purge -y
-        sleep 2
-        apt-get clean
+		apt autoremove --purge -y
+		sleep 1
+		apt-get clean
 
-	if (command -v snap); then
+	elif (command -v dnf > /dev/null); then
+		dnf upgrade -y
+		
+		sleep 1
+		
+		dnf autoremove -y
+		dnf clean all
+
+	if (command -v snap > /dev/null); then
 		snap refresh
 	fi
-	HYPERVISOR="$(cat /sys/devices/virtual/dmi/id/bios_ve* | grep -E "(VMware|VirtualBox)")"
+	HYPERVISOR="$(grep -E "(VMware|VirtualBox)" /sys/devices/virtual/dmi/id/bios_ve*)"
 	if ! [[ "$HYPERVISOR" == "" ]]; then
-		echo "$HYPERVISOR detected. Checking disk usage..."
-		DISK_USAGE="$(du -h -d1 / 2>/dev/null | grep "^.*/$" | cut -d 'G' -f 1 | cut -d '.' -f 1)"
+		echo "$HYPERVISOR detected."
+		echo "Checking disk usage..."
+		DISK_USAGE="$(df -h | grep -P "/$" | sed 's/\s\s*/ /'g | cut -d ' ' -f 3 | cut -d '.' -f 1)"
 		if [[ "$DISK_USAGE" -gt "20" ]]; then
 			echo "Disk usage above 20GB."
 			echo "Compact virtual appliance with one of the following:"
@@ -43,4 +53,5 @@ function runMaintenance() {
 		fi
 	fi
 }
+
 runMaintenance
