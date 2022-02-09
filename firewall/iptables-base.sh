@@ -113,3 +113,33 @@ iptables -A ip-user-output -d 192.168.0.0/16 -j DROP
 iptables -A ip-user-output -o "$PUB_NIC" -p tcp -m multiport --dports 80,443 -j ACCEPT
 iptables -A ip-user-output -o "$PUB_NIC" -p udp -m udp --dport 53 -j ACCEPT
 iptables -A ip-user-output -o "$PUB_NIC" -p udp -m udp --dport 123 -j ACCEPT
+
+
+if (command -v apt > /dev/null); then
+	apt install -y iptables-persistent netfilter-persistent
+
+	systemctl mask ufw.service
+	systemctl stop ufw.service
+
+	systemctl enable netfilter-persistent.service
+	systemctl enable iptables.service
+	
+	systemctl start netfilter-persistent.service
+	systemctl start iptables.service
+
+	netfilter-persistent save
+fi
+
+if (command -v dnf > /dev/null); then
+	# https://fedoraproject.org/wiki/Firewalld?rd=FirewallD#Using_static_firewall_rules_with_the_iptables_and_ip6tables_services
+	dnf install -y iptables-services
+	systemctl mask firewalld.service
+	systemctl enable iptables.service
+	systemctl stop firewalld.service
+	systemctl start iptables.service
+	
+	cp /etc/sysconfig/iptables /etc/sysconfig/iptables.bkup
+
+	# Configuration file is saved to:
+	iptables-save -f /etc/sysconfig/iptables
+fi
