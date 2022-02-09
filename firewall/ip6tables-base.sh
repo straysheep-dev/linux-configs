@@ -180,3 +180,33 @@ ip6tables -A ip6-user-output -d ::1/128 -o "$PUB_NIC" -j DROP
 ip6tables -A ip6-user-output -o "$PUB_NIC" -p tcp -m multiport --dports 80,443 -j ACCEPT
 ip6tables -A ip6-user-output -o "$PUB_NIC" -p udp -m udp --dport 53 -j ACCEPT
 ip6tables -A ip6-user-output -o "$PUB_NIC" -p udp -m udp --dport 123 -j ACCEPT
+
+
+if (command -v apt > /dev/null); then
+	apt install -y iptables-persistent netfilter-persistent
+
+	systemctl mask ufw.service
+	systemctl stop ufw.service
+
+	systemctl enable netfilter-persistent.service
+	systemctl enable ip6tables.service
+	
+	systemctl start netfilter-persistent.service
+	systemctl start ip6tables.service
+
+	netfilter-persistent save
+fi
+
+if (command -v dnf > /dev/null); then
+	# https://fedoraproject.org/wiki/Firewalld?rd=FirewallD#Using_static_firewall_rules_with_the_iptables_and_ip6tables_services
+	dnf install -y iptables-services
+	systemctl mask firewalld.service
+	systemctl enable ip6tables.service
+	systemctl stop firewalld.service
+	systemctl start ip6tables.service
+	
+	cp /etc/sysconfig/ip6tables /etc/sysconfig/ip6tables.bkup
+
+	# Configuration file is saved to:
+	ip6tables-save -f /etc/sysconfig/ip6tables
+fi
