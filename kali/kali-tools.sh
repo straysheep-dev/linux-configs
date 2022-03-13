@@ -345,7 +345,7 @@ function InstallExternalTools() {
 	#deobfuscates and unpacks symbols in .NET
 
 	# Die (Detect It Easy)
-	#File signature and static analysis tool for Windows / mac / Linux, similar to running `file`
+	#File signature and static analysis tool for Windows / macOS / Linux, similar to running `file`
 	#<https://github.com/horsicq/Detect-It-Easy>
 	#<https://github.com/horsicq/DIE-engine/releases>
 

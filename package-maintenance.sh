@@ -22,9 +22,9 @@ function runMaintenance() {
 
 	elif (command -v dnf > /dev/null); then
 		dnf upgrade -y
-		
+
 		sleep 1
-		
+
 		dnf autoremove -y
 		dnf clean all
 

@@ -1,12 +1,12 @@
 # kali-configs
 
-Files to autoamtically configure Kali for general use, and avoid repeating steps after installing.
+Files to automatically configure Kali for general use, and avoid repeating steps after installing.
 
 ## Updating & Upgrading
 
 <https://www.kali.org/docs/general-use/updating-kali/>
 
-With a rolling distribution like Kali, on occassion apt will have package dependancy conflicts that require apt's upgrade to remove packages.
+With a rolling distribution like Kali, on occassion apt will have package dependancy conflicts that require apt's upgrade mechanism to remove packages.
 
 ```bash
 sudo apt update && sudo apt full-upgrade -y
