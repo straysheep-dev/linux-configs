@@ -2,7 +2,14 @@
 
 Configurations for VMware Workstation
 
+- [Manually Configure Networking](#manually-configure-networking)
+- [YubiKey Passthrough](#yubikey-vmware-passthrough)
+
 ## Manually Configure Networking
+
+`/etc/vmware/networking`
+
+`/etc/vmware/netmap.conf`
 
 On some installs of VMware Workstation (this has only happened on Ubuntu 20.04, I have not been able to reproduce this on Fedora >=34 or Kali >=2021.4), the networking configuration files are not written during install. This will cause networking to fail until a valid set of configuration files are written. This is easy to miss if for example you're updating VMware Workstation to a new version, as those files will be present unless you removed them.
 
