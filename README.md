@@ -54,3 +54,6 @@ Unless a different license is included with a file as `<filename>.copyright-noti
     * [Parsing Hosts Files to a File Formatted for unbound](dns/#parsing-hosts-files-to-a-file-formatted-for-unbound)
     * [Dns Response Codes](dns/#dns-response-codes)
     * [References](dns/#references)
+- [VMware](vmware/)
+    * [Manually Configure Networking](vmware/#manually-configure-networking)
+    * [YubiKey Passthrough](vmware/#yubikey-vmware-passthrough)
