@@ -1,0 +1,15 @@
+VERSION=1,0
+answer VNET_1_DHCP yes
+answer VNET_1_DHCP_CFG_HASH <hash>
+answer VNET_1_DISPLAY_NAME 
+answer VNET_1_HOSTONLY_NETMASK <netmask>
+answer VNET_1_HOSTONLY_SUBNET <network-ip-addr>
+answer VNET_1_VIRTUAL_ADAPTER yes
+answer VNET_8_DHCP yes
+answer VNET_8_DHCP_CFG_HASH <hash>
+answer VNET_8_DISPLAY_NAME 
+answer VNET_8_HOSTONLY_NETMASK <netmask>
+answer VNET_8_HOSTONLY_SUBNET <network-ip-addr>
+answer VNET_8_NAT yes
+answer VNET_8_NAT_PARAM_UDP_TIMEOUT 30
+answer VNET_8_VIRTUAL_ADAPTER yes
