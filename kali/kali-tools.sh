@@ -354,6 +354,15 @@ function InstallExternalTools() {
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-amd64'
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-arm64'
 
+	# GraphQLmap
+	#git clone https://github.com/swisskyrepo/GraphQLmap
+	#source /home/kali/venv/bin/activate
+	#cd GraphQLmap
+	#python3 setup.py install
+	#graphqlmap -h
+
+	# CVE-2021-4034 pwnkit
+	#git clone https://github.com/arthepsy/CVE-2021-4034
 
 	# oledump
 	if ! [ -e /opt/oledump ]; then
