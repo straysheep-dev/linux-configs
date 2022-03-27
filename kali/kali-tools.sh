@@ -10,7 +10,7 @@ RESET="\033[00m"     # reset
 UID1000="$(grep '1000' /etc/passwd | cut -d ':' -f 1)"
 
 # Installation and setup of general security tools
-# to do: use git + chmod -R $USERNAME:$USERNAME to make /opt directories writable and updatable, and also return them read-only permissions by root and $USERNAME after updating.
+# TO DO: use git + chmod -R $USERNAME:$USERNAME to make /opt directories writable and updatable, and also return them read-only permissions by root and $USERNAME after updating.
 
 if [ "${EUID}" -ne 1000 ]; then
 	echo "You need to run this script as $UID1000"
@@ -61,6 +61,8 @@ function InstallAptPackages() {
 	feroxbuster \
 	gobuster \
 	hashcat \
+	hashid \
+	hash-identifier \
 	hexedit \
 	hping3 \
 	hydra \
@@ -115,8 +117,8 @@ function InstallAptPackages() {
 	wireshark \
 	wkhtmltopdf
 	# Bottom entry loses the trailing '\'
-	
-	# To do: rewrite this to handle missing or renamed (updated) packages
+
+	# TO DO: rewrite this to handle missing or renamed (updated) packages
 
 	#smb-nat \
 	#golang-1.17 \
@@ -184,7 +186,7 @@ function InstallPypiPackages() {
 
 	echo -e "${BLUE}[i]Installing PyPi tools...${RESET}"
 
-# To do: pipenv
+# TO DO: pipenv
 
 # pipx
 	python3 -m pip install --user pipx
@@ -296,6 +298,8 @@ function InstallExternalTools() {
 
 		# Web Content (default wordlist for Feroxbuster)
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-medium-directories.txt'
+		# add https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-large-directories.txt
+		# add https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-large-files.txt
 
 		# SNMP Community Strings
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/SNMP/snmp-onesixtyone.txt'
@@ -332,7 +336,19 @@ function InstallExternalTools() {
 	fi
 
 
-	# To do:
+	# TO DO:
+
+	# cutter (AppImage)
+	# https://github.com/rizinorg/cutter/releases/latest
+
+	# IDA Free
+	# https://hex-rays.com/ida-free/
+	# https://out7.hex-rays.com/files/idafree77_linux.run
+	# SHA1: 42038657317ebea44954b484a236e7f8cbc7d2fa
+
+	# Nessus
+	# https://www.tenable.com/downloads/
+
 	# trid
 	#REMnux tool, similar to `file` command, with different definitions
 
