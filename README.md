@@ -30,9 +30,9 @@ Unless a different license is included with a file as `<filename>.copyright-noti
 - [Firewall Scripts](firewall/#firewall-scripts)
     * [Why?](firewall/#why)
     * [Example Usage](firewall/#example-usage)
-    * iptables
-    * ip6tables
-    * ufw
+    * [iptables](firewall/iptables)
+    * [ip6tables](firewall/iptables)
+    * [ufw](firewall/ufw)
 - [Gnome](gnome/)
     * [dconf](gnome/dconf.sh)
     * [gsettings](gnome/gsettings.sh)
