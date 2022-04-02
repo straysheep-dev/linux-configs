@@ -27,5 +27,3 @@ ufw allow in on "${SERVER_WG_NIC}" from "${SERVER_WG_NET4}" to "${SERVER_WG_IPV4
 ufw allow in on "${SERVER_WG_NIC}" from "${SERVER_WG_NET6}" to "${SERVER_WG_IPV6}" comment 'wg dns'
 ufw route allow in on "${SERVER_WG_NIC}" from "${SERVER_WG_NET4}" out on "${SERVER_PUB_NIC}" to any comment 'wg -> eth'
 ufw route allow in on "${SERVER_WG_NIC}" from "${SERVER_WG_NET6}" out on "${SERVER_PUB_NIC}" to any comment 'wg -> eth'
-ufw route allow in on "${SERVER_PUB_NIC}" out on "${SERVER_WG_NIC}" to "${SERVER_WG_NET4}" comment 'eth -> wg'
-ufw route allow in on "${SERVER_PUB_NIC}" out on "${SERVER_WG_NIC}" to "${SERVER_WG_NET6}" comment 'eth -> wg'

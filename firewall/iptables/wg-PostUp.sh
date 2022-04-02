@@ -16,11 +16,13 @@ SERVER_SSH_PORT="$(grep -E "^Port ([0-9]{1,5})" /etc/ssh/sshd_config | cut -d ' 
 
 # PostUpRules
 
+iptables -A INPUT -i ${SERVER_PUB_NIC} -p udp --dport ${SERVER_WG_PORT} -j ACCEPT
 iptables -I FORWARD -i ${SERVER_WG_NIC} -o ${SERVER_WG_NIC} -j REJECT --reject-with icmp-admin-prohibited
 iptables -A FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 iptables -A INPUT -i ${SERVER_WG_NIC} -d ${SERVER_WG_IPV4} -j ACCEPT
 iptables -t nat -A POSTROUTING -o ${SERVER_PUB_NIC} -j MASQUERADE
 iptables -I INPUT -i ${SERVER_PUB_NIC} -p udp --dport ${SERVER_WG_PORT} -m state --state ESTABLISHED -j LOG --log-prefix 'Wireguard Connection: '
+ip6tables -A INPUT -i ${SERVER_PUB_NIC} -p udp --dport ${SERVER_WG_PORT} -j ACCEPT
 ip6tables -I FORWARD -i ${SERVER_WG_NIC} -o ${SERVER_WG_NIC} -j REJECT --reject-with icmp6-adm-prohibited
 ip6tables -A FORWARD -i ${SERVER_WG_NIC} -j ACCEPT
 ip6tables -A INPUT -i ${SERVER_WG_NIC} -d ${SERVER_WG_IPV6} -j ACCEPT
