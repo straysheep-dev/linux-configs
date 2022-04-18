@@ -7,13 +7,12 @@ RED="\033[01;31m"    # errors
 BOLD="\033[01;01m"   # highlight
 RESET="\033[00m"     # reset
 
-UID1000="$(grep '1000' /etc/passwd | cut -d ':' -f 1)"
 
 # Installation and setup of general security tools
 # TO DO: use git + chmod -R $USERNAME:$USERNAME to make /opt directories writable and updatable, and also return them read-only permissions by root and $USERNAME after updating.
 
-if [ "${EUID}" -ne 1000 ]; then
-	echo "You need to run this script as $UID1000"
+if [ "${EUID}" -eq 0 ]; then
+	echo "You need to run this script as a normal user"
 	exit 1
 fi
 
@@ -52,6 +51,7 @@ function InstallAptPackages() {
 	crackmapexec \
 	crunch \
 	curl \
+	de4dot \
 	dirb \
 	dirbuster \
 	dos2unix \
@@ -78,6 +78,7 @@ function InstallAptPackages() {
 	ncrack \
 	netdiscover \
 	nikto \
+	nishang \
 	nmap \
 	onesixtyone \
 	oscanner \
@@ -100,9 +101,11 @@ function InstallAptPackages() {
 	smbclient \
 	smbmap \
 	smtp-user-enum \
+	snapd \
 	snmp \
 	snmpcheck \
 	sqlmap \
+	ssdeep \
 	ssh-audit \
 	sshuttle \
 	sslscan \
@@ -125,7 +128,7 @@ function InstallAptPackages() {
 	#gvncviewer \
 	#exploitdb-bin-sploits \
 	#kazam \
-#	svwar \ does not exist -> could be sipvicious/kali-rolling 0.3.3-2 all
+	#svwar \ does not exist -> could be sipvicious/kali-rolling 0.3.3-2 all
 
 	sleep 3
 
@@ -157,7 +160,7 @@ function InstallSnaps() {
 		echo '# set PATH so it includes snap packages if they exist'
 		echo 'if [ -d "/snap/bin/" ]; then'
 		echo '    PATH="$PATH:/snap/bin"'
-		echo 'fi' 
+		echo 'fi'
 		} > "$SETUPDIR"/snap-path.sh
 
 		sudo cp "$SETUPDIR"/snap-path.sh /etc/profile.d/snap-path.sh && \
@@ -170,6 +173,10 @@ function InstallSnaps() {
 		echo -e "${BLUE}[i]Installing snapd...${RESET}"
 		sudo apt install -y snapd
 		sleep 2
+
+		echo -e "${BLUE}[i]Refreshing snaps...${RESET}"
+		sudo snap refresh
+
 		echo -e "${BLUE}[i]Installing snap packages...${RESET}"
 		sudo snap install chromium
 		sudo snap install libreoffice
@@ -235,7 +242,7 @@ function InstallGems() {
 	echo '# set PATH so it includes user local ruby gems if they exist'
 	echo 'if [ -d "$HOME/.local/share/gem/ruby/2.7.0/bin/" ]; then'
 	echo '    PATH="$PATH:$HOME/.local/share/gem/ruby/2.7.0/bin"'
-	echo 'fi' 
+	echo 'fi'
 	} > "$SETUPDIR"/gem-path.sh
 
 	sudo cp "$SETUPDIR"/gem-path.sh /etc/profile.d/gem-path.sh && \
@@ -258,7 +265,7 @@ function InstallGo() {
 	echo '# set PATH so it includes go installation if it exists'
 	echo 'if [ -d "/usr/local/go" ] ; then'
 	echo '    PATH="$PATH:/usr/local/go/bin"'
-	echo 'fi' 
+	echo 'fi'
 	} > "$SETUPDIR"/go-path.sh
 
 	sudo cp "$SETUPDIR"/go-path.sh /etc/profile.d/go-path.sh
@@ -272,7 +279,7 @@ function InstallGo() {
 	sleep 2
 
 }
-InstallGo
+#InstallGo
 
 function InstallExternalTools() {
 
@@ -317,7 +324,7 @@ function InstallExternalTools() {
 		git clone --depth 1 'https://github.com/danielmiessler/SecLists.git'
 		find "$SETUPDIR"/SecLists -type f -print0 | xargs -0 chmod 640
 		find "$SETUPDIR"/SecLists -type d -print0 | xargs -0 chmod 750
-		sudo chown -R root:"$UID1000" "$SETUPDIR"/SecLists
+		sudo chown -R root:"$USERNAME" "$SETUPDIR"/SecLists
 		sudo mv "$SETUPDIR"/SecLists -t /opt/wordlists/ && \
 		sudo ln -s /opt/wordlists/SecLists /usr/share/seclists
 		echo -e "${BLUE}[i]Done.${RESET}"
@@ -330,7 +337,7 @@ function InstallExternalTools() {
 		git clone 'https://github.com/insidetrust/statistically-likely-usernames.git'
 		find "$SETUPDIR"/statistically-likely-usernames -type f -print0 | xargs -0 chmod 640
 		find "$SETUPDIR"/statistically-likely-usernames -type d -print0 | xargs -0 chmod 750
-		sudo chown -R root:"$UID1000" "$SETUPDIR"/statistically-likely-usernames
+		sudo chown -R root:"$USERNAME" "$SETUPDIR"/statistically-likely-usernames
 		sudo mv "$SETUPDIR"/statistically-likely-usernames -t /opt/wordlists/
 		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
@@ -340,6 +347,8 @@ function InstallExternalTools() {
 
 	# cutter (AppImage)
 	# https://github.com/rizinorg/cutter/releases/latest
+	# curl -LfO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
+	# SHA256SUM = 453b0d1247f0eab0b87d903ce4995ff54216584c5fd5480be82da7b71eb2ed3d  Cutter-v2.0.5-x64.Linux.AppImage
 
 	# IDA Free
 	# https://hex-rays.com/ida-free/
@@ -349,21 +358,83 @@ function InstallExternalTools() {
 	# Nessus
 	# https://www.tenable.com/downloads/
 
+	# chisel (binaries)
+	# VER='v1.7.7'
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_checksums.txt
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_darwin_amd64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_darwin_arm64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_386.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_amd64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_arm64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_armv6.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_armv7.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64le_hardfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64le_softfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64_hardfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64_softfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mipsle_hardfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mipsle_softfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips_hardfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips_softfloat.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_ppc64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_ppc64le.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_s390x.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_386.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_amd64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_arm64.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_armv6.gz
+#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_armv7.gz
+#	curl -LfO https://github.com/jpillora/chisel/archive/refs/tags/"$VER".zip
+#	curl -LfO https://github.com/jpillora/chisel/archive/refs/tags/"$VER".tar.gz
+
+	# Wireguard
+	# https://download.wireguard.com/windows-client/wireguard-installer.exe
+
+	# Invoke-SocksProxy
+	# https://github.com/BC-SECURITY/Invoke-SocksProxy
+
+	# Python3
+	# curl -Lf 'https://keybase.io/stevedower/pgp_keys.asc?fingerprint=7ed10b6531d7c8e1bc296021fc624643487034e5' | gpg --import
+	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe'
+	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe.asc'
+	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4.exe'
+	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4.exe.asc'
+
+	# Invoke-Obfuscation
+	# https://github.com/danielbohannon/Invoke-Obfuscation/archive/master.zip
+	# curl -LfO 'https://github.com/danielbohannon/Invoke-Obfuscation/archive/f20e7f843edd0a3a7716736e9eddfa423395dd26.zip'
+	# SHA256SUM = 24149efe341b4bfc216dea22ece4918abcbe0655d3d1f3c07d1965fac5b4478e Invoke-Obfuscation.zip
+	# mv f20e7f843edd0a3a7716736e9eddfa423395dd26.zip Invoke-Obfuscation.zip
+
+	# Invoke-CradleCrafter
+	# https://github.com/danielbohannon/Invoke-CradleCrafter
+	# SHA256SUM = 7dee05c8509770a88ba3913ce4bc9cd5e94f446025d33095e000187f95e525b9  Invoke-CradleCrafter.zip
+	# curl -LfO 'https://github.com/danielbohannon/Invoke-CradleCrafter/archive/3ff8bacd5fb6aa14a0b757808437c9e230932379.zip'
+	# mv 3ff8bacd5fb6aa14a0b757808437c9e230932379.zip Invoke-CradleCrafter.zip
+
+	# Posh-SecMod
+	# https://github.com/darkoperator/Posh-SecMod
+	# SHA256SUM = de4f328a07f0fe0185bfce663288ee2d303ffa12c845184cec0662208f5f7204  Posh-SecMod.zip
+	# curl -LfO 'https://github.com/darkoperator/Posh-SecMod/archive/a4b7f5039c98ed270e5d20c1081d44b5a387e3c2.zip'
+	# mv a4b7f5039c98ed270e5d20c1081d44b5a387e3c2.zip Posh-SecMod.zip
+
+	# TrevorC2
+	# https://github.com/trustedsec/trevorc2
+
+	# ProcMon for Linux
+	# https://github.com/Sysinternals/ProcMon-for-Linux
+
 	# trid
-	#REMnux tool, similar to `file` command, with different definitions
+	# REMnux tool, similar to `file` command, with different definitions
 
 	# ILSpy
-	#<https://github.com/icsharpcode/ILSpy>
-	#Similar to PeStudio
-
-	# de4dot
-	#<https://github.com/0xd4d/de4dot>
-	#deobfuscates and unpacks symbols in .NET
+	# https://github.com/icsharpcode/ILSpy
+	# Similar to PeStudio
 
 	# Die (Detect It Easy)
-	#File signature and static analysis tool for Windows / macOS / Linux, similar to running `file`
-	#<https://github.com/horsicq/Detect-It-Easy>
-	#<https://github.com/horsicq/DIE-engine/releases>
+	# File signature and static analysis tool for Windows / macOS / Linux, similar to running `file`
+	# https://github.com/horsicq/Detect-It-Easy
+	# https://github.com/horsicq/DIE-engine/releases
 
 	# traitor
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-386'
@@ -538,7 +609,7 @@ function InstallExternalTools() {
 
 	find "$SETUPDIR" -type f -print0 | xargs -0 chmod 640
 	find "$SETUPDIR" -type d -print0 | xargs -0 chmod 750
-	sudo chown -R root:"$UID1000" "$SETUPDIR"
+	sudo chown -R root:"$USERNAME" "$SETUPDIR"
 
 	sudo mv "$SETUPDIR"/* -t /opt
 
