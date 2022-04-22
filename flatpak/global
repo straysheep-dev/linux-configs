@@ -1,0 +1,7 @@
+[Context]
+filesystems=!host;
+shared=!network;!ipc;
+
+[Session Bus Policy]
+org.gtk.vfs.*=none
+org.gtk.vfs=none
