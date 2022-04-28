@@ -1,7 +1,6 @@
 #!/bin/bash
 
 # Summarize the system state to a logfile, readable only by root.
-# Optionally make the script readable only by root.
 
 # To do:
 # [x] filesystem io
@@ -64,14 +63,14 @@ function accounts() {
 	last -a
 
 	echo '#======================================================================'
-	echo "# [v] uid list"
+	echo "# [v] users"
 	echo ''
-	for user in $(cut -d":" -f1 < /etc/passwd); do id "$user" | column -t; done
+	column -t -s ':' < /etc/passwd | sort -k 3 -n
 
 	echo '#======================================================================'
 	echo "# [v] groups"
 	echo ''
-	column -t -s ':' < /etc/group
+	column -t -s ':' < /etc/group | sort
 
 	echo '#======================================================================'
 	echo '#[v] environemnt'
@@ -84,7 +83,7 @@ function kernel() {
 	echo "# [v] kernel"
 	echo ''
 	uname -mrs
-	if (command -v dpkg); then
+	if (command -v dpkg > /dev/null); then
 		dpkg --print-architecture
 	fi
 	cat /proc/version
@@ -99,7 +98,7 @@ function kernel() {
 	echo '#======================================================================'
 	echo '#[v] secureboot'
 	echo ''
-	if (command -v mokutil); then
+	if (command -v mokutil > /dev/null); then
 		mokutil --sb-state 2>&1
 	fi
 
@@ -130,9 +129,9 @@ function kernel() {
 	echo '#======================================================================'
 	echo '#[v] mac status'
 	echo ''
-	if (command -v aa-status); then
+	if (command -v aa-status > /dev/null); then
 		aa-status
-	elif (command -v sestatus); then
+	elif (command -v sestatus > /dev/null); then
 		sestatus
 	fi
 
@@ -178,29 +177,29 @@ function network() {
 	echo '#======================================================================'
 	echo '#[v] network interfaces'
 	echo ''
-	if (command -v ip); then
+	if (command -v ip > /dev/null); then
 		ip a
-	elif (command -v ifconfig); then
+	elif (command -v ifconfig > /dev/null); then
 		ifconfig
 	fi
 
 	echo '#======================================================================'
 	echo '#[v] open ports'
 	echo ''
-	if (command -v netstat); then
+	if (command -v netstat > /dev/null); then
 		netstat -anp -A inet,inet6
-	elif (command -v ss); then
+	elif (command -v ss > /dev/null); then
 		ss -anp -A inet
 	fi
 
 	echo '#======================================================================'
 	echo '#[v] firewall rules'
 	echo ''
-	if (command -v ufw); then
+	if (command -v ufw > /dev/null); then
 		ufw status verbose
-	elif (command -v firewall-cmd); then
+	elif (command -v firewall-cmd > /dev/null); then
 		echo 'to do...'
-	elif (command -v iptables); then
+	elif (command -v iptables > /dev/null); then
 		iptables -n -L -v
 		ip6tables -n -L -v
 	fi
@@ -225,6 +224,7 @@ function network() {
 		echo "/etc/hosts file contains $HOSTS_LINE_COUNT lines"
 	else
 		cat /etc/hosts
+		echo ''
 		echo "/etc/hosts file contains $HOSTS_LINE_COUNT lines"
 	fi
 
@@ -236,19 +236,26 @@ function network() {
 	echo '#======================================================================'
 	echo "# [v] listening sockets"
 	echo ''
-	if (command -v netstat);then
+	if (command -v netstat > /dev/null);then
 		netstat -lnp -A unix
-	elif (command -v ss); then
+	elif (command -v ss > /dev/null); then
 		ss -lnp -A unix
 	fi
 	
 	echo '#======================================================================'
 	echo "# [v] connected sockets"
 	echo ''
-	if (command -v netstat); then
+	if (command -v netstat > /dev/null); then
 		netstat -np -A unix
-	elif (command -v ss); then
+	elif (command -v ss > /dev/null); then
 		ss -np -A unix
+	fi
+	
+	echo '#======================================================================'
+	echo "# [v] d-bus"
+	echo ''
+	if (command -v busctl > /dev/null); then
+		busctl list
 	fi
 }
 
@@ -276,9 +283,41 @@ function services() {
 		echo ''
 		cat "$crontab"
 	done
+
+	echo '#======================================================================'
+	echo '#[v] cron.d'
+	echo ''
+	for file in /etc/cron.d/*; do echo "$file"; done
+
+	echo '#======================================================================'
+	echo '#[v] cron.hourly'
+	echo ''
+	for file in /etc/cron.hourly/*; do echo "$file"; done
+
+	echo '#======================================================================'
+	echo '#[v] cron.daily'
+	echo ''
+	for file in /etc/cron.daily/*; do echo "$file"; done
+
+	echo '#======================================================================'
+	echo '#[v] cron.weekly'
+	echo ''
+	for file in /etc/cron.weekly/*; do echo "$file"; done
+
+	echo '#======================================================================'
+	echo '#[v] cron.monthly'
+	echo ''
+	for file in /etc/cron.monthly/*; do echo "$file"; done
 }
 
 function filesystem() {
+	echo '#======================================================================'
+	echo "# [v] sandbox permissions table"
+	echo ''
+	if (command -v flatpak > /dev/null); then
+		flatpak permissions
+	fi
+
 	echo '#======================================================================'
 	echo "# [v] capabilities"
 	echo ''
@@ -341,7 +380,7 @@ function filesystem() {
 	echo '#======================================================================'
 	echo '#[v] fs mounts'
 	echo ''
-	findmnt --fstab
+	findmnt -R
 
 	echo '#======================================================================'
 	echo '#[v] disk-usage'
@@ -373,7 +412,7 @@ function filesystem() {
 function logs() {
 	echo '#======================================================================'
 	echo '#[v] auditd summary'
-	if ! (command -v auditd); then
+	if ! (command -v auditd > /dev/null); then
 		echo '[!!]auditd not installed!'
 	else
 		# --input-logs required when running auditd utils from cron
@@ -421,25 +460,36 @@ function logs() {
 
 function integrity() {
 	echo '#======================================================================'
-	echo '#[v] rootkit and integrity checks'
-	echo ''
-	if ! (command -v rkhunter); then
+	if ! (command -v rkhunter > /dev/null); then
 		echo '[!!] rkhunter not installed!'
+		echo ''
 	else
+		echo '#[v] rootkit checks'
+		echo ''
 		rkhunter --sk --check --rwo
 		echo ''
+		echo '#======================================================================'
 		echo '#[v] rkhunter database hashes'
 		echo ''
 		sha256sum /var/lib/rkhunter/db/rkhunter.dat*
-
-		# We only check the compressed database and conf hashes by default, as running aide can consume 
-		# system resources unless it's tuned to run regularly under cron
-
 		echo ''
+	fi
+
+	if ! (command -v aide > /dev/null); then
+		echo '[!!] aide not installed!'
+		echo ''
+	else
+		echo '#======================================================================'
+		echo '#[v] system integrity checks'
+		echo ''
+		aide -c /etc/aide/aide.conf -C
+		echo ''
+		echo '#======================================================================'
 		echo '#[v] aide (compressed) database hashes'
 		echo ''
 		sha256sum /etc/aide/aide.conf
 		sha256sum /var/lib/aide/aide.db*
+		echo ''
 	fi
 }
 
