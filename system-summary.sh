@@ -12,7 +12,7 @@
 # [ ] fedora / bsd compatibility
 # [ ] selinux / tripwire / other security checks
 # [ ] auth / pam / other log checks
-# [ ] diff between daily system states
+# [/] diff between daily system states
 
 # Crontab to run every day at 12:
 # 0 12 * * * /bin/bash /opt/system-summary.sh
@@ -21,7 +21,8 @@
 # Cron does not use the expected environment variables (it's defaults are SHELL=/bin/sh && PATH=/usr/bin:/bin
 export PATH="/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin:/snap/bin"
 
-LOGFILE='system-summary'
+LOGNAME='system-summary'
+LOGFILE='system-summary.log'
 
 # Root check
 if [ "${EUID}" -ne 0 ]; then
@@ -31,25 +32,29 @@ fi
 
 
 # Create the logging configuration if it doesn't exist
-if ! [ -e /etc/logrotate.d/"$LOGFILE" ]; then
-	echo "# Logging configuration for $LOGFILE shell script
-/var/log/$LOGFILE {
+if ! [ -e /etc/logrotate.d/"$LOGNAME" ]; then
+	echo "# Logging configuration for $LOGNAME shell script
+/var/log/$LOGNAME/$LOGFILE {
 	nocompress
-	monthly
-	rotate 4
+	weekly
+	rotate 7
 	missingok
 	notifempty
 	su root root
 	create 0640 root root
-}" > /etc/logrotate.d/"$LOGFILE"
+}" > /etc/logrotate.d/"$LOGNAME"
 fi
 
 
-# Create the log file with the correct permissions before starting
-if ! [ -e /var/log/"$LOGFILE" ]; then
-	touch /var/log/"$LOGFILE"
+# Create the log file and directory with the correct permissions before starting
+if ! [ -e /var/log/"$LOGNAME" ]; then
+	mkdir /var/log/"$LOGNAME" || exit 1
 fi
-chmod 640 /var/log/"$LOGFILE"
+if ! [ -e /var/log/"$LOGNAME"/"$LOGFILE" ]; then
+	touch /var/log/"$LOGNAME"/"$LOGFILE" || exit 1
+fi
+chmod 750 /var/log/"$LOGNAME" || exit 1
+chmod 640 /var/log/"$LOGNAME"/"$LOGFILE" || exit 1
 
 function accounts() {
 	echo '#======================================================================'
@@ -493,10 +498,23 @@ function integrity() {
 	fi
 }
 
+function changes() {
+
+if ! [ -e /var/log/"$LOGNAME"/system-changes ]; then
+	mkdir /var/log/"$LOGNAME"/system-changes
+	chmod 750 /var/log/"$LOGNAME"/system-changes
+fi
+
+if [ -e /var/log/"$LOGNAME"/"$LOGFILE".1 ]; then
+	diff /var/log/"$LOGNAME"/"$LOGFILE".1 /var/log/"$LOGNAME"/"$LOGFILE" > /var/log/"$LOGNAME"/system-changes/"$(date +%F_%T)"_system-changes.diff
+fi
+
+}
+
 function checkSystem() {
 	echo '#==================================================================================='
 	echo '###################################### BEGIN ######################################'
-	echo "# System summary for $(date +%Y-%m-%d) $(date +%H:%M:%S)"
+	echo "# System summary for $(date +%F\ %T)"
 
 	accounts
 	kernel
@@ -507,9 +525,10 @@ function checkSystem() {
 	filesystem
 	logs
 	integrity
+	changes
 
-	echo "#[>] End of summary at $(date +%Y-%m-%d) $(date +%H:%M:%S)"
+	echo "#[>] End of summary at $(date +%F\ %T)"
 	echo '#==================================================================================='
 	echo '####################################### END #######################################'
 }
-checkSystem >> /var/log/"$LOGFILE"
+checkSystem | tee /var/log/"$LOGNAME"/"$LOGFILE"
