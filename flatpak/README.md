@@ -139,6 +139,12 @@ flatpak remote-info --log flathub org.gnome.Recipes
 # downgrade or install a previous version
 sudo flatpak update --commit=ec07ad6c54e803d1428e5580426a41315e50a14376af033458e7a65bfb2b64f0 org.gnome.Recipes
 
+# update an application to the latest version
+sudo flatpak update org.gnome.Recipes
+
+# update all applications and runtimes
+sudo flatpak update
+
 # install an applicaiton
 flatpak install gimp
 
