@@ -1,0 +1,76 @@
+# /etc/config/wireless 
+# OpenWRT v21.x and later syntax
+
+# sae = WPA3
+# psk2 = WPA2
+
+# isolate = '1' prevents client-to-client communication on same subnet
+
+config wifi-device 'radio0'
+	option type 'mac80211'
+	option hwmode '<hwmode>'           # specifies 2.4 or 5 GHz, deprecated for `band` since 21.02.2
+	option band '<2g/5g/6g/60g>'       # specified 2.4, 5, 6, or 60 GHz, replaces `hwmode` since 21.02.2
+	option path '</sys/devices>'       # device name in /sys/devices
+	option htmode '<htmode>'           # based on country code
+	option channel '<channel>'
+	option country '<country-code>'
+	option cell_density '<int>'        #  0 = Disabled, 1 = Normal, 2 = High, 3 = Very High
+
+config wifi-device 'radio1'
+	option type 'mac80211'
+	option hwmode '<hwmode>'           # specifies 2.4 or 5 GHz, deprecated for `band` since 21.02.2
+	option band '<2g/5g/6g/60g>'       # specified 2.4, 5, 6, or 60 GHz, replaces `hwmode` since 21.02.2
+	option path '</sys/devices>'       # device name in /sys/devices
+	option htmode '<htmode>'           # based on country code
+	option channel '<channel>'
+	option country '<country-code>'
+	option cell_density '<int>'        #  0 = Disabled, 1 = Normal, 2 = High, 3 = Very High
+
+config wifi-iface 'wifinet0'
+	option device 'radio0'
+	option mode 'ap'
+	option network '<lan>'
+	option ssid '<ssid>'
+	option key '<wifi-password>'
+	option encryption '<sae>'
+	option wpa_disable_eapol_key_retries '1'
+	option isolate '1'
+	option macfilter 'allow'
+	list maclist '<mac-address>'
+	list maclist '<mac-address>'
+	list maclist '<mac-address>'
+
+config wifi-iface 'wifinet1'
+	option device 'radio0'
+	option mode 'ap'
+	option network '<vlan1>'
+	option ssid '<ssid>'
+	option key '<wifi-password>'
+	option encryption '<psk2>'
+	option wpa_disable_eapol_key_retries '1'
+	option isolate '1'
+	option macfilter 'allow'
+	list maclist '<mac-address>'
+	list maclist '<mac-address>'
+	list maclist '<mac-address>'
+
+config wifi-iface 'wifinet2'
+	option device 'radio1'
+	option mode 'ap'
+	option network '<vlan2>'
+	option ssid '<ssid>'
+	option key '<wifi-password>'
+	option encryption '<psk2>'
+	option wpa_disable_eapol_key_retries '1'
+	option isolate '1'
+
+config wifi-iface 'wifinet3'
+	option device 'radio1'
+	option mode 'ap'
+	option network '<vlan3>'
+	option ssid '<ssid>'
+	option key '<wifi-password>'
+	option encryption '<sae>'
+	option wpa_disable_eapol_key_retries '1'
+	option isolate '1'
+

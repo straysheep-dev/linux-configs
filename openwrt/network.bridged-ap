@@ -1,0 +1,82 @@
+# /etc/config/network
+# OpenWRT v21.x and later syntax
+
+config interface 'loopback'
+	option device 'lo'
+	option proto 'static'
+	option ipaddr '127.0.0.1'
+	option netmask '255.0.0.0'
+
+config globals 'globals'
+	option ula_prefix 'fd00:xxxx:xxxx::/48'
+
+config device
+	option name 'br-lan'
+	option type 'bridge'
+	list ports 'eth0'
+
+config interface 'lan'
+	option device 'br-lan'
+	option proto 'static'
+	option ipaddr '192.168.1.100'
+	option netmask '255.255.255.0'
+	option gateway '192.168.1.1'
+	option dns '192.168.1.1'
+
+config device
+	option name 'br-vlan1'
+	option type 'bridge'
+	list ports 'eth0.10'
+
+config device
+	option type '8021q'
+	option name 'eth0.10'
+	option ifname 'eth0'
+	option vid '10'
+
+config interface 'vlan1'
+	option device 'br-vlan1'
+	option proto 'static'
+	option ipaddr '172.16.1.100'
+	option netmask '255.255.255.0'
+	option gateway '172.16.1.1'
+	list dns '172.16.1.1'
+
+config device
+	option name 'br-vlan2'
+	option type 'bridge'
+	list ports 'eth0.20'
+
+config device
+	option type '8021q'
+	option name 'eth0.20'
+	option ifname 'eth0'
+	option vid '20'
+
+config interface 'vlan2'
+	option device 'br-vlan2'
+	option proto 'static'
+	option ipaddr '172.16.2.100'
+	option netmask '255.255.255.0'
+	option gateway '172.16.2.1'
+	list dns '172.16.2.1'
+
+config device
+	option name 'br-vlan3'
+	option type 'bridge'
+	list ports 'eth0.30'
+
+config device
+	option type '8021q'
+	option name 'eth0.30'
+	option ifname 'eth0'
+	option vid '30'
+
+config interface 'vlan3'
+	option device 'br-vlan3'
+	option proto 'static'
+	option ipaddr '172.16.3.100'
+	option netmask '255.255.255.0'
+	option gateway '172.16.3.1'
+	list dns '172.16.3.1'
+
