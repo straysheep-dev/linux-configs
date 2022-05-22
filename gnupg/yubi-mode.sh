@@ -1,6 +1,7 @@
 #!/bin/bash
 
 BLUE="\033[01;34m"
+YELLOW="\033[01;33m"
 RESET="\033[00m"
 
 # Script to change between the pcscd daemon included with the yubioath-desktop snap, and the pcscd daemon from apt.
@@ -20,6 +21,10 @@ fi
 if [ "${1}" == 'gpg' ]; then
 	# Allows ssh, code signing, and other operations with connected yubikey
         echo -e "${BLUE}[>]GPG mode${RESET}"
+	if (pgrep yubioath > /dev/null); then
+		echo -e "${YELLOW}[i]Stopped runnning yubioath-desktop...${RESET}"
+		pkill yubioath
+	fi
         sudo systemctl stop snap.yubioath-desktop.pcscd.service
         sudo systemctl restart pcscd
 
@@ -30,11 +35,11 @@ if [ "${1}" == 'gpg' ]; then
 	gpg-connect-agent "scd serialno" "learn --force" /bye
 	gpg-connect-agent updatestartuptty /bye
 
-        echo -e "${BLUE}[i]Done.${RESET}"
+        echo -e "${BLUE}[✓]Done.${RESET}"
 
 elif [ "${1}" == 'otp' ]; then
 	# Connects yubikey to the yubioath-desktop snap application to view OTP codes
-        echo -e "${BLUE}[i]OTP mode${RESET}"
+        echo -e "${BLUE}[>]OTP mode${RESET}"
 
 	# This line is necessary in cases where the yubikey still cannot be read after changing pcscd daemons
 	pkill gpg-agent ; pkill ssh-agent ; pkill pinentry
@@ -42,8 +47,10 @@ elif [ "${1}" == 'otp' ]; then
 
         sudo systemctl stop pcscd
         sudo systemctl restart snap.yubioath-desktop.pcscd.service
+	echo -e "${YELLOW}[i]Starting yubioath-desktop as background process...${RESET}"
+	yubioath-desktop &
 
-        echo -e "${BLUE}[i]Done.${RESET}"
+        echo -e "${BLUE}[✓]Done.${RESET}"
 else
         echo "Usage: yubi-mode [otp/gpg]"
 fi
