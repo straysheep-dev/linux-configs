@@ -31,7 +31,6 @@ function MakeTemp() {
 	echo -e "${BLUE}[i]Changing working directory to $SETUPDIR${RESET}"
 
 }
-MakeTemp
 
 
 function InstallAptPackages() {
@@ -48,6 +47,7 @@ function InstallAptPackages() {
 	burpsuite \
 	cherrytree \
 	cifs-utils \
+	cntlm \
 	crackmapexec \
 	crunch \
 	curl \
@@ -57,6 +57,7 @@ function InstallAptPackages() {
 	dos2unix \
 	dsniff \
 	enum4linux \
+	evil-winrm \
 	exploitdb \
 	feroxbuster \
 	gobuster \
@@ -85,6 +86,7 @@ function InstallAptPackages() {
 	p7zip \
 	p7zip-rar \
 	pdfid \
+	pipx \
 	poppler-utils \
 	powercat \
 	powershell \
@@ -98,6 +100,7 @@ function InstallAptPackages() {
 	redis-tools \
 	ridenum \
 	screen \
+	shellter \
 	smbclient \
 	smbmap \
 	smtp-user-enum \
@@ -130,15 +133,21 @@ function InstallAptPackages() {
 	#kazam \
 	#svwar \ does not exist -> could be sipvicious/kali-rolling 0.3.3-2 all
 
+	if [ "$?" -ne '0' ]; then
+		exit
+	fi
+
+	sudo apt autoremove --purge -y 
+	sudo apt-get clean
+
 	sleep 3
 
 }
-InstallAptPackages
 
 function AddAliases() {
 
 	# Two wireshark windows are useful for monitoring two network interfaces in real time
-	if ! (grep "alias dualshark='wireshark&;wireshark&'" "$HOME"/.zshrc); then
+	if ! (grep -q "alias dualshark='wireshark&;wireshark&'" "$HOME"/.zshrc); then
 		echo -e "${BLUE}[i]${RESET}Adding custom aliases..."
 		{
 		echo ""
@@ -148,11 +157,11 @@ function AddAliases() {
 	fi
 
 }
-AddAliases
 
 function InstallSnaps() {
+
 	# /etc/profile.d/apps-bin-path.sh SHOULD add snap bins to PATH, check for snaps in PATH anyway:
-	if ! (echo $PATH | grep -q '/snap/bin'); then
+	if ! (echo "$PATH" | grep -q '/snap/bin'); then
 		echo -e "${BLUE}[i]Adding /snap/bin to PATH...${RESET}"
 
 		{
@@ -169,108 +178,130 @@ function InstallSnaps() {
 		source /etc/profile.d/snap-path.sh
 	fi
 
-	if ! (command -v snap > /dev/null); then
-		echo -e "${BLUE}[i]Installing snapd...${RESET}"
-		sudo apt install -y snapd
-		sleep 2
+	echo -e "${BLUE}[i]Refreshing snaps...${RESET}"
+	sudo snap refresh
 
-		echo -e "${BLUE}[i]Refreshing snaps...${RESET}"
-		sudo snap refresh
-
-		echo -e "${BLUE}[i]Installing snap packages...${RESET}"
-		sudo snap install chromium
-		sudo snap install libreoffice
-		sudo snap install vlc
-	else
-		echo -e "${BLUE}[i]Refreshing snaps...${RESET}"
-		sudo snap refresh
-	fi
+	echo -e "${BLUE}[i]Installing snap packages...${RESET}"
+	sudo snap install chromium
+	sudo snap install libreoffice
+	sudo snap disconnect libreoffice:network > /dev/null
+	sudo snap install vlc
+	sudo snap disconnect vlc:network > /dev/null
 
 }
-InstallSnaps
 
 function InstallPypiPackages() {
 
 	echo -e "${BLUE}[i]Installing PyPi tools...${RESET}"
 
-# TO DO: pipenv
+# pipenv
+#	TO DO
 
 # pipx
-	python3 -m pip install --user pipx
-	python3 -m pipx ensurepath
+#	if ! [ -e '/home/kali/.local/bin/pipx' ]; then
+#		python3 -m pip install --user pipx
+#		python3 -m pipx ensurepath
+#	fi
 
-#	pipx install git+https://github.com/Tib3rius/AutoRecon.git
-
-# pip
-	cd "$HOME" || exit
-
-	if ! [ -e "$HOME"/venv/bin/activate ]; then
-		mkdir "$HOME"/venv
-		python3 -m venv ~/venv
+	# applications install with pipx
+	if ! (command -v autorecon > /dev/null);then
+		pipx install git+https://github.com/Tib3rius/AutoRecon.git
+	else
+		echo "[i]AutoRecon installed."
+	fi
+	if ! (command -v mitm6 > /dev/null); then
+		pipx install git+https://github.com/dirkjanm/mitm6.git
+	else
+		echo "[i]mitm6 installed."
+	fi
+	if ! (command -v graphqlmap > /dev/null); then
+		pipx install git+https://github.com/swisskyrepo/GraphQLmap.git
+		pipx inject graphqlmap requests
+	else
+		echo "[i]GraphQLmap installed."
 	fi
 
-	source "$HOME"/venv/bin/activate
+# pip
+	# libararies installed with pip
+	python3 -m pip install --user beautifulsoup4 lxml requests
+	python3 -m pip install --user paramiko
 
-	python3 -m pip install mitm6
-	python3 -m pip install --pre scapy[basic]
-	#python3 -m pip install ldapdomaindump
-	#python3 -m pip install matplotlib
-	#python3 -m pip install cryptography
-	python3 -m pip install paramiko
-	#python3 -m pip install pyx
-	python3 -m pip install beautifulsoup4 lxml requests
-	#python3 -m pip install --upgrade xlrd
-
-	deactivate
-
-	cd "$HOME" || exit
+# pip venv
+#	cd "$HOME" || exit
+#
+#	if ! [ -e "$HOME"/venv/bin/activate ]; then
+#		mkdir "$HOME"/venv
+#		python3 -m venv ~/venv
+#	fi
+#
+#	source "$HOME"/venv/bin/activate
+#
+#	python3 -m pip install mitm6
+#	python3 -m pip install --pre scapy[basic]
+#	python3 -m pip install ldapdomaindump
+#	python3 -m pip install matplotlib
+#	python3 -m pip install cryptography
+#	python3 -m pip install paramiko
+#	python3 -m pip install pyx
+#	python3 -m pip install beautifulsoup4 lxml requests
+#	python3 -m pip install --upgrade xlrd
+#
+#	deactivate
+#
+#	cd "$HOME" || exit
 
 }
-InstallPypiPackages
-
 
 function InstallGems() {
 
 	echo -e "${BLUE}[i]Installing gems...${RESET}"
 
-	gem install evil-winrm --user-install
+# evil-winrm is now available via apt
+#	if ! (command -v evil-winrm > /dev/null); then
+#		gem install evil-winrm --user-install
+#	fi
 
-	echo -e "${BLUE}[i]Adding gems to PATH...${RESET}"
+	if ! [ -e /etc/profile.d/go-path.sh ]; then
+		echo -e "${BLUE}[i]Adding gems to PATH...${RESET}"
 
-	{
-	echo ''
-	echo '# set PATH so it includes user local ruby gems if they exist'
-	echo 'if [ -d "$HOME/.local/share/gem/ruby/2.7.0/bin/" ]; then'
-	echo '    PATH="$PATH:$HOME/.local/share/gem/ruby/2.7.0/bin"'
-	echo 'fi'
-	} > "$SETUPDIR"/gem-path.sh
+		{
+		echo ''
+		echo '# set PATH so it includes user local ruby gems if they exist'
+		echo 'if [ -d "$HOME/.local/share/gem/ruby/2.7.0/bin/" ]; then'
+		echo '    PATH="$PATH:$HOME/.local/share/gem/ruby/2.7.0/bin"'
+		echo 'fi'
+		} > "$SETUPDIR"/gem-path.sh
 
-	sudo cp "$SETUPDIR"/gem-path.sh /etc/profile.d/gem-path.sh && \
-	rm "$SETUPDIR"/gem-path.sh
-
-	source /etc/profile.d/gem-path.sh
+		sudo cp "$SETUPDIR"/gem-path.sh /etc/profile.d/gem-path.sh && \
+		rm "$SETUPDIR"/gem-path.sh
+		source /etc/profile.d/gem-path.sh
+	fi
+	echo -e "${BLUE}[i]Done.${RESET}"
 
 }
-InstallGems
 
 function InstallGo() {
 
-	echo -e "${BLUE}[i]Installing golang...${RESET}"
-	sudo apt -y install golang-1.17
+	if ! (command -v go > /dev/null); then
+		echo -e "${BLUE}[i]Installing golang...${RESET}"
+		sudo apt -y install golang-1.17
+	fi
 
 	echo -e "${BLUE}[i]Adding go to PATH...${RESET}"
 
-	{
-	echo ''
-	echo '# set PATH so it includes go installation if it exists'
-	echo 'if [ -d "/usr/local/go" ] ; then'
-	echo '    PATH="$PATH:/usr/local/go/bin"'
-	echo 'fi'
-	} > "$SETUPDIR"/go-path.sh
+	if ! [ -e /etc/profile.d/go-path.sh ]; then
+		{
+		echo ''
+		echo '# set PATH so it includes go installation if it exists'
+		echo 'if [ -d "/usr/local/go" ] ; then'
+		echo '    PATH="$PATH:/usr/local/go/bin"'
+		echo 'fi'
+		} > "$SETUPDIR"/go-path.sh
 
-	sudo cp "$SETUPDIR"/go-path.sh /etc/profile.d/go-path.sh
+		sudo cp "$SETUPDIR"/go-path.sh /etc/profile.d/go-path.sh
 
-	source /etc/profile.d/go-path.sh
+		source /etc/profile.d/go-path.sh
+	fi
 
 	# Don't want to always script this, give user the option
 	echo -e "${YELLOW}[i]Use 'sudo visudo' to add '/usr/local/go/bin:' to the 'secure_path=...' variable${RESET}"
@@ -279,13 +310,12 @@ function InstallGo() {
 	sleep 2
 
 }
-#InstallGo
 
 function InstallExternalTools() {
 
 	cd "$SETUPDIR" || exit
 
-	# Wordlists - download these individually for quick reference
+	# Individual wordlists
 	if ! [ -e /opt/wordlists ]; then
 		echo -e "${BLUE}[i]Downloading wordlists...${RESET}"
 		mkdir "$SETUPDIR"/wordlists
@@ -297,6 +327,19 @@ function InstallExternalTools() {
 		# Common Passwords (Top 10000)
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-10000.txt'
 
+		# ncrack lists, formatted and copied here
+		if (command -v ncrack); then
+			grep -Pv "^(#|$)" /usr/share/ncrack/default.usr > "$SETUPDIR"/wordlists/ncrack-default.usr
+			grep -Pv "^(#|$)" /usr/share/ncrack/default.pwd > "$SETUPDIR"/wordlists/ncrack-default.pwd
+			grep -Pv "^(#|$)" /usr/share/ncrack/top50000.pwd > "$SETUPDIR"/wordlists/ncrack-top50000.pwd
+		fi
+
+		# rockyou
+		if [ -e /usr/share/wordlists/rockyou.txt.gz ]; then
+			cp /usr/share/wordlists/rockyou.txt.gz .
+			gunzip ./rockyou.txt.gz
+		fi
+
 		# Single Names ~10k
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Usernames/Names/names.txt'
 
@@ -305,50 +348,45 @@ function InstallExternalTools() {
 
 		# Web Content (default wordlist for Feroxbuster)
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-medium-directories.txt'
-		# add https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-large-directories.txt
-		# add https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-large-files.txt
+		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-large-directories.txt'
+		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/Web-Content/raft-large-files.txt'
 
 		# SNMP Community Strings
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Discovery/SNMP/snmp-onesixtyone.txt'
-
-		find "$SETUPDIR"/wordlists -type f -print0 | xargs -0 sudo chmod 640
-		sudo mv "$SETUPDIR"/wordlists -t /opt
 
 		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
 	# SecLists
+	# https://github.com/danielmiessler/SecLists
 	if ! [ -e /opt/wordlists/SecLists ]; then
 		cd "$SETUPDIR"/ || exit
 		echo -e "${BLUE}[i]Downloading SecLists...${RESET}"
 		git clone --depth 1 'https://github.com/danielmiessler/SecLists.git'
-		find "$SETUPDIR"/SecLists -type f -print0 | xargs -0 chmod 640
-		find "$SETUPDIR"/SecLists -type d -print0 | xargs -0 chmod 750
-		sudo chown -R root:"$USERNAME" "$SETUPDIR"/SecLists
-		sudo mv "$SETUPDIR"/SecLists -t /opt/wordlists/ && \
-		sudo ln -s /opt/wordlists/SecLists /usr/share/seclists
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
 	# Statistically Likely Usernames
+	# https://github.com/insidetrust/statistically-likely-usernames
 	if ! [ -e /opt/wordlists/statistically-likely-usernames ]; then
 		echo -e "${BLUE}[i]Downloading Statistically Likely Usernames...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/insidetrust/statistically-likely-usernames.git'
-		find "$SETUPDIR"/statistically-likely-usernames -type f -print0 | xargs -0 chmod 640
-		find "$SETUPDIR"/statistically-likely-usernames -type d -print0 | xargs -0 chmod 750
-		sudo chown -R root:"$USERNAME" "$SETUPDIR"/statistically-likely-usernames
-		sudo mv "$SETUPDIR"/statistically-likely-usernames -t /opt/wordlists/
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
-
-	# TO DO:
-
-	# cutter (AppImage)
+	# Cutter (AppImage)
 	# https://github.com/rizinorg/cutter/releases/latest
-	# curl -LfO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
-	# SHA256SUM = 453b0d1247f0eab0b87d903ce4995ff54216584c5fd5480be82da7b71eb2ed3d  Cutter-v2.0.5-x64.Linux.AppImage
+	if ! [ -e /opt/Cutter ]; then
+		echo -e "${BLUE}[i]Downloading Cutter AppImage...${RESET}"
+		mkdir "$SETUPDIR"/Cutter
+		cd "$SETUPDIR"/Cutter || exit
+		curl -sSLO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
+		if (sha256sum ./Cutter-v2.0.5-x64.Linux.AppImage | grep '453b0d1247f0eab0b87d903ce4995ff54216584c5fd5480be82da7b71eb2ed3d'); then
+			echo -e "${GREEN}[OK]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+
+	fi
 
 	# IDA Free
 	# https://hex-rays.com/ida-free/
@@ -358,73 +396,252 @@ function InstallExternalTools() {
 	# Nessus
 	# https://www.tenable.com/downloads/
 
-	# chisel (binaries)
-	# VER='v1.7.7'
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_checksums.txt
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_darwin_amd64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_darwin_arm64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_386.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_amd64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_arm64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_armv6.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_armv7.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64le_hardfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64le_softfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64_hardfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips64_softfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mipsle_hardfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mipsle_softfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips_hardfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_mips_softfloat.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_ppc64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_ppc64le.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_linux_s390x.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_386.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_amd64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_arm64.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_armv6.gz
-#	curl -LfO https://github.com/jpillora/chisel/releases/download/"$VER"/chisel_1.7.7_windows_armv7.gz
-#	curl -LfO https://github.com/jpillora/chisel/archive/refs/tags/"$VER".zip
-#	curl -LfO https://github.com/jpillora/chisel/archive/refs/tags/"$VER".tar.gz
+	#================ Pause before continuing ==================
+	until [[ $CONTINUE_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Continue? [y/n]: " -e -i y CONTINUE_CHOICE
+	done
+	if [ "$CONTINUE_CHOICE" == 'n' ]; then
+		echo "Check $SETUPDIR before running again. Quitting."
+		exit 1
+	fi
+	CONTINUE_CHOICE=''
+	#================ Pause before continuing ==================
 
-	# Wireguard
-	# https://download.wireguard.com/windows-client/wireguard-installer.exe
+	# chisel (binaries)
+	CHISEL_VER='v1.7.7'
+	if ! [ -e /opt/chisel ]; then
+		echo -e "${BLUE}[i]Downloading Chisel $CHISEL_VER binaries...${RESET}"
+		mkdir "$SETUPDIR"/chisel
+		cd "$SETUPDIR"/chisel || exit
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_checksums.txt
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_darwin_amd64.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_darwin_arm64.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_386.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_amd64.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_arm64.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_armv6.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_armv7.gz
+		echo "[i][#########33%                    ]"
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mips64le_hardfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mips64le_softfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mips64_hardfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mips64_softfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mipsle_hardfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mipsle_softfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mips_hardfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_mips_softfloat.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_ppc64.gz
+		echo "[i][###################66%          ]"
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_ppc64le.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_linux_s390x.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_windows_386.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_windows_amd64.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_windows_arm64.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_windows_armv6.gz
+		curl -sSLO https://github.com/jpillora/chisel/releases/download/"$CHISEL_VER"/chisel_1.7.7_windows_armv7.gz
+		curl -sSLO https://github.com/jpillora/chisel/archive/refs/tags/"$CHISEL_VER".zip
+		curl -sSLO https://github.com/jpillora/chisel/archive/refs/tags/"$CHISEL_VER".tar.gz
+		echo "[i][###########################100%]"
+
+		if (sha256sum -c ./chisel_1.7.7_checksums.txt); then
+			echo -e "${GREEN}[OK chisel_1.7.7_checksums]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+	fi
+
+	#================ Pause before continuing ==================
+	until [[ $CONTINUE_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Continue? [y/n]: " -e -i y CONTINUE_CHOICE
+	done
+	if [ "$CONTINUE_CHOICE" == 'n' ]; then
+		echo "Check $SETUPDIR before running again. Quitting."
+		exit 1
+	fi
+	CONTINUE_CHOICE=''
+	#================ Pause before continuing ==================
+
+
+	# Wireguard (Windows MSI installers)
+	# https://download.wireguard.com/windows-client/
+	WG_VER="$(curl -sS 'https://download.wireguard.com/windows-client/' | grep -oP "(x86|amd64|arm64)\-\d+\.\d+\.\d+" | cut -d '-' -f 2 | uniq)"
+	if ! [ -e /opt/wireguard ]; then
+		echo -e "${BLUE}[i]Downloading wireguard Windows installers...${RESET}"
+		mkdir "$SETUPDIR"/wireguard
+		cd "$SETUPDIR"/wireguard || exit
+
+		curl -sSLO 'https://download.wireguard.com/windows-client/wireguard-arm64-'"$WG_VER"'.msi'
+		sha256sum wireguard-arm64-"$WG_VER".msi
+
+		curl -sSLO 'https://download.wireguard.com/windows-client/wireguard-amd64-'"$WG_VER"'.msi'
+		sha256sum wireguard-amd64-"$WG_VER".msi
+
+		curl -sSLO 'https://download.wireguard.com/windows-client/wireguard-x86-'"$WG_VER"'.msi'
+		sha256sum wireguard-x86-"$WG_VER".msi
+	fi
+
+	#================ Pause before continuing ==================
+	until [[ $CONTINUE_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Continue? [y/n]: " -e -i y CONTINUE_CHOICE
+	done
+	if [ "$CONTINUE_CHOICE" == 'n' ]; then
+		echo "Check $SETUPDIR before running again. Quitting."
+		exit 1
+	fi
+	CONTINUE_CHOICE=''
+	#================ Pause before continuing ==================
+
 
 	# Invoke-SocksProxy
-	# https://github.com/BC-SECURITY/Invoke-SocksProxy
+	#https://github.com/BC-SECURITY/Invoke-SocksProxy
+	if ! [ -e /opt/Invoke-SocksProxy ]; then
+		echo -e "${BLUE}[i]Downloading Invoke-SocksProxy...${RESET}"
+		cd "$SETUPDIR"/ || exit
+		git clone 'https://github.com/BC-SECURITY/Invoke-SocksProxy.git'
+	fi
 
-	# Python3
-	# curl -Lf 'https://keybase.io/stevedower/pgp_keys.asc?fingerprint=7ed10b6531d7c8e1bc296021fc624643487034e5' | gpg --import
-	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe'
-	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4-amd64.exe.asc'
-	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4.exe'
-	# curl -LfO 'https://www.python.org/ftp/python/3.10.4/python-3.10.4.exe.asc'
+
+	# Python3 installers for Windows
+	PYTHON3_VER='3.10.4'
+	if ! [ -e /opt/python3 ]; then
+		echo -e "${BLUE}[i]Downloading python3 installers...${RESET}"
+		mkdir "$SETUPDIR"/python3
+		cd "$SETUPDIR"/python3 || exit
+		curl -Lf 'https://keybase.io/stevedower/pgp_keys.asc?fingerprint=7ed10b6531d7c8e1bc296021fc624643487034e5' | gpg --import
+		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'-amd64.exe'
+		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'-amd64.exe.asc'
+		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'.exe'
+		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'.exe.asc'
+
+		# 64-bit
+		if (gpg --verify ./'python-'"$PYTHON3_VER"'-amd64.exe.asc' ./'python-'"$PYTHON3_VER"'-amd64.exe'); then
+			echo -e "${GREEN}[OK]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+
+		# 32-bit
+		if (gpg --verify ./'python-'"$PYTHON3_VER"'.exe.asc' ./'python-'"$PYTHON3_VER"'.exe'); then
+			echo -e "${GREEN}[OK]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+	fi
+
+	#================ Pause before continuing ==================
+	until [[ $CONTINUE_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Continue? [y/n]: " -e -i y CONTINUE_CHOICE
+	done
+	if [ "$CONTINUE_CHOICE" == 'n' ]; then
+		echo "Check $SETUPDIR before running again. Quitting."
+		exit 1
+	fi
+	#================ Pause before continuing ==================
+
 
 	# Invoke-Obfuscation
 	# https://github.com/danielbohannon/Invoke-Obfuscation/archive/master.zip
-	# curl -LfO 'https://github.com/danielbohannon/Invoke-Obfuscation/archive/f20e7f843edd0a3a7716736e9eddfa423395dd26.zip'
-	# SHA256SUM = 24149efe341b4bfc216dea22ece4918abcbe0655d3d1f3c07d1965fac5b4478e Invoke-Obfuscation.zip
-	# mv f20e7f843edd0a3a7716736e9eddfa423395dd26.zip Invoke-Obfuscation.zip
+	if ! [ -e /opt/Invoke-Obfuscation ]; then
+		echo -e "${BLUE}[i]Downloading Invoke-Obfuscation...${RESET}"
+		mkdir "$SETUPDIR"/Invoke-Obfuscation
+		cd "$SETUPDIR"/Invoke-Obfuscation || exit
+
+		curl -sSLO 'https://github.com/danielbohannon/Invoke-Obfuscation/archive/f20e7f843edd0a3a7716736e9eddfa423395dd26.zip'
+		mv f20e7f843edd0a3a7716736e9eddfa423395dd26.zip Invoke-Obfuscation.zip
+
+		if (sha256sum ./Invoke-Obfuscation.zip | grep '24149efe341b4bfc216dea22ece4918abcbe0655d3d1f3c07d1965fac5b4478e'); then
+			echo -e "${GREEN}[OK]${RESET}"
+			unzip ./Invoke-Obfuscation.zip
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+	fi
+
 
 	# Invoke-CradleCrafter
 	# https://github.com/danielbohannon/Invoke-CradleCrafter
-	# SHA256SUM = 7dee05c8509770a88ba3913ce4bc9cd5e94f446025d33095e000187f95e525b9  Invoke-CradleCrafter.zip
-	# curl -LfO 'https://github.com/danielbohannon/Invoke-CradleCrafter/archive/3ff8bacd5fb6aa14a0b757808437c9e230932379.zip'
-	# mv 3ff8bacd5fb6aa14a0b757808437c9e230932379.zip Invoke-CradleCrafter.zip
+	if ! [ -e /opt/Invoke-CradleCrafter ]; then
+		echo -e "${BLUE}[i]Downloading Invoke-CradleCrafter...${RESET}"
+		mkdir "$SETUPDIR"/Invoke-CradleCrafter
+		cd "$SETUPDIR"/Invoke-CradleCrafter || exit
+
+		curl -sSLO 'https://github.com/danielbohannon/Invoke-CradleCrafter/archive/3ff8bacd5fb6aa14a0b757808437c9e230932379.zip'
+		mv 3ff8bacd5fb6aa14a0b757808437c9e230932379.zip Invoke-CradleCrafter.zip
+
+		if (sha256sum ./Invoke-CradleCrafter.zip | grep '7dee05c8509770a88ba3913ce4bc9cd5e94f446025d33095e000187f95e525b9'); then
+			echo -e "${GREEN}[OK]${RESET}"
+			unzip ./Invoke-CradleCrafter.zip
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+	fi
+
 
 	# Posh-SecMod
 	# https://github.com/darkoperator/Posh-SecMod
-	# SHA256SUM = de4f328a07f0fe0185bfce663288ee2d303ffa12c845184cec0662208f5f7204  Posh-SecMod.zip
-	# curl -LfO 'https://github.com/darkoperator/Posh-SecMod/archive/a4b7f5039c98ed270e5d20c1081d44b5a387e3c2.zip'
-	# mv a4b7f5039c98ed270e5d20c1081d44b5a387e3c2.zip Posh-SecMod.zip
+	if ! [ -e /opt/Posh-SecMod ]; then
+		echo -e "${BLUE}[i]Downloading Posh-SecMod...${RESET}"
+		mkdir "$SETUPDIR"/Posh-SecMod
+		cd "$SETUPDIR"/Posh-SecMod || exit
+
+		curl -sSLO 'https://github.com/darkoperator/Posh-SecMod/archive/a4b7f5039c98ed270e5d20c1081d44b5a387e3c2.zip'
+		mv a4b7f5039c98ed270e5d20c1081d44b5a387e3c2.zip Posh-SecMod.zip
+
+		if (sha256sum ./Posh-SecMod.zip | grep 'de4f328a07f0fe0185bfce663288ee2d303ffa12c845184cec0662208f5f7204'); then
+			echo -e "${GREEN}[OK]${RESET}"
+			unzip ./Invoke-CradleCrafter.zip
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+	fi
+
+	#================ Pause before continuing ==================
+	until [[ $CONTINUE_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Continue? [y/n]: " -e -i y CONTINUE_CHOICE
+	done
+	if [ "$CONTINUE_CHOICE" == 'n' ]; then
+		echo "Check $SETUPDIR before running again. Quitting."
+		exit 1
+	fi
+	CONTINUE_CHOICE=''
+	#================ Pause before continuing ==================
+
 
 	# TrevorC2
 	# https://github.com/trustedsec/trevorc2
+	if ! [ -e /opt/trevorc2 ]; then
+		echo -e "${BLUE}[i]Downloading TrevorC2...${RESET}"
+		cd "$SETUPDIR"/ || exit
+		git clone 'https://github.com/trustedsec/trevorc2.git'
+	fi
 
 	# ProcMon for Linux
 	# https://github.com/Sysinternals/ProcMon-for-Linux
 
+	# Sysmon for Linux
+	# https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
+	if ! (command -v sysmon > /dev/null); then
+		echo -e "${BLUE}[i]Installing sysmon...${RESET}"
+		wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
+		sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
+		wget -q https://packages.microsoft.com/config/debian/11/prod.list
+		sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+		sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+		sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+		sudo apt-get update
+		sudo apt-get install apt-transport-https
+		sudo apt-get update
+		sudo apt-get install sysmonforlinux
+
+		# https://raw.githubusercontent.com/Sysinternals/SysmonForLinux/main/README.md
+
+		if [ "$?" -ne '0' ]; then
+			exit 1
+		fi
+	fi
+
 	# trid
+	# https://www.mark0.net/soft-trid-e.html
 	# REMnux tool, similar to `file` command, with different definitions
 
 	# ILSpy
@@ -441,32 +658,50 @@ function InstallExternalTools() {
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-amd64'
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-arm64'
 
-	# GraphQLmap
-	#git clone https://github.com/swisskyrepo/GraphQLmap
-	#source /home/kali/venv/bin/activate
-	#cd GraphQLmap
-	#python3 setup.py install
-	#graphqlmap -h
+# GraphQLmap can be installed with pipx
+#	# GraphQLmap
+#	if ! [ -e /opt/GraphQLmap ]; then
+#		echo -e "${BLUE}[i]Downloading GraphQLmap...${RESET}"
+#		cd "$SETUPDIR"/ || exit
+#		git clone 'https://github.com/swisskyrepo/GraphQLmap.git'
+#
+#		source /home/kali/venv/bin/activate
+#		cd ./GraphQLmap || exit
+#		python3 ./setup.py install
+#		if (graphqlmap -h); then
+#			echo -e "${GREEN}[OK]${RESET}"
+#		else
+#			echo -e "${YELLOW}[i]Issue setting up GraphQLmap.${RESET}"
+#		fi
+#	fi
 
 	# CVE-2021-4034 pwnkit
-	#git clone https://github.com/arthepsy/CVE-2021-4034
-
-	# oledump
-	if ! [ -e /opt/oledump ]; then
-		echo -e "${BLUE}[i]Downloading oledump...${RESET}"
-		mkdir "$SETUPDIR"/oledump
-		cd "$SETUPDIR"/oledump || exit
-		curl -LfO 'https://didierstevens.com/files/software/oledump_V0_0_60.zip'
-		if (sha256sum ./oledump_V0_0_60.zip | grep 'd847e499cb84b034e08bcddc61addada39b90a5fa2e1aba0756a05039c0d8ba2'); then
-			echo -e "${GREEN}[OK]${RESET}"
-			sleep 2
-			unzip ./oledump_V0_0_60.zip && \
-			rm ./oledump_V0_0_60.zip
-		else
-			echo -e "${RED}[i]Bad signature.${RESET}"
-		fi
-		echo -e "${BLUE}[i]Done.${RESET}"
+	# https://github.com/arthepsy/CVE-2021-4034
+	# https://github.com/PwnFunction/CVE-2021-4034
+	if ! [ -e /opt/pwnkit ]; then
+		echo -e "${BLUE}[i]Downloading PwnKit CVE-2021-4034...${RESET}"
+		cd "$SETUPDIR"/ || exit
+		git clone 'https://github.com/PwnFunction/CVE-2021-4034.git'
 	fi
+
+	# Didier Stevens Suite
+	# https://github.com/DidierStevens/DidierStevensSuite
+	if ! [ -e /opt/DidierStevensSuite ]; then
+		echo -e "${BLUE}[i]Didier Stevens Suite...${RESET}"
+		cd "$SETUPDIR"/ || exit
+		git clone 'https://github.com/DidierStevens/DidierStevensSuite.git'
+	fi
+
+	#================ Pause before continuing ==================
+	until [[ $CONTINUE_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Continue? [y/n]: " -e -i y CONTINUE_CHOICE
+	done
+	if [ "$CONTINUE_CHOICE" == 'n' ]; then
+		echo "Check $SETUPDIR before running again. Quitting."
+		exit 1
+	fi
+	CONTINUE_CHOICE=''
+	#================ Pause before continuing ==================
 
 
 	# pspy
@@ -499,7 +734,6 @@ function InstallExternalTools() {
 		else
 			echo -e "${RED}[i]Bad signature.${RESET}"
 		fi
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
 	# PEASS
@@ -507,6 +741,21 @@ function InstallExternalTools() {
 		echo -e "${BLUE}[i]Downloading PEASS...${RESET}"
 		mkdir "$SETUPDIR"/PEASS
 		cd "$SETUPDIR"/PEASS || exit
+
+		curl -sSLO 'https://github.com/carlospolop/PEASS-ng/releases/download/20220511/winPEASx64.exe'
+		if (sha256sum ./winPEASx64.exe | grep '3f27b4e6b2358e7ee3914fae37f87890cfef8e4f3c052f9ad10936168d2fd75f'); then
+			echo -e "${GREEN}[OK]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+
+		curl -sSLO 'https://github.com/carlospolop/PEASS-ng/releases/download/20220511/winPEASx86.exe'
+		if (sha256sum ./winPEASx86.exe | grep 'f9cec44b9bbd2f60b1e04cbf07d0261e29cb62545d405e7e512d802c32bcb682'); then
+			echo -e "${GREEN}[OK]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+
 		curl -sSLO 'https://raw.githubusercontent.com/carlospolop/PEASS-ng/cc00bf89ab25fc7818aac2a3476539f24c26a720/winPEAS/winPEASbat/winPEAS.bat'
 		if (sha256sum ./winPEAS.bat | grep '45b21e41e29c93100a02977c1f8679d6fc70a01c765f365b509271bebc7fbf6c'); then
 			echo -e "${GREEN}[OK]${RESET}"
@@ -523,7 +772,6 @@ function InstallExternalTools() {
 		else
 			echo -e "${RED}[i]Bad signature.${RESET}"
 		fi
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
 	# mimipenguin
@@ -543,7 +791,6 @@ function InstallExternalTools() {
 		else
 			echo -e "${RED}[i]Bad signature.${RESET}"
 		fi
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
 	# Sysinternals
@@ -555,7 +802,6 @@ function InstallExternalTools() {
 		curl -sSLO 'https://download.sysinternals.com/files/SysinternalsSuite.zip'
 		unzip ./SysinternalsSuite.zip && \
 		rm ./SysinternalsSuite.zip
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
 	# Plink
@@ -603,18 +849,19 @@ function InstallExternalTools() {
 			exit 1
 		fi
 		echo ""
-
-		echo -e "${BLUE}[i]Done.${RESET}"
 	fi
 
+	# Adjust permissions
 	find "$SETUPDIR" -type f -print0 | xargs -0 chmod 640
 	find "$SETUPDIR" -type d -print0 | xargs -0 chmod 750
-	sudo chown -R root:"$USERNAME" "$SETUPDIR"
+
+	sudo chown -R root:"$USERNAME" "$SETUPDIR"/*
 
 	sudo mv "$SETUPDIR"/* -t /opt
 
+	echo -e "${BLUE}[i]Done.${RESET}"
+
 }
-InstallExternalTools
 
 function CleanUp() {
 
@@ -623,6 +870,15 @@ function CleanUp() {
 	fi
 
 }
+
+MakeTemp
+InstallAptPackages
+AddAliases
+#InstallSnaps
+InstallPypiPackages
+#InstallGems
+#InstallGo
+InstallExternalTools
 CleanUp
 
 exit
