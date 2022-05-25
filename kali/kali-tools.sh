@@ -407,43 +407,43 @@ function InstallExternalTools() {
 	#================ Pause before continuing ==================
 
 	# chisel (binaries)
-	CHISEL_VER='v1.7.7'
+	CHISEL_VER='1.7.7'
 	if ! [ -e /opt/chisel ]; then
 		echo -e "${BLUE}[i]Downloading Chisel $CHISEL_VER binaries...${RESET}"
 		mkdir "$SETUPDIR"/chisel
 		cd "$SETUPDIR"/chisel || exit
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_checksums.txt'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_darwin_amd64.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_darwin_arm64.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_386.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_amd64.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_arm64.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_armv6.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_armv7.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_checksums.txt'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_darwin_amd64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_darwin_arm64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_386.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_amd64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_arm64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_armv6.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_armv7.gz'
 		echo "[i][#########33%                    ]"
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64le_hardfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64le_softfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64_hardfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64_softfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mipsle_hardfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mipsle_softfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips_hardfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips_softfloat.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_ppc64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64le_hardfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64le_softfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64_hardfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips64_softfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mipsle_hardfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mipsle_softfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips_hardfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_mips_softfloat.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_ppc64.gz'
 		echo "[i][###################66%          ]"
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_ppc64le.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_s390x.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_386.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_amd64.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_arm64.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_armv6.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_armv7.gz'
-		curl -sSLO 'https://github.com/jpillora/chisel/archive/refs/tags/'"$CHISEL_VER".zip
-		curl -sSLO 'https://github.com/jpillora/chisel/archive/refs/tags/'"$CHISEL_VER".tar.gz
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_ppc64le.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_linux_s390x.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_386.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_amd64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_arm64.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_armv6.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/releases/download/v'"$CHISEL_VER"'/chisel_'"$CHISEL_VER"'_windows_armv7.gz'
+		curl -sSLO 'https://github.com/jpillora/chisel/archive/refs/tags/v'"$CHISEL_VER".zip
+		curl -sSLO 'https://github.com/jpillora/chisel/archive/refs/tags/v'"$CHISEL_VER".tar.gz
 		echo "[i][###########################100%]"
 
 		if (sha256sum -c ./chisel_"$CHISEL_VER"_checksums.txt); then
-			echo -e "${GREEN}[OK chisel_${CHISEL_VER}_checksums]${RESET}"
+			echo -e "${GREEN}[OK chisel v$CHISEL_VER checksums]${RESET}"
 		else
 			echo -e "${RED}[i]Bad signature.${RESET}"
 		fi
