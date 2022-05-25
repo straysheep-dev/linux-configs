@@ -851,10 +851,10 @@ function InstallExternalTools() {
 	fi
 
 	# Adjust permissions
-	find "$SETUPDIR" -type f -print0 | xargs -0 chmod 640
-	find "$SETUPDIR" -type d -print0 | xargs -0 chmod 750
+	find "$SETUPDIR" -type f -print0 | xargs -0 chmod 644
+	find "$SETUPDIR" -type d -print0 | xargs -0 chmod 755
 
-	sudo chown -R root:"$USERNAME" "$SETUPDIR"/*
+	sudo chown -R root:root "$SETUPDIR"/*
 
 	sudo mv "$SETUPDIR"/* -t /opt
 
