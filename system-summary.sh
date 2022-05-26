@@ -53,7 +53,7 @@ fi
 if ! [ -e /var/log/"$LOGNAME"/"$LOGFILE" ]; then
 	touch /var/log/"$LOGNAME"/"$LOGFILE" || exit 1
 fi
-chmod 750 /var/log/"$LOGNAME" || exit 1
+chmod 755 /var/log/"$LOGNAME" || exit 1
 chmod 640 /var/log/"$LOGNAME"/"$LOGFILE" || exit 1
 
 function accounts() {
@@ -104,7 +104,11 @@ function kernel() {
 	echo '#[v] secureboot'
 	echo ''
 	if (command -v mokutil > /dev/null); then
-		mokutil --sb-state 2>&1
+		if (mokutil --sb-state 2>&1); then
+			echo ''
+			# Summarize all currently enrolled keys
+			mokutil --list-enrolled | grep -A 1 -P "^(\[key\s\d\]|SHA1\sFingerprint:\s[\w\w:]{59}|\s+Issuer:\s|\s+Subject:\s|\s+X509v3\s(Basic\sConstraints:|Extended\sKey\sUsage:))" | grep -Pv "^(\-\-|\s+Validity$|\s+Subject\sPublic\sKey\sInfo:$|Certificate:$)"
+		fi
 	fi
 
 	echo '#======================================================================'
@@ -502,11 +506,12 @@ function changes() {
 
 if ! [ -e /var/log/"$LOGNAME"/system-changes ]; then
 	mkdir /var/log/"$LOGNAME"/system-changes
-	chmod 750 /var/log/"$LOGNAME"/system-changes
+	chmod 755 /var/log/"$LOGNAME"/system-changes
 fi
 
 if [ -e /var/log/"$LOGNAME"/"$LOGFILE".1 ]; then
 	diff /var/log/"$LOGNAME"/"$LOGFILE".1 /var/log/"$LOGNAME"/"$LOGFILE" > /var/log/"$LOGNAME"/system-changes/"$(date +%F_%T)"_system-changes.diff
+	chmod 640 /var/log/"$LOGNAME"/system-changes/*
 fi
 
 }
