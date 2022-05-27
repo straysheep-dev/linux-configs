@@ -7,6 +7,7 @@
   "AutoplayAllowed": false,
   "BackgroundModeEnabled": false,
   "BlockThirdPartyCookies": true,
+  "BrowserGuestModeEnabled": false,
   "BrowserSignin": 0,
   "ClearBrowsingDataOnExitList": [
     "browsing_history",

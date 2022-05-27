@@ -23,6 +23,7 @@ sudo snap install ./chromium_<version>.snap
 * Prevents account sign-in, and account sync
   - Local profiles can still be created and used
   - Incognito mode is disabled
+  - Guest mode is disabled
 * Block all third-party cookies
 * Block filesystem api read/write
   - GUI downloads / uploads still work normally
@@ -37,6 +38,30 @@ sudo snap install ./chromium_<version>.snap
 * uBlock Origin installed and locked as only permitted extension
 
 If you prefer to avoid installing any extensions, remove both `ExtensionInstallAllowlist` and `ExtensionInstallForcelist` lines from this policy.
+
+Guest and Incognito modes are disabled by default. This prevents opening browser sessions without extensions that you may want to always be installed.
+
+If you want to enabled these modes:
+
+```
+  # https://chromeenterprise.google/policies/?policy=BrowserGuestModeEnabled
+  "BrowserGuestModeEnabled": false,    # change to true
+  ...
+  # https://chromeenterprise.google/policies/?policy=IncognitoModeAvailability
+  "IncognitoModeAvailability": 1,      # change to 0
+```
+
+### Chrome Profiles
+
+* https://support.google.com/chrome/a/answer/11198768?hl=en
+
+> Creating different Chrome profiles lets users switch between their managed account and their other Google accounts, such as personal or test accounts, without signing out each time. No data or content is shared between profiles.
+
+Chrome profiles work similar to [Firefox Containers](https://addons.mozilla.org/en-US/firefox/addon/multi-account-containers/).
+
+However, tabs from different profiles cannot exist in the same Chrome window. A new, separate window is created for each Chrome profile you launch a session with.
+
+Settings specific to installed extensions that you'd like to replicate in other profiles will need to be exported from a current profile, and imported into the other profile(s) extension(s). Each newly created profile launches with all of the policies (and extensions to be installed) applied, as if it was the first launch.
 
 ## Thanks and References:
 
@@ -81,7 +106,7 @@ Change them to your preferred default search provider. Examples are given below 
 
 * AuthSchemes
 
-[Edge v95 security baseline](https://www.microsoft.com/en-us/download/details.aspx?id=55319) uses the following:
+[Edge v98 security baseline](https://www.microsoft.com/en-us/download/details.aspx?id=55319) uses the following:
 
 ```
 ntlm,negotiate
