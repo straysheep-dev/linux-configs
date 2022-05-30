@@ -26,6 +26,9 @@ function setupChromium() {
 			echo '[!]Bad signature for policies.json'
 		fi
 	fi
+
+	# https://support.google.com/chrome/a/answer/9027408?hl=en
+	ln -s /etc/chromium-browser /etc/opt/chrome
 }
 
 setupChromium

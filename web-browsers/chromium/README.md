@@ -1,19 +1,62 @@
 # setup-chromium
 
-Automatically generate a hardened policy file and the [correct](https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/1714244) [directories](https://forum.snapcraft.io/t/auto-connecting-the-system-files-interface-for-the-chromium-snap/20245) for the [Chromium Snap package](https://snapcraft.io/chromium) to use.
+Automatically generate a hardened policy file and the [correct](https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/1714244) [directories](https://forum.snapcraft.io/t/auto-connecting-the-system-files-interface-for-the-chromium-snap/20245) for the [Chromium Snap package](https://snapcraft.io/chromium), as well as the [directories](https://support.google.com/chrome/a/answer/9027408?hl=en) used by the official [deb/rpm packages](https://www.google.com/chrome/) of Google Chrome.
 
 Tested on: 
 * Ubuntu 20.04 
 * Fedora 34, 35
 
+Install Chromium:
+
 ```bash
 sudo dnf install -y snapd
-chmod +x setup-chromium.sh
-sudo ./setup-chromium.sh
 snap download chromium
 sudo snap ack ./chromium_<version>.assert
 sudo snap install ./chromium_<version>.snap
+
+sudo mkdir -p /etc/chromium-browser/policies/managed
+sudo mkdir -p /etc/chromium-browser/policies/recommended
 ```
+
+Install Chrome:
+
+```bash
+echo "### THIS FILE IS AUTOMATICALLY CONFIGURED ###
+# You may comment out this entry, but any other modifications may be lost.
+deb [arch=$(dpkg --print-architecture)] https://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+
+wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+if ! (apt-key list | grep '4CCA 1EAF 950C EE4A B839  76DC A040 830F 7FAC 5991'); then echo "BAD SIGNATURE" && exit; else echo OK; fi
+if ! (apt-key list | grep 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'); then echo "BAD SIGNATURE" && exit; else echo OK; fi
+
+sudo apt update && \
+sudo apt install -y google-chrome-stable
+
+# https://support.google.com/chrome/a/answer/9027408?hl=en
+sudo mkdir -p /etc/opt/chrome/policies/managed
+sudo mkdir -p /etc/opt/chrome/policies/recommended
+```
+[Key signatures](https://www.google.com/linuxrepositories/):
+```
+cat /etc/apt/trusted.gpg.d/google-chrome.gpg | gpg
+gpg: WARNING: no command supplied.  Trying to guess what you mean ...
+
+pub   dsa1024/0xA040830F7FAC5991 2007-03-08 [SC]
+      Key fingerprint = 4CCA 1EAF 950C EE4A B839  76DC A040 830F 7FAC 5991
+uid                             Google, Inc. Linux Package Signing Key <linux-packages-keymaster@google.com>
+sub   elg2048/0x4F30B6B4C07CB649 2007-03-08 [E]
+pub   rsa4096/0x7721F63BD38B4796 2016-04-12 [SC]
+      Key fingerprint = EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796
+uid                             Google Inc. (Linux Packages Signing Authority) <linux-packages-keymaster@google.com>
+sub   rsa4096/0x1397BC53640DB551 2016-04-12 [S] [expired: 2019-04-12]
+sub   rsa4096/0x6494C6D6997C215E 2017-01-24 [S] [expired: 2020-01-24]
+sub   rsa4096/0x78BD65473CB3BD13 2019-07-22 [S] [expires: 2022-07-21]
+sub   rsa4096/0x4EB27DB2A3B88B8B 2021-10-26 [S] [expires: 2024-10-25]
+```
+
+In either case, run the [setup-chromium](/web-browsers/chromium/setup-chromium.sh) shell script to install the policy file from this repo.
+
+---
 
 ## Policy Overview:
 * Based on the [OpenSCAP security guide for Google Chrome STIG configuration](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html)
@@ -65,12 +108,26 @@ Settings specific to installed extensions that you'd like to replicate in other 
 
 ## Thanks and References:
 
-* https://github.com/OpenSCAP/openscap
-* https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html
-* https://public.cyber.mil/stigs/downloads/?_dl_facet_stigs=app-security%2Cbrowser-guidance
-* https://chromeenterprise.google/policies/
+- OpenSCAP
+	* https://github.com/OpenSCAP/openscap
+- Chromium STIG Guide
+	* https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html
+- Web Browser STIG Guidance
+	* https://public.cyber.mil/stigs/downloads/?_dl_facet_stigs=app-security%2Cbrowser-guidance
+- Chrome Enterprise Policies
+	* https://chromeenterprise.google/policies/
+- Google Chrome (Security Updates, CVE list)
+	* https://chromereleases.googleblog.com/
+- Chromium Blog
+	* https://blog.chromium.org/
+- Historical list of updates with reference links
+	* https://en.wikipedia.org/wiki/Google_Chrome_version_history
+- Chromium snap package repo
+	* https://launchpad.net/ubuntu/+source/chromium-browser
+- Google Linux package repo information
+	* https://www.google.com/linuxrepositories/
 
-The setup script uses all of the [recommended](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html) settings as a base
+The policy file uses all of the [recommended](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html) settings as a base
 
 Differences have been noted below, and made either for compatability / usability reasons, or the policy has been deprecated / replaced
 
