@@ -1,6 +1,6 @@
 # setup-chromium
 
-Automatically generate a hardened policy file and the [correct](https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/1714244) [directories](https://forum.snapcraft.io/t/auto-connecting-the-system-files-interface-for-the-chromium-snap/20245) for the [Chromium Snap package](https://snapcraft.io/chromium), as well as the [directories](https://support.google.com/chrome/a/answer/9027408?hl=en) used by the official [deb/rpm packages](https://www.google.com/chrome/) of Google Chrome.
+Automatically generate a hardened policy file and the [correct](https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/1714244) [directories](https://forum.snapcraft.io/t/auto-connecting-the-system-files-interface-for-the-chromium-snap/20245) for the [Chromium Snap package](https://snapcraft.io/chromium), as well as the [directories](https://support.google.com/chrome/a/answer/9027408?hl=en) used by the [official deb/rpm packages](https://www.google.com/linuxrepositories/) of [Google Chrome](https://www.google.com/chrome/).
 
 Tested on: 
 * Ubuntu 20.04 
