@@ -34,7 +34,20 @@ Other commands to know:
 ```bash
 # when switching between different keys that have different identities
 pkill gpg-agent ; pkill ssh-agent ; pkill pinentry ; eval $(gpg-agent --daemon --enable-ssh-support); gpg-connect-agent updatestartuptty /bye
+
+# If usbguard is installed, see if it's blocking the YubiKey:
+dmesg | tail [-n 100] | grep -B 4 'Device is not authorized for usage'
+# remove the device, then:
+sudo usbguard watch
+# insert the device, note the line '[device] <action>: id=<id>', Ctrl+c the usbguard listener
+sudo usbguard add-device <device-id>
+
+# Alternatively, with the YubiKey still connected, you can add the rule in the same way the yubi-mode script does:
+ALLOW_RULE="$(sudo usbguard list-devices | grep -P "^\d+: block id \d{4}:\d{4} serial \"\" name \"YubiKey .+$" | sed 's/^[[:digit:]]\{1,3\}: block/allow/')"
+echo "$ALLOW_RULE" | sudo tee -a /etc/usbguard/rules.conf > /dev/null
+sudo systemctl restart usbguard
 ```
+
 In all of the above cases, you can confirm your key is being detected properly if this command is successful:
 ```bash
 gpg --card-status
