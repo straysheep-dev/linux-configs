@@ -36,7 +36,7 @@ if ! [ -e /etc/logrotate.d/"$LOGNAME" ]; then
 	echo "# Logging configuration for $LOGNAME shell script
 /var/log/$LOGNAME/$LOGFILE {
 	nocompress
-	weekly
+	daily
 	rotate 7
 	missingok
 	notifempty
