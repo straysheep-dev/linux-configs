@@ -167,6 +167,20 @@ function hardware() {
 	lsusb
 }
 
+function firmware() {
+	if (command -v fwupdmgr > /dev/null); then
+		echo '#======================================================================'
+		echo "# [v] firmware"
+		echo ''
+		fwupdmgr get-devices --show-all-devices
+
+		echo '#======================================================================'
+		echo "# [v] firmware history"
+		echo ''
+		fwupdmgr get-history
+	fi
+}
+
 function network() {
 	echo '#======================================================================'
 	echo '#[v] hostname'
@@ -524,6 +538,7 @@ function checkSystem() {
 	accounts
 	kernel
 	hardware
+	firmware
 	network
 	processes
 	services
