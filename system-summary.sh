@@ -264,7 +264,7 @@ function network() {
 	elif (command -v ss > /dev/null); then
 		ss -lnp -A unix
 	fi
-	
+
 	echo '#======================================================================'
 	echo "# [v] connected sockets"
 	echo ''
@@ -273,7 +273,7 @@ function network() {
 	elif (command -v ss > /dev/null); then
 		ss -np -A unix
 	fi
-	
+
 	echo '#======================================================================'
 	echo "# [v] d-bus"
 	echo ''
@@ -491,11 +491,6 @@ function integrity() {
 		echo ''
 		rkhunter --sk --check --rwo
 		echo ''
-		echo '#======================================================================'
-		echo '#[v] rkhunter database hashes'
-		echo ''
-		sha256sum /var/lib/rkhunter/db/rkhunter.dat*
-		echo ''
 	fi
 
 	if ! (command -v aide > /dev/null); then
@@ -507,11 +502,24 @@ function integrity() {
 		echo ''
 		aide -c /etc/aide/aide.conf -C
 		echo ''
+
+	fi
+	
+	# Get database and file hashes
+	if (command -v aide > /dev/null); then
 		echo '#======================================================================'
 		echo '#[v] aide (compressed) database hashes'
 		echo ''
 		sha256sum /etc/aide/aide.conf
 		sha256sum /var/lib/aide/aide.db*
+		echo ''
+	fi
+	if (command -v rkhunter > /dev/null); then
+		echo ''
+		echo '#======================================================================'
+		echo '#[v] rkhunter database hashes'
+		echo ''
+		sha256sum /var/lib/rkhunter/db/*\.*
 		echo ''
 	fi
 }
