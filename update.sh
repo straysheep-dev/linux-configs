@@ -22,9 +22,11 @@ elif (command -v dnf > /dev/null); then
 fi
 
 if (command -v snap > /dev/null); then
+	true
 	sudo snap refresh
 fi
 
 if (command -v flatpak > /dev/null); then
+	true
 	#sudo flatpak update
 fi
