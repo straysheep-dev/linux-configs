@@ -365,6 +365,37 @@ See [manually configure networking](#manually-configure-networking) above.
 
 ---
 
+### Copy and Paste, Drag and Drop Issues
+
+In some cases these functions will stop working. 
+
+- Due to an update of the VMware Tools or `open-vm-tools*` packages at runtime, reboot the VM
+- Try one or the other (if using copy and paste, try drag and drop)
+- Try `Ctrl+c`, `Ctrl+v` to copy and paste
+- Try `Right-Click > Copy`, `Right-Click > Paste` to copy and paste
+- Be sure to `Left-Click` inside the source and destination 'areas' before executing a copy or paste action
+	* Left click inside the VM's folder window, then copy the file, next left click inside your host's folder window, and paste the file
+- Try different source and destination locations
+	* copy and paste to the destination's desktop rather than a folder window
+	* drag and drop a file from the source file system to an application window on the destination, such as an audio file onto a media player application window
+
+There are other creative ways around this:
+
+- Create a shared folder as 'read-only' to obtain files from the host
+- Use a USB device to transfer files to and from the host
+- Use `ssh` to `scp` files to and from the host
+
+If all else fails, the builtin `vmrun` commands will always work from the host as long as the guest VM has VMware Tools or `open-vm-tools*` installed:
+
+- `vmrun -T ws CopyFileFromGuestToHost /path/to/your/vm/vm.vmx C:\\Source\\Path\\On\\The\\Guest\\file.txt /Destination/Path/On/The/Host/file.txt`
+- `vmrun -T ws CopyFileFromHostToGuest /path/to/your/vm/vm.vmx /Source/Path/On/The/Host/file.txt C:\\Destination\\Path\\On\\The\\Guest\\file.txt`
+
+The downside is it's much slower to type the command instead of `Ctrl+c`, `Ctrl+v`. You could create a shell (bash or powershell) script to handle these operations instead.
+
+If your VM is encrypted, when writing a script you can assign the encryption password to a variable that's read as input during execution. This prevents providing the password numerous times (from your password manager) depending on the script, you'll only need to provide it once per operation.
+
+---
+
 ### YubiKey VMware Passthrough
 
 - Troubleshooting YubiKey device passthrough:
