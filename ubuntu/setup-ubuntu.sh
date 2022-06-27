@@ -59,7 +59,7 @@ checkHostname
 function checkOS() {
 
 	# Check desktop type
-	DESKTOP="$(echo $XDG_CURRENT_DESKTOP | cut -d ':' -f2)"
+	DESKTOP="$(echo "$XDG_CURRENT_DESKTOP" | cut -d ':' -f2)"
 	echo -e "${BLUE}[i]$DESKTOP desktop environment detected${RESET}"
 
 	# Check OS version
@@ -805,12 +805,13 @@ function installPackages() {
 				sudo snap connect vlc:removeable-media
 				sudo snap disconnect vlc:avahi-control
 				sudo snap disconnect vlc:network
-				sudo snap disconnect vlc:network-bind				
+				sudo snap disconnect vlc:network-bind
 				if ! [ "$XDG_SESSION_TYPE" == "x11" ]; then
 					sudo snap disconnect vlc:x11
 				fi
 			fi
 
+		fi
 		# Add third party package functions from above below here
 		installPdfTools
 	fi
