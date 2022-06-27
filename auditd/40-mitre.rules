@@ -10,7 +10,7 @@
 # Compiled by Florian Roth
 #
 # Created  : 2017/12/05
-# Modified : 2022/01/09
+# Modified : 2022/06/26
 #
 # Based on rules published here:
 #   Gov.uk auditd rules
@@ -60,6 +60,7 @@
 -a never,exit -F subj_type=crond_t
 
 ## This prevents chrony from overwhelming the logs
+#-a never,exit -F arch=b32 -S adjtimex -F auid=unset -F uid=chrony -F subj_type=chronyd_t
 #-a never,exit -F arch=b64 -S adjtimex -F auid=unset -F uid=chrony -F subj_type=chronyd_t
 
 ## This is not very interesting and wastes a lot of space if the server is public facing
@@ -425,6 +426,7 @@
 -a always,exit -F path=/usr/bin/setfacl -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
 -a always,exit -F path=/usr/bin/sftp -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
 -a always,exit -F path=/usr/bin/sleep -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
+-a always,exit -F path=/usr/bin/ss -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
 -a always,exit -F path=/usr/bin/socat -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
 -a always,exit -F path=/usr/bin/ssh -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
 -a always,exit -F path=/usr/bin/staprun -F perm=x -F auid>=500 -F auid!=4294967295 -k susp_activity
@@ -464,6 +466,10 @@
 #-w /bin/tcsh -p x -k susp_shell
 #-w /bin/tclsh -p x -k susp_shell
 #-w /bin/zsh -p x -k susp_shell
+#-w /bin/xonsh -p x -k susp_shell
+#-w /bin/open -p x -k susp_shell
+#-w /bin/sh -p x -k susp_shell
+#-w /bin/rbash -p x -k susp_shell
 
 ## Shell Configuration Persistence Related Events
 -w /etc/profile.d/ -k T1546.004_Shell_Config_Mod
@@ -505,6 +511,13 @@
 -a always,exit -F arch=b64 -S ptrace -F a0=0x6 -k T1055.008_Ptrace_Sys_Call
 -a always,exit -F arch=b32 -S ptrace -k T1055.008_Ptrace_Sys_Call
 -a always,exit -F arch=b64 -S ptrace -k T1055.008_Ptrace_Sys_Call
+
+## Anonymous File Creation
+### These rules watch the use of memfd_create 
+### "memfd_create" creates anonymous file and returns a file descriptor to access it
+### When combined with "fexecve" can be used to stealthily run binaries in memory without touching disk  
+-a always,exit -F arch=b64 -S memfd_create -F key=anon_file_create
+-a always,exit -F arch=b32 -S memfd_create -F key=anon_file_create 
 
 ## Privilege Abuse
 ### The purpose of this rule is to detect when an admin may be abusing power by looking in user's home dir.
@@ -575,6 +588,16 @@
 ## CHEF https://www.chef.io/chef/
 #-w /etc/chef -p wa -k soft_chef
 
+## Salt
+## https://saltproject.io/
+## https://docs.saltproject.io/en/latest/ref/configuration/master.html
+#-w /etc/salt -p wa -k soft_salt
+#-w /usr/local/etc/salt -p wa -k soft_salt
+
+## Otter
+## https://inedo.com/otter
+#-w /etc/otter -p wa -k soft_otter
+
 ## Docker
 -w /usr/bin/dockerd -k docker
 -w /usr/bin/docker -k docker
@@ -585,6 +608,15 @@
 #-w /etc/sysconfig/docker -k docker
 #-w /etc/sysconfig/docker-storage -k docker
 -w /usr/lib/systemd/system/docker.service -k docker
+
+## Virtualization stuff
+-w /usr/bin/qemu-system-x86_64 -p x -k qemu-system-x86_64
+-w /usr/bin/qemu-img -p x -k qemu-img
+-w /usr/bin/qemu-kvm -p x -k qemu-kvm
+-w /usr/bin/qemu -p x -k qemu
+-w /usr/bin/virtualbox -p x -k virtualbox
+-w /usr/bin/virt-manager -p x -k virt-manager
+-w /usr/bin/VBoxManage -p x -k VBoxManage
 
 ## Kubelet
 -w /usr/bin/kubelet -k kubelet
