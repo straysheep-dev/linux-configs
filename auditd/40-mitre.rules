@@ -10,7 +10,7 @@
 # Compiled by Florian Roth
 #
 # Created  : 2017/12/05
-# Modified : 2022/06/26
+# Modified : 2022/07/01
 #
 # Based on rules published here:
 #   Gov.uk auditd rules
@@ -353,6 +353,8 @@
 -w /usr/bin/tshark -p x -k T1040_Network_Sniffing
 -w /usr/bin/rawshark -p x -k T1040_Network_Sniffing
 -w /usr/bin/rdesktop -p x -k T1219_Remote_Access_Software
+-w /usr/bin/wlfreerdp -p x -k T1219_Remote_Access_Software
+-w /usr/bin/xfreerdp -p x -k T1219_Remote_Access_Software
 -w /usr/bin/nmap -p x -k T1046_Network_Service_Scanning
 
 ## Added to catch netcat on Ubuntu
@@ -495,6 +497,7 @@
 ## dbus-send invocation
 ### may indicate privilege escalation CVE-2021-3560
 -w /usr/bin/dbus-send -p x -k dbus_send
+-w /usr/bin/gdbus -p x -k gdubs_call
 
 ## pkexec invocation
 ### may indicate privilege escalation CVE-2021-4034
