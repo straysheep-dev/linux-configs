@@ -369,7 +369,19 @@ See [manually configure networking](#manually-configure-networking) above.
 
 In some cases these functions will stop working. 
 
-- Due to an update of the VMware Tools or `open-vm-tools*` packages at runtime, reboot the VM
+**If VMware Tools or `open-vm-tools*` packages were updated at runtime:**
+
+- Reboot the VM
+
+**If the VMware Tools or `open-vm-tools*` packages were not updated:**
+
+- `Suspend` all currently powered on guests
+- Close the VMware Workstation application
+- Restart VMware Workstation
+- Resume all suspended guests
+
+**All other cases:**
+
 - Try one or the other (if using copy and paste, try drag and drop)
 - Try `Ctrl+c`, `Ctrl+v` to copy and paste
 - Try `Right-Click > Copy`, `Right-Click > Paste` to copy and paste
@@ -434,6 +446,23 @@ Generally the fastest way back to a working baseline when troubleshooting key pa
 
 ---
 
+### VMware GUI Frozen or Unresponsive
+
+If a VMware VM gets stuck (anything from unresponsive, to the entire GUI of VMware Workstation is locked up) `kill` the `vmware-vmx` process tied to starting that VM's `.vmx` file.
+
+Your other running instances will be fine and continue to run by default in the background if the GUI process dies and needs restarted (unless you changed this behavior in the settings).
+
+This can be done from the Process tab in the System Monitor, or via `pgrep` / `pkill`:
+```bash
+pgrep -f '<name-of-vmx-file>'
+pkill -f '<name-of-vmx-file>'
+
+# example
+pkill -f 'Server-22.04.vmx'
+```
+
+I've found one system where navigating to other VM tabs before some VM's are fully powered on will cause the VMware application GUI to lock up. Waiting 2-3 seconds until VM's reach the first splash screen in their boot process is typically enough.
+
 ### VM frozen after PC enters sleep state
 
 Tested on Ubuntu 20.04 LTS, GNOME desktop
@@ -447,19 +476,6 @@ After waking, some VM's (and their tabs within the VMware Workstation GUI) will 
 		- Wait at least a minute or two for the process to complete
 	* If graphical errors persist after resuming VM's suspended like this
 		- Shutdown the VM, power it back on
----
-
-### Copy & paste no longer works
-
-Tested on Ubuntu 20.04 LTS, GNOME desktop
-
-The easiest and quickest way to fix this: 
-
-- `Suspend` all currently powered on guests
-- Close the VMware Workstation application
-- Restart VMware Workstation
-- Resume all suspended guests
-
 ---
 
 ### Taking screenshots from host
