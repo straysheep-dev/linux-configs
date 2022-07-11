@@ -21,6 +21,9 @@ function isRoot() {
 isRoot
 
 function SetupPolicies() {
+	# This always creates the /etc/chromium-browser/ directory
+	# If /etc/opt/chrome exists, symlink the existing files over from /etc/chromium-browser/
+
 	# https://www.chromium.org/administrators/linux-quick-start/
         sudo mkdir -p /etc/chromium-browser/policies/managed
         sudo mkdir -p /etc/chromium-browser/policies/recommended
@@ -31,20 +34,21 @@ function SetupPolicies() {
 	else
         	echo -e "[${BLUE}>${RESET}]Downloading chromium-policies.json..."
 		curl -Lf 'https://raw.githubusercontent.com/straysheep-dev/linux-configs/main/web-browsers/chromium/chromium-policies.json' | sudo tee /etc/chromium-browser/policies/managed/policies.json > /dev/null
+		# Download the latest README with examples
+		echo -e "[${BLUE}>${RESET}]Downloading README.md..."
+		curl -Lf 'https://raw.githubusercontent.com/straysheep-dev/linux-configs/main/web-browsers/chromium/README.md' | sudo tee /etc/chromium-browser/policies/README.md > /dev/null
+
 		if (sha256sum /etc/chromium-browser/policies/managed/policies.json | grep -qx '0f3ee2d3e96548a2a259ce632ba3b52d85b3d580fd7b6ad0deea8dbb9de5b569  /etc/chromium-browser/policies/managed/policies.json'); then
-			echo -e "${GREEN}[OK]${RESET}"
+			echo -e "[${GREEN}OK${RESET}]"
 		else
 			echo -e "${RED}[\!]Bad signature for policies.json${RESET}"
 		fi
 	fi
 
 	# https://support.google.com/chrome/a/answer/9027408?hl=en
-	if [ -d /etc/opt/chrome ]; then
-		sudo mkdir -p /etc/opt/chrome/policies/managed
-		sudo mkdir -p /etc/opt/chrome/policies/recommended
-		sudo tee /etc/opt/chrome/policies/managed/policies.json < /etc/chromium-browser/policies/managed/policies.json > /dev/null
-	else
-		sudo ln -s /etc/chromium-browser /etc/opt/chrome
+	sudo mkdir -p /etc/opt/chrome 2>/dev/null
+	if ! [ -e /etc/opt/chrome/policies ]; then
+		sudo ln -s /etc/chromium-browser/policies /etc/opt/chrome
 	fi
 }
 
@@ -56,7 +60,7 @@ function InstallBrowser() {
 		read -rp "Selection: " -e -i n INSTALL_CHOICE
 	done
 	if [ "$INSTALL_CHOICE" == 'n' ]; then
-		exit 1
+		return 1
 	fi
 
 	echo ""
@@ -102,8 +106,8 @@ function InstallBrowser() {
 			sudo chown root:root /etc/apt/trusted.gpg.d/google-chrome.gpg
 			sudo chmod 644 /etc/apt/trusted.gpg.d/google-chrome.gpg
 
-			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep '4CCA 1EAF 950C EE4A B839  76DC A040 830F 7FAC 5991'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "${GREEN}OK${RESET}"; fi
-			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "${GREEN}OK${RESET}"; fi
+			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep '4CCA 1EAF 950C EE4A B839  76DC A040 830F 7FAC 5991'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
+			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
 		fi
 
 		sudo apt update && \
@@ -111,7 +115,7 @@ function InstallBrowser() {
 	fi
 }
 
-SetupPolicies
 InstallBrowser
+SetupPolicies
 
 echo -e "[${BLUE}✓${RESET}]Done."
