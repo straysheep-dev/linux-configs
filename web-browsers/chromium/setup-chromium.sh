@@ -21,6 +21,7 @@ function isRoot() {
 isRoot
 
 function SetupPolicies() {
+	# https://www.chromium.org/administrators/linux-quick-start/
         sudo mkdir -p /etc/chromium-browser/policies/managed
         sudo mkdir -p /etc/chromium-browser/policies/recommended
 
@@ -30,7 +31,7 @@ function SetupPolicies() {
 	else
         	echo -e "[${BLUE}>${RESET}]Downloading chromium-policies.json..."
 		curl -Lf 'https://raw.githubusercontent.com/straysheep-dev/linux-configs/main/web-browsers/chromium/chromium-policies.json' | sudo tee /etc/chromium-browser/policies/managed/policies.json > /dev/null
-		if (sha256sum /etc/chromium-browser/policies/managed/policies.json | grep -qx '518c8dbf3477f0264902dccb3e92e98306b9ec8ffb664277128cc7336acf4c10  /etc/chromium-browser/policies/managed/policies.json'); then
+		if (sha256sum /etc/chromium-browser/policies/managed/policies.json | grep -qx '0f3ee2d3e96548a2a259ce632ba3b52d85b3d580fd7b6ad0deea8dbb9de5b569  /etc/chromium-browser/policies/managed/policies.json'); then
 			echo -e "${GREEN}[OK]${RESET}"
 		else
 			echo -e "${RED}[\!]Bad signature for policies.json${RESET}"

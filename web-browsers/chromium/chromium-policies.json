@@ -19,14 +19,6 @@
     "site_settings",
     "hosted_app_data"
   ],
-  "CookiesAllowedForUrls": [
-    "https://[*.]microsoft.com",
-    "https://[*.]microsoftonline.com",
-    "https://[*.]teams.skype.com",
-    "https://[*.]teams.microsoft.com",
-    "https://[*.]sfbassets.com",
-    "https://[*.]skypeforbusiness.com"
-  ],
   "CloudPrintProxyEnabled": false,
   "DefaultBrowserSettingEnabled": false,
   "DefaultCookiesSetting": 4,
@@ -34,6 +26,7 @@
   "DefaultFileSystemWriteGuardSetting": 2,
   "DefaultGeolocationSetting": 2,
   "DefaultInsecureContentSetting": 2,
+  "DefaultJavaScriptJitSetting": 2,
   "DefaultNotificationsSetting": 2,
   "DefaultPopupsSetting": 2,
   "DefaultSearchProviderContextMenuAccessAllowed": false,
@@ -49,9 +42,7 @@
   "DownloadDirectory": "/home/${user_name}/Downloads",
   "EnableMediaRouter": false,
   "EnableOnlineRevocationChecks": true,
-  "ExtensionInstallAllowlist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
   "ExtensionInstallBlocklist": ["*"],
-  "ExtensionInstallForcelist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
   "HomepageLocation": "https://duckduckgo.com/",
   "HttpsOnlyMode": "force_enabled",
   "ImportSavedPasswords": false,
