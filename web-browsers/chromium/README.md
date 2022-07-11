@@ -62,7 +62,7 @@ In either case, run the [setup-chromium](/web-browsers/chromium/setup-chromium.s
 * Based on the [OpenSCAP security guide for Google Chrome STIG configuration](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html)
 * DuckDuckGo default search engine
   - Examples for Google as default search engine provided below
-* Clear all browser data on shutdown (auth / login cookies and tokens / history)
+* Clear all browser data on shutdown (auth / login, cookies, storage, history)
 * Prevents account sign-in, and account sync
   - Local profiles can still be created and used
   - Incognito mode is disabled
@@ -72,17 +72,15 @@ In either case, run the [setup-chromium](/web-browsers/chromium/setup-chromium.s
   - GUI downloads / uploads still work normally
 * Block access to hardware
   - Bluetooth
-  - GPU
-  - Usb devices 
+  - WebGL API, Pepper 3D API (GPU)
+  - USB devices
   - Camera and microphone are still permitted by user approval per site
 * Site-per-process (site isolation)
-* Allows all cookies for required or trusted sites 
-  - ie; Microsoft Teams requires this, as will other single-sign-on services, examples provided below
-* uBlock Origin installed and locked as only permitted extension
+* [JIT compiler disabled](#defaultjavascriptjitsetting)
 
-If you prefer to avoid installing any extensions, remove both `ExtensionInstallAllowlist` and `ExtensionInstallForcelist` lines from this policy.
+---
 
-Guest and Incognito modes are disabled by default. This prevents opening browser sessions without extensions that you may want to always be installed.
+Guest and Incognito modes are disabled by default in this policy. This prevents opening browser sessions without extensions that you may want to always be installed.
 
 If you want to enabled these modes:
 
@@ -120,6 +118,8 @@ Settings specific to installed extensions that you'd like to replicate in other 
 	* https://chromereleases.googleblog.com/
 - Chromium Blog
 	* https://blog.chromium.org/
+- Chromium Policy Quick Start Guide
+	* https://www.chromium.org/administrators/linux-quick-start/
 - Historical list of updates with reference links
 	* https://en.wikipedia.org/wiki/Google_Chrome_version_history
 - Chromium snap package repo
@@ -134,13 +134,13 @@ Differences have been noted below, and made either for compatability / usability
 ### Additional considerations not yet covered by this script:
 
 * [DataLeakPreventionRulesList](https://chromeenterprise.google/policies/#DataLeakPreventionRulesList)
-  - This policy allows granular control and reporting of things such as clipboard access, screenshots, printing, etc
+	- This policy allows granular control and reporting of things such as clipboard access, screenshots, printing, etc
 
 ### Policies that you should change to your requirements:
 
-* CookiesAllowedForUrls | URLBlockList | URLAllowList
+#### CookiesAllowedForUrls | URLBlockList | URLAllowList
 
-The default list included in this script shows an example for Microsoft Teams (example just below). When blocking 3rd Party Cookies, SSO and similar technologies will need allow-listed like in this example. Listing URL's in this format will also apply to other allow / blocklist policies as well.
+This is an example for Microsoft Teams. When blocking 3rd Party Cookies, SSO and similar technologies will need allow-listed like in this example. Listing URL's in this format will also apply to other allow / blocklist policies as well.
 ```
   "CookiesAllowedForUrls": [
     "https://[*.]microsoft.com",
@@ -152,7 +152,39 @@ The default list included in this script shows an example for Microsoft Teams (e
   ],
 ```
 
-* DefaultSearchProviderSearchURL | DefaultSearchProviderNewTabURL | DefaultSearchProviderName
+#### Extensions
+
+Example configuration for extensions, using uBlock Origin.
+
+- uBlock Origin is the only extension allowed
+- All other extensions are blocked
+- uBlock Origin is automatically installed
+
+```
+  "ExtensionInstallAllowlist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
+  "ExtensionInstallBlocklist": ["*"],
+  "ExtensionInstallForcelist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
+```
+
+#### DefaultJavaScriptJitSetting
+
+https://chromeenterprise.google/policies/#DefaultJavaScriptJitSetting
+
+- `1` = enabled
+- `2` = disabled
+
+Example configuration allowing a list of sites to run JavaScript JIT:
+
+```
+  "DefaultJavaScriptJitSetting": 2,
+
+  "JavaScriptJitAllowedForSites":[
+    "https://[*.]youtube.com",
+  ],
+```
+
+
+#### DefaultSearchProviderSearchURL | DefaultSearchProviderNewTabURL | DefaultSearchProviderName
 
 Change them to your preferred default search provider. Examples are given below for DuckDuckGo and Google.
 
@@ -161,13 +193,26 @@ Change them to your preferred default search provider. Examples are given below 
   "DefaultSearchProviderSearchURL": "https://www.google.com/search?q={searchTerms}",
 ```
 
-* AuthSchemes
+#### Hardware / GPU Access
+
+https://chromeenterprise.google/policies/#Disable3DAPIs
+
+https://chromeenterprise.google/policies/#HardwareAccelerationModeEnabled
+
+```
+  "Disable3DAPIs": true,
+  "HardwareAccelerationModeEnabled": false,
+```
+
+#### AuthSchemes
 
 [Edge v98 security baseline](https://www.microsoft.com/en-us/download/details.aspx?id=55319) uses the following:
 
 ```
 ntlm,negotiate
 ```
+
+---
 
 ### Differences from [SSG-Chromium-Guide-STIG](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html)
 
