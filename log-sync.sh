@@ -19,9 +19,13 @@ if (echo "${1}" | grep -Pq "(-p\s(\d){1,5}\s)?\w+@\w+"); then
 
 	if ! [ -d "$ANALYSIS_DIR" ]; then
 		echo -e "[${BLUE}>${RESET}]Creating ~/analysis..."
-		mkdir -m 770 ~/analysis 2>/dev/null
-		mkdir -m 770 ~/analysis/pcaps 2>/dev/null
+		mkdir -m 770 -p ~/analysis/pcaps || exit
 	fi
+
+	# if ANALYSIS_DIR was just created this variable needs the new value
+	ANALYSIS_DIR="$(find ~/ -type d -name "analysis")"
+	mkdir -m 770 "$ANALYSIS_DIR"/pcaps 2>/dev/null
+
 	echo -e "[${BLUE}>${RESET}]Archiving remote pcaps to local machine..."
 	echo -e "[${YELLOW}i${RESET}]action may require interaction with yubikey..."
 
@@ -30,6 +34,7 @@ if (echo "${1}" | grep -Pq "(-p\s(\d){1,5}\s)?\w+@\w+"); then
 	ssh ${1} "cd /opt/pcaps && tar -czf - *.pcap" > "$ANALYSIS_DIR"/"$(date +%Y%m%d)"-pcaps.tar.gz && \
 
 	echo -e "[${BLUE}>${RESET}]Extracting $(date +%Y%m%d)-pcaps.tar.gz into $ANALYSIS_DIR/pcaps/..."
+	cd "$ANALYSIS_DIR" || exit
 	tar -C "$ANALYSIS_DIR"/pcaps -xzf ./"$(date +%Y%m%d)"-pcaps.tar.gz
 	cd "$ANALYSIS_DIR"/pcaps || exit
 	mergecap -w "$(date +%Y%m%d)"-merged.pcapng ./*.pcap
@@ -56,6 +61,7 @@ elif [ "${1}" == '-l' ] || [ "${1}" == '--local' ]; then
 	fi
 
 	mkdir -m 770 "$ANALYSIS_DIR"/pcaps 2>/dev/null
+
 	echo -e "[${BLUE}>${RESET}]Extracting *pcaps.tar.gz into $ANALYSIS_DIR/pcaps/..."
 	cd "$ANALYSIS_DIR" || exit
 	tar -C "$ANALYSIS_DIR"/pcaps -xzf ./*pcaps.tar.gz
