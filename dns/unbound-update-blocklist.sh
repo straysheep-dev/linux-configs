@@ -11,7 +11,7 @@ LOGFILE='unbound-update-blocklist'
 
 # Root check
 if [ "${EUID}" -ne 0 ]; then
-	"This script must be run as root. Quitting."
+	echo "This script must be run as root. Quitting."
 	exit 1
 fi
 
@@ -30,12 +30,12 @@ if ! [ -e /etc/logrotate.d/"$LOGFILE" ]; then
 fi
 
 
-if [ -d /tmp/tmp.updateblocklist ]; then
-	rm -rf /tmp/tmp.updateblocklist
+if [ -d /tmp/tmp.updateunbound ]; then
+	rm -rf /tmp/tmp.updateunbound
 fi
 
-mkdir /tmp/tmp.updateblocklist
-UPDATE_DIR='/tmp/tmp.updateblocklist'
+mkdir /tmp/tmp.updateunbound
+UPDATE_DIR='/tmp/tmp.updateunbound'
 export UPDATE_DIR
 
 # Make a temporary working directory to work with these files alone
