@@ -418,6 +418,8 @@ service network reload
 /etc/init.d/network restart
 ```
 
+**NOTE**: some `/etc/config/wireless` settings will reload in real time when edited with `vi`, such as `option isolate '1'`
+
 Regenerate factory wireless configuration
 ```ash
 # https://openwrt.org/docs/guide-user/network/wifi/basic#regenerate_configuration
