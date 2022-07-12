@@ -9,6 +9,7 @@
   "BlockThirdPartyCookies": true,
   "BrowserGuestModeEnabled": false,
   "BrowserSignin": 0,
+  "BuiltInDnsClientEnabled": false,
   "ClearBrowsingDataOnExitList": [
     "browsing_history",
     "download_history",
