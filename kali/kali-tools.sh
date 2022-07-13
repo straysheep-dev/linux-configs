@@ -17,14 +17,13 @@ fi
 
 function MakeTemp() {
 
-	# Make a temporary working directory
-
-	if ! [ -d /tmp/tools ]; then
-		mkdir /tmp/tools
-	fi
-
-	SETUPDIR=/tmp/tools
+	# Choose a working directory
+	SETUPDIR=/opt
 	export SETUPDIR
+
+	if ! [ -d "$SETUPDIR" ]; then
+		mkdir "$SETUPDIR"
+	fi
 
 	cd "$SETUPDIR" || exit 1
 	echo -e "${BLUE}[i]Changing working directory to $SETUPDIR${RESET}"
@@ -107,6 +106,7 @@ function InstallAptPackages() {
 	shellter \
 	smbclient \
 	smbmap \
+	smb-nat \
 	smtp-user-enum \
 	snapd \
 	snmp \
@@ -120,6 +120,7 @@ function InstallAptPackages() {
 	tmux \
 	tnscmd10g \
 	tshark \
+	veil \
 	webshells \
 	wfuzz \
 	whatweb \
@@ -130,7 +131,6 @@ function InstallAptPackages() {
 
 	# TO DO: rewrite this to handle missing or renamed (updated) packages
 
-	#smb-nat \
 	#golang-1.17 \
 	#gvncviewer \
 	#exploitdb-bin-sploits \
@@ -187,6 +187,10 @@ function InstallSnaps() {
 
 	echo -e "${BLUE}[i]Installing snap packages...${RESET}"
 	sudo snap install chromium
+	sudo snap install gedit
+	sudo snap disconnect gedit:network
+	sudo snap install eog
+	sudo snap disconnect eog:network
 	sudo snap install libreoffice
 	sudo snap disconnect libreoffice:network > /dev/null
 	sudo snap install vlc
@@ -315,15 +319,28 @@ function InstallGo() {
 
 }
 
+SetupVeil() {
+
+	until [[ $SETUP_VEIL_CHOICE =~ ^(y|n)$ ]]; do
+		read -rp "Run the automated setup for veil now? [y/n]: " -e -i n SETUP_VEIL_CHOICE
+	done
+	if [ "$SETUP_VEIL_CHOICE" == 'y' ]; then
+		echo -e "[${BLUE}>${RESET}]Starting veil setup.sh..."
+		sudo /usr/share/veil/config/setup.sh --force --silent
+		sleep 3
+		echo -e "[${BLUE}✓${RESET}]Done."
+	fi
+}
+
 function InstallExternalTools() {
 
-	cd "$SETUPDIR" || exit
+	# Temporarily allow writing to "$SETUPDIR"
+	sudo chown $USER:$USER -R "$SETUPDIR"
 
 	# Individual wordlists
-	if ! [ -e /opt/wordlists ]; then
-		echo -e "${BLUE}[i]Downloading wordlists...${RESET}"
+	if ! [ -e "$SETUPDIR"/wordlists ]; then
 		mkdir "$SETUPDIR"/wordlists
-		cd "$SETUPDIR"/wordlists || exit
+		cd "$SETUPDIR"/wordlists || exit 1
 
 		# Top Usernames (shortlist)
 		curl -sSLO 'https://raw.githubusercontent.com/danielmiessler/SecLists/master/Usernames/top-usernames-shortlist.txt'
@@ -340,8 +357,8 @@ function InstallExternalTools() {
 
 		# rockyou.txt
 		if [ -e /usr/share/wordlists/rockyou.txt.gz ]; then
-			cp /usr/share/wordlists/rockyou.txt.gz .
-			gunzip ./rockyou.txt.gz
+			cp /usr/share/wordlists/rockyou.txt.gz "$SETUPDIR"/wordlists/
+			gunzip "$SETUPDIR"/wordlists/rockyou.txt.gz
 		fi
 
 		# Individual Names ~10k
@@ -363,23 +380,23 @@ function InstallExternalTools() {
 
 	# SecLists
 	# https://github.com/danielmiessler/SecLists
-	if ! [ -e /opt/wordlists/SecLists ]; then
-		cd "$SETUPDIR"/wordlists || exit
+	if ! [ -e "$SETUPDIR"/wordlists/SecLists ]; then
 		echo -e "${BLUE}[i]Downloading SecLists...${RESET}"
+		cd "$SETUPDIR"/wordlists/ || exit
 		git clone --depth 1 'https://github.com/danielmiessler/SecLists.git'
 	fi
 
 	# Statistically Likely Usernames
 	# https://github.com/insidetrust/statistically-likely-usernames
-	if ! [ -e /opt/wordlists/statistically-likely-usernames ]; then
+	if ! [ -e "$SETUPDIR"/wordlists/statistically-likely-usernames ]; then
 		echo -e "${BLUE}[i]Downloading Statistically Likely Usernames...${RESET}"
-		cd "$SETUPDIR"/wordlists || exit
+		cd "$SETUPDIR"/wordlists/ || exit
 		git clone 'https://github.com/insidetrust/statistically-likely-usernames.git'
 	fi
 
 	# PayloadsAllTheThings
 	# https://github.com/swisskyrepo/PayloadsAllTheThings
-	if ! [ -e /opt/PayloadsAllTheThings ]; then
+	if ! [ -e "$SETUPDIR"/PayloadsAllTheThings ]; then
 		echo -e "${BLUE}[i]Downloading PayloadsAllTheThings...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/swisskyrepo/PayloadsAllTheThings.git'
@@ -387,7 +404,7 @@ function InstallExternalTools() {
 
 	# Cutter (AppImage)
 	# https://github.com/rizinorg/cutter/releases/latest
-	if ! [ -e /opt/Cutter ]; then
+	if ! [ -e "$SETUPDIR"/Cutter ]; then
 		echo -e "${BLUE}[i]Downloading Cutter AppImage...${RESET}"
 		mkdir "$SETUPDIR"/Cutter
 		cd "$SETUPDIR"/Cutter || exit
@@ -421,7 +438,7 @@ function InstallExternalTools() {
 
 	# chisel (binaries)
 	CHISEL_VER='1.7.7'
-	if ! [ -e /opt/chisel ]; then
+	if ! [ -e "$SETUPDIR"/chisel ]; then
 		echo -e "${BLUE}[i]Downloading Chisel $CHISEL_VER binaries...${RESET}"
 		mkdir "$SETUPDIR"/chisel
 		cd "$SETUPDIR"/chisel || exit
@@ -477,7 +494,7 @@ function InstallExternalTools() {
 	# Wireguard (Windows MSI installers)
 	# https://download.wireguard.com/windows-client/
 	WG_VER="$(curl -sS 'https://download.wireguard.com/windows-client/' | grep -oP "(x86|amd64|arm64)\-\d+\.\d+\.\d+" | cut -d '-' -f 2 | uniq)"
-	if ! [ -e /opt/wireguard ]; then
+	if ! [ -e "$SETUPDIR"/wireguard ]; then
 		echo -e "${BLUE}[i]Downloading wireguard Windows installers...${RESET}"
 		mkdir "$SETUPDIR"/wireguard
 		cd "$SETUPDIR"/wireguard || exit
@@ -506,7 +523,7 @@ function InstallExternalTools() {
 
 	# Invoke-SocksProxy
 	#https://github.com/BC-SECURITY/Invoke-SocksProxy
-	if ! [ -e /opt/Invoke-SocksProxy ]; then
+	if ! [ -e "$SETUPDIR"/Invoke-SocksProxy ]; then
 		echo -e "${BLUE}[i]Downloading Invoke-SocksProxy...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/BC-SECURITY/Invoke-SocksProxy.git'
@@ -515,7 +532,7 @@ function InstallExternalTools() {
 
 	# Python3 installers for Windows
 	PYTHON3_VER='3.10.4'
-	if ! [ -e /opt/python3 ]; then
+	if ! [ -e "$SETUPDIR"/python3 ]; then
 		echo -e "${BLUE}[i]Downloading python3 installers...${RESET}"
 		mkdir "$SETUPDIR"/python3
 		cd "$SETUPDIR"/python3 || exit
@@ -553,7 +570,7 @@ function InstallExternalTools() {
 
 	# Invoke-Obfuscation
 	# https://github.com/danielbohannon/Invoke-Obfuscation/archive/master.zip
-	if ! [ -e /opt/Invoke-Obfuscation ]; then
+	if ! [ -e "$SETUPDIR"/Invoke-Obfuscation ]; then
 		echo -e "${BLUE}[i]Downloading Invoke-Obfuscation...${RESET}"
 		mkdir "$SETUPDIR"/Invoke-Obfuscation
 		cd "$SETUPDIR"/Invoke-Obfuscation || exit
@@ -572,7 +589,7 @@ function InstallExternalTools() {
 
 	# Invoke-CradleCrafter
 	# https://github.com/danielbohannon/Invoke-CradleCrafter
-	if ! [ -e /opt/Invoke-CradleCrafter ]; then
+	if ! [ -e "$SETUPDIR"/Invoke-CradleCrafter ]; then
 		echo -e "${BLUE}[i]Downloading Invoke-CradleCrafter...${RESET}"
 		mkdir "$SETUPDIR"/Invoke-CradleCrafter
 		cd "$SETUPDIR"/Invoke-CradleCrafter || exit
@@ -591,7 +608,7 @@ function InstallExternalTools() {
 
 	# Posh-SecMod
 	# https://github.com/darkoperator/Posh-SecMod
-	if ! [ -e /opt/Posh-SecMod ]; then
+	if ! [ -e "$SETUPDIR"/Posh-SecMod ]; then
 		echo -e "${BLUE}[i]Downloading Posh-SecMod...${RESET}"
 		mkdir "$SETUPDIR"/Posh-SecMod
 		cd "$SETUPDIR"/Posh-SecMod || exit
@@ -621,7 +638,7 @@ function InstallExternalTools() {
 
 	# TrevorC2
 	# https://github.com/trustedsec/trevorc2
-	if ! [ -e /opt/trevorc2 ]; then
+	if ! [ -e "$SETUPDIR"/trevorc2 ]; then
 		echo -e "${BLUE}[i]Downloading TrevorC2...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/trustedsec/trevorc2.git'
@@ -645,16 +662,15 @@ function InstallExternalTools() {
 		sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
 		sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
 		sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+
+		if ! (gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg | grep 'BC52 8686 B50D 79E3 39D3  721C EB3E 94AD BE12 29CF'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
+
 		sudo apt-get update
 		sudo apt-get install apt-transport-https
 		sudo apt-get update
-		sudo apt-get install sysmonforlinux
+#		sudo apt-get install sysmonforlinux
 
 		# https://raw.githubusercontent.com/Sysinternals/SysmonForLinux/main/README.md
-
-		if [ "$?" -ne '0' ]; then
-			exit 1
-		fi
 	fi
 
 	# trid
@@ -675,9 +691,9 @@ function InstallExternalTools() {
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-amd64'
 	#curl -sSLO 'https://github.com/liamg/traitor/releases/download/v0.0.8/traitor-arm64'
 
-# GraphQLmap can be installed with pipx
+#       GraphQLmap can be installed with pipx
 #	# GraphQLmap
-#	if ! [ -e /opt/GraphQLmap ]; then
+#	if ! [ -e "$SETUPDIR"/GraphQLmap ]; then
 #		echo -e "${BLUE}[i]Downloading GraphQLmap...${RESET}"
 #		cd "$SETUPDIR"/ || exit
 #		git clone 'https://github.com/swisskyrepo/GraphQLmap.git'
@@ -694,7 +710,7 @@ function InstallExternalTools() {
 
 	# Lazagne
 	# https://github.com/AlessandroZ/LaZagne
-	if ! [ -e /opt/LaZagne ]; then
+	if ! [ -e "$SETUPDIR"/LaZagne ]; then
 		echo -e "${BLUE}[i]Downloading LaZagne...${RESET}"
 		cd "$SETUPDIR"/ || exit
 
@@ -754,7 +770,7 @@ function InstallExternalTools() {
 	# CVE-2021-4034 pwnkit
 	# https://github.com/arthepsy/CVE-2021-4034
 	# https://github.com/PwnFunction/CVE-2021-4034
-	if ! [ -e /opt/pwnkit ]; then
+	if ! [ -e "$SETUPDIR"/pwnkit ]; then
 		echo -e "${BLUE}[i]Downloading PwnKit CVE-2021-4034...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/PwnFunction/CVE-2021-4034.git'
@@ -762,7 +778,7 @@ function InstallExternalTools() {
 
 	# Didier Stevens Suite
 	# https://github.com/DidierStevens/DidierStevensSuite
-	if ! [ -e /opt/DidierStevensSuite ]; then
+	if ! [ -e "$SETUPDIR"/DidierStevensSuite ]; then
 		echo -e "${BLUE}[i]Didier Stevens Suite...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/DidierStevens/DidierStevensSuite.git'
@@ -781,7 +797,7 @@ function InstallExternalTools() {
 
 
 	# pspy
-	if ! [ -e /opt/pspy ]; then
+	if ! [ -e "$SETUPDIR"/pspy ]; then
 		echo -e "${BLUE}[i]Downloading pspy...${RESET}"
 		mkdir "$SETUPDIR"/pspy
 		cd "$SETUPDIR"/pspy || exit
@@ -813,7 +829,7 @@ function InstallExternalTools() {
 	fi
 
 	# PEASS
-	if ! [ -e /opt/PEASS ]; then
+	if ! [ -e "$SETUPDIR"/PEASS ]; then
 		echo -e "${BLUE}[i]Downloading PEASS...${RESET}"
 		mkdir "$SETUPDIR"/PEASS
 		cd "$SETUPDIR"/PEASS || exit
@@ -851,7 +867,7 @@ function InstallExternalTools() {
 	fi
 
 	# mimipenguin
-	if ! [ -e /opt/mimipenguin ]; then
+	if ! [ -e "$SETUPDIR"/mimipenguin ]; then
 		echo -e "${BLUE}[i]Downloading mimipenguin...${RESET}"
 		mkdir "$SETUPDIR"/mimipenguin
 		cd "$SETUPDIR"/mimipenguin || exit
@@ -870,7 +886,7 @@ function InstallExternalTools() {
 	fi
 
 	# Sysinternals
-	if ! [ -e /opt/sysinternals ]; then
+	if ! [ -e "$SETUPDIR"/sysinternals ]; then
 		# Binaries are signed by microsoft, review them with SigCheck64.exe and track them separately from this script
 		echo -e "${BLUE}[i]Downloading the Sysinternals Suite...${RESET}"
 		mkdir "$SETUPDIR"/sysinternals
@@ -881,7 +897,7 @@ function InstallExternalTools() {
 	fi
 
 	# Plink
-	if ! [ -e /opt/Putty ]; then
+	if ! [ -e "$SETUPDIR"/Putty ]; then
 		echo -e "${BLUE}[i]Downloading plink binaries...${RESET}"
 		mkdir "$SETUPDIR"/Putty
 		cd "$SETUPDIR"/Putty || exit
@@ -933,8 +949,6 @@ function InstallExternalTools() {
 
 	sudo chown -R root:root "$SETUPDIR"/*
 
-	sudo mv "$SETUPDIR"/* -t /opt
-
 	echo -e "${BLUE}[i]Done.${RESET}"
 
 }
@@ -954,6 +968,7 @@ AddAliases
 InstallPypiPackages
 #InstallGems
 #InstallGo
+SetupVeil
 InstallExternalTools
 CleanUp
 
