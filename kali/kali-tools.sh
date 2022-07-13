@@ -38,18 +38,21 @@ function InstallAptPackages() {
 	sudo apt update && sudo apt full-upgrade -y
 
 	sudo apt install \
+	backdoor-factory\
 	beef-xss \
 	bettercap \
 	binwalk \
 	bloodhound \
 	braa \
 	burpsuite \
+	cadaver \
 	cherrytree \
 	cifs-utils \
 	cntlm \
 	crackmapexec \
 	crunch \
 	curl \
+	davtest \
 	de4dot \
 	dirb \
 	dirbuster \
@@ -67,6 +70,7 @@ function InstallAptPackages() {
 	hping3 \
 	hydra \
 	impacket-scripts \
+	iodine \
 	john \
 	libimage-exiftool-perl \
 	libssl-dev \
@@ -98,6 +102,7 @@ function InstallAptPackages() {
 	rdesktop \
 	redis-tools \
 	ridenum \
+	rsmangler \
 	screen \
 	shellter \
 	smbclient \
@@ -359,7 +364,7 @@ function InstallExternalTools() {
 	# SecLists
 	# https://github.com/danielmiessler/SecLists
 	if ! [ -e /opt/wordlists/SecLists ]; then
-		cd "$SETUPDIR"/ || exit
+		cd "$SETUPDIR"/wordlists || exit
 		echo -e "${BLUE}[i]Downloading SecLists...${RESET}"
 		git clone --depth 1 'https://github.com/danielmiessler/SecLists.git'
 	fi
@@ -368,8 +373,16 @@ function InstallExternalTools() {
 	# https://github.com/insidetrust/statistically-likely-usernames
 	if ! [ -e /opt/wordlists/statistically-likely-usernames ]; then
 		echo -e "${BLUE}[i]Downloading Statistically Likely Usernames...${RESET}"
-		cd "$SETUPDIR"/ || exit
+		cd "$SETUPDIR"/wordlists || exit
 		git clone 'https://github.com/insidetrust/statistically-likely-usernames.git'
+	fi
+
+	# PayloadsAllTheThings
+	# https://github.com/swisskyrepo/PayloadsAllTheThings
+	if ! [ -e /opt/PayloadsAllTheThings ]; then
+		echo -e "${BLUE}[i]Downloading PayloadsAllTheThings...${RESET}"
+		cd "$SETUPDIR"/ || exit
+		git clone 'https://github.com/swisskyrepo/PayloadsAllTheThings.git'
 	fi
 
 	# Cutter (AppImage)
@@ -621,6 +634,11 @@ function InstallExternalTools() {
 	# https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
 	if ! (command -v sysmon > /dev/null); then
 		echo -e "${BLUE}[i]Installing sysmon...${RESET}"
+
+		# pub   rsa2048 2015-10-28 [SC]
+		#       BC52 8686 B50D 79E3 39D3  721C EB3E 94AD BE12 29CF
+		# uid           [ unknown] Microsoft (Release signing) <gpgsecurity@microsoft.com>
+
 		wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
 		sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
 		wget -q https://packages.microsoft.com/config/debian/11/prod.list
@@ -673,6 +691,65 @@ function InstallExternalTools() {
 #			echo -e "${YELLOW}[i]Issue setting up GraphQLmap.${RESET}"
 #		fi
 #	fi
+
+	# Lazagne
+	# https://github.com/AlessandroZ/LaZagne
+	if ! [ -e /opt/LaZagne ]; then
+		echo -e "${BLUE}[i]Downloading LaZagne...${RESET}"
+		cd "$SETUPDIR"/ || exit
+
+		git clone 'https://github.com/AlessandroZ/LaZagne.git'
+
+		cd "$SETUPDIR"/LaZagne || exit
+
+		curl -sSLO 'https://github.com/AlessandroZ/LaZagne/releases/download/2.4.3/lazagne.exe'
+
+		if (sha256sum ./lazagne.exe | grep -x 'ed2f501408a7a6e1a854c29c4b0bc5648a6aa8612432df829008931b3e34bf56  lazagne.exe'); then
+			echo -e "${GREEN}[OK]${RESET}"
+		else
+			echo -e "${RED}[i]Bad signature.${RESET}"
+		fi
+	fi
+
+	# SprayKatz
+	# https://github.com/aas-n/spraykatz
+	# git clone + pip? or pipx?
+
+	# pivotnacci
+	# https://github.com/blackarrowsec/pivotnacci
+	# git clone + pip? or pipx?
+
+	# reGeorg
+	# https://github.com/sensepost/reGeorg
+	# use with python 2 targets
+
+	# Session Gopher
+	# https://github.com/Arvanaghi/SessionGopher
+	# git clone
+
+	# UACME
+	# https://github.com/hfiref0x/UACME
+	# git clone -> compile in VS
+
+	# PrintSpoofer
+	# https://github.com/itm4n/PrintSpoofer
+	# git clone -> compile in VS or download binary release
+
+	# PowerShell-Suite
+	# https://github.com/FuzzySecurity/PowerShell-Suite
+	# git clone
+
+	# WinPwn
+	# https://github.com/S3cur3Th1sSh1t/WinPwn
+	# git clone
+
+	# CVE-2021-4034 Drop the MIC
+	# https://github.com/fox-it/cve-2019-1040-scanner
+	# git clone
+
+	# Legion
+	# https://github.com/carlospolop/legion
+	# git clone, apt install?
 
 	# CVE-2021-4034 pwnkit
 	# https://github.com/arthepsy/CVE-2021-4034
