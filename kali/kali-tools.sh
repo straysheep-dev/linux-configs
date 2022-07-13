@@ -15,10 +15,20 @@ if [ "${EUID}" -eq 0 ]; then
 	exit 1
 fi
 
+# INSTALLDIR is where all of the external tools will end up
+# SETUPDIR is a /tmp directory to gather everything, and adjust permissions
+# This is done so the tools can be 'installed' anywhere the variable points to,
+# and also because the INSTALLDIR (often /opt) may already have unrelated
+# tools there we do not want to modify the permissions of.
+
+# To update a tool, either change permissions and git pull, or delete it's directory
+# under INSTALLDIR and run this script.
+
+INSTALLDIR=/opt
+
 function MakeTemp() {
 
-	# Choose a working directory
-	SETUPDIR=/opt
+	SETUPDIR=/tmp/tools
 	export SETUPDIR
 
 	if ! [ -d "$SETUPDIR" ]; then
@@ -30,12 +40,20 @@ function MakeTemp() {
 
 }
 
+#if (find ~/ -name "pipx" -ls > /dev/null); then
+#	echo "Local pipx may already be installed. Removing it before continuing..."
+#	rm -rf ~/.local/pipx
+#	rm -rf ~/.local/bin/pipx
+#	rm -rf ~/.local/lib/python3.9/site-packages/pipx
+#	exit
+#fi
 
 function InstallAptPackages() {
 	echo -e "${BLUE}[i]Installing tools from apt...${RESET}"
 
 	sudo apt update && sudo apt full-upgrade -y
 
+	# Do not comment entries, instead move them below with other commented packages
 	sudo apt install \
 	backdoor-factory\
 	beef-xss \
@@ -127,6 +145,7 @@ function InstallAptPackages() {
 	windows-binaries \
 	wireshark \
 	wkhtmltopdf
+	# Do not comment entries, instead move them below with other commented packages
 	# Bottom entry loses the trailing '\'
 
 	# TO DO: rewrite this to handle missing or renamed (updated) packages
@@ -319,7 +338,7 @@ function InstallGo() {
 
 }
 
-SetupVeil() {
+function SetupVeil() {
 
 	until [[ $SETUP_VEIL_CHOICE =~ ^(y|n)$ ]]; do
 		read -rp "Run the automated setup for veil now? [y/n]: " -e -i n SETUP_VEIL_CHOICE
@@ -338,7 +357,7 @@ function InstallExternalTools() {
 	sudo chown $USER:$USER -R "$SETUPDIR"
 
 	# Individual wordlists
-	if ! [ -e "$SETUPDIR"/wordlists ]; then
+	if ! [ -e "$INSTALLDIR"/wordlists ]; then
 		mkdir "$SETUPDIR"/wordlists
 		cd "$SETUPDIR"/wordlists || exit 1
 
@@ -380,7 +399,7 @@ function InstallExternalTools() {
 
 	# SecLists
 	# https://github.com/danielmiessler/SecLists
-	if ! [ -e "$SETUPDIR"/wordlists/SecLists ]; then
+	if ! [ -e "$INSTALLDIR"/wordlists/SecLists ]; then
 		echo -e "${BLUE}[i]Downloading SecLists...${RESET}"
 		cd "$SETUPDIR"/wordlists/ || exit
 		git clone --depth 1 'https://github.com/danielmiessler/SecLists.git'
@@ -388,7 +407,7 @@ function InstallExternalTools() {
 
 	# Statistically Likely Usernames
 	# https://github.com/insidetrust/statistically-likely-usernames
-	if ! [ -e "$SETUPDIR"/wordlists/statistically-likely-usernames ]; then
+	if ! [ -e "$INSTALLDIR"/wordlists/statistically-likely-usernames ]; then
 		echo -e "${BLUE}[i]Downloading Statistically Likely Usernames...${RESET}"
 		cd "$SETUPDIR"/wordlists/ || exit
 		git clone 'https://github.com/insidetrust/statistically-likely-usernames.git'
@@ -396,7 +415,7 @@ function InstallExternalTools() {
 
 	# PayloadsAllTheThings
 	# https://github.com/swisskyrepo/PayloadsAllTheThings
-	if ! [ -e "$SETUPDIR"/PayloadsAllTheThings ]; then
+	if ! [ -e "$INSTALLDIR"/PayloadsAllTheThings ]; then
 		echo -e "${BLUE}[i]Downloading PayloadsAllTheThings...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/swisskyrepo/PayloadsAllTheThings.git'
@@ -404,11 +423,11 @@ function InstallExternalTools() {
 
 	# Cutter (AppImage)
 	# https://github.com/rizinorg/cutter/releases/latest
-	if ! [ -e "$SETUPDIR"/Cutter ]; then
+	if ! [ -e "$INSTALLDIR"/Cutter ]; then
 		echo -e "${BLUE}[i]Downloading Cutter AppImage...${RESET}"
 		mkdir "$SETUPDIR"/Cutter
 		cd "$SETUPDIR"/Cutter || exit
-		curl -sSLO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
+		curl -LO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
 		if (sha256sum ./Cutter-v2.0.5-x64.Linux.AppImage | grep '453b0d1247f0eab0b87d903ce4995ff54216584c5fd5480be82da7b71eb2ed3d'); then
 			echo -e "${GREEN}[OK]${RESET}"
 		else
@@ -438,7 +457,7 @@ function InstallExternalTools() {
 
 	# chisel (binaries)
 	CHISEL_VER='1.7.7'
-	if ! [ -e "$SETUPDIR"/chisel ]; then
+	if ! [ -e "$INSTALLDIR"/chisel ]; then
 		echo -e "${BLUE}[i]Downloading Chisel $CHISEL_VER binaries...${RESET}"
 		mkdir "$SETUPDIR"/chisel
 		cd "$SETUPDIR"/chisel || exit
@@ -494,7 +513,7 @@ function InstallExternalTools() {
 	# Wireguard (Windows MSI installers)
 	# https://download.wireguard.com/windows-client/
 	WG_VER="$(curl -sS 'https://download.wireguard.com/windows-client/' | grep -oP "(x86|amd64|arm64)\-\d+\.\d+\.\d+" | cut -d '-' -f 2 | uniq)"
-	if ! [ -e "$SETUPDIR"/wireguard ]; then
+	if ! [ -e "$INSTALLDIR"/wireguard ]; then
 		echo -e "${BLUE}[i]Downloading wireguard Windows installers...${RESET}"
 		mkdir "$SETUPDIR"/wireguard
 		cd "$SETUPDIR"/wireguard || exit
@@ -523,7 +542,7 @@ function InstallExternalTools() {
 
 	# Invoke-SocksProxy
 	#https://github.com/BC-SECURITY/Invoke-SocksProxy
-	if ! [ -e "$SETUPDIR"/Invoke-SocksProxy ]; then
+	if ! [ -e "$INSTALLDIR"/Invoke-SocksProxy ]; then
 		echo -e "${BLUE}[i]Downloading Invoke-SocksProxy...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/BC-SECURITY/Invoke-SocksProxy.git'
@@ -532,11 +551,11 @@ function InstallExternalTools() {
 
 	# Python3 installers for Windows
 	PYTHON3_VER='3.10.4'
-	if ! [ -e "$SETUPDIR"/python3 ]; then
+	if ! [ -e "$INSTALLDIR"/python3 ]; then
 		echo -e "${BLUE}[i]Downloading python3 installers...${RESET}"
 		mkdir "$SETUPDIR"/python3
 		cd "$SETUPDIR"/python3 || exit
-		curl -Lf 'https://keybase.io/stevedower/pgp_keys.asc?fingerprint=7ed10b6531d7c8e1bc296021fc624643487034e5' | gpg --import
+		curl -sSLf 'https://keybase.io/stevedower/pgp_keys.asc?fingerprint=7ed10b6531d7c8e1bc296021fc624643487034e5' | gpg --import
 		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'-amd64.exe'
 		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'-amd64.exe.asc'
 		curl -sSLO 'https://www.python.org/ftp/python/'"$PYTHON3_VER"'/python-'"$PYTHON3_VER"'.exe'
@@ -570,7 +589,7 @@ function InstallExternalTools() {
 
 	# Invoke-Obfuscation
 	# https://github.com/danielbohannon/Invoke-Obfuscation/archive/master.zip
-	if ! [ -e "$SETUPDIR"/Invoke-Obfuscation ]; then
+	if ! [ -e "$INSTALLDIR"/Invoke-Obfuscation ]; then
 		echo -e "${BLUE}[i]Downloading Invoke-Obfuscation...${RESET}"
 		mkdir "$SETUPDIR"/Invoke-Obfuscation
 		cd "$SETUPDIR"/Invoke-Obfuscation || exit
@@ -589,7 +608,7 @@ function InstallExternalTools() {
 
 	# Invoke-CradleCrafter
 	# https://github.com/danielbohannon/Invoke-CradleCrafter
-	if ! [ -e "$SETUPDIR"/Invoke-CradleCrafter ]; then
+	if ! [ -e "$INSTALLDIR"/Invoke-CradleCrafter ]; then
 		echo -e "${BLUE}[i]Downloading Invoke-CradleCrafter...${RESET}"
 		mkdir "$SETUPDIR"/Invoke-CradleCrafter
 		cd "$SETUPDIR"/Invoke-CradleCrafter || exit
@@ -608,7 +627,7 @@ function InstallExternalTools() {
 
 	# Posh-SecMod
 	# https://github.com/darkoperator/Posh-SecMod
-	if ! [ -e "$SETUPDIR"/Posh-SecMod ]; then
+	if ! [ -e "$INSTALLDIR"/Posh-SecMod ]; then
 		echo -e "${BLUE}[i]Downloading Posh-SecMod...${RESET}"
 		mkdir "$SETUPDIR"/Posh-SecMod
 		cd "$SETUPDIR"/Posh-SecMod || exit
@@ -638,40 +657,41 @@ function InstallExternalTools() {
 
 	# TrevorC2
 	# https://github.com/trustedsec/trevorc2
-	if ! [ -e "$SETUPDIR"/trevorc2 ]; then
+	if ! [ -e "$INSTALLDIR"/trevorc2 ]; then
 		echo -e "${BLUE}[i]Downloading TrevorC2...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/trustedsec/trevorc2.git'
 	fi
 
-	# ProcMon for Linux
-	# https://github.com/Sysinternals/ProcMon-for-Linux
-
-	# Sysmon for Linux
-	# https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
-	if ! (command -v sysmon > /dev/null); then
-		echo -e "${BLUE}[i]Installing sysmon...${RESET}"
-
-		# pub   rsa2048 2015-10-28 [SC]
-		#       BC52 8686 B50D 79E3 39D3  721C EB3E 94AD BE12 29CF
-		# uid           [ unknown] Microsoft (Release signing) <gpgsecurity@microsoft.com>
-
-		wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
-		sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
-		wget -q https://packages.microsoft.com/config/debian/11/prod.list
-		sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
-		sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
-		sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
-
-		if ! (gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg | grep 'BC52 8686 B50D 79E3 39D3  721C EB3E 94AD BE12 29CF'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
-
-		sudo apt-get update
-		sudo apt-get install apt-transport-https
-		sudo apt-get update
+#	Adding this source will conflict with other kali specific verisons of microsoft tools, such as dotnet and powershell
+#	# ProcMon for Linux
+#	# https://github.com/Sysinternals/ProcMon-for-Linux
+#
+#	# Sysmon for Linux
+#	# https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
+#	if ! (command -v sysmon > /dev/null); then
+#		echo -e "${BLUE}[i]Installing sysmon...${RESET}"
+#
+#		# pub   rsa2048 2015-10-28 [SC]
+#		#       BC52 8686 B50D 79E3 39D3  721C EB3E 94AD BE12 29CF
+#		# uid           [ unknown] Microsoft (Release signing) <gpgsecurity@microsoft.com>
+#
+#		wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.asc.gpg
+#		sudo mv microsoft.asc.gpg /etc/apt/trusted.gpg.d/
+#		wget -q https://packages.microsoft.com/config/debian/11/prod.list
+#		sudo mv prod.list /etc/apt/sources.list.d/microsoft-prod.list
+#		sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.asc.gpg
+#		sudo chown root:root /etc/apt/sources.list.d/microsoft-prod.list
+#
+#		if ! (gpg /etc/apt/trusted.gpg.d/microsoft.asc.gpg | grep 'BC528686B50D79E339D3721CEB3E94ADBE1229CF'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
+#
+#		sudo apt-get update
+#		sudo apt-get install apt-transport-https
+#		sudo apt-get update
 #		sudo apt-get install sysmonforlinux
-
-		# https://raw.githubusercontent.com/Sysinternals/SysmonForLinux/main/README.md
-	fi
+#
+#		# https://raw.githubusercontent.com/Sysinternals/SysmonForLinux/main/README.md
+#	fi
 
 	# trid
 	# https://www.mark0.net/soft-trid-e.html
@@ -693,7 +713,7 @@ function InstallExternalTools() {
 
 #       GraphQLmap can be installed with pipx
 #	# GraphQLmap
-#	if ! [ -e "$SETUPDIR"/GraphQLmap ]; then
+#	if ! [ -e "$INSTALLDIR"/GraphQLmap ]; then
 #		echo -e "${BLUE}[i]Downloading GraphQLmap...${RESET}"
 #		cd "$SETUPDIR"/ || exit
 #		git clone 'https://github.com/swisskyrepo/GraphQLmap.git'
@@ -710,7 +730,7 @@ function InstallExternalTools() {
 
 	# Lazagne
 	# https://github.com/AlessandroZ/LaZagne
-	if ! [ -e "$SETUPDIR"/LaZagne ]; then
+	if ! [ -e "$INSTALLDIR"/LaZagne ]; then
 		echo -e "${BLUE}[i]Downloading LaZagne...${RESET}"
 		cd "$SETUPDIR"/ || exit
 
@@ -720,7 +740,7 @@ function InstallExternalTools() {
 
 		curl -sSLO 'https://github.com/AlessandroZ/LaZagne/releases/download/2.4.3/lazagne.exe'
 
-		if (sha256sum ./lazagne.exe | grep -x 'ed2f501408a7a6e1a854c29c4b0bc5648a6aa8612432df829008931b3e34bf56  lazagne.exe'); then
+		if (sha256sum ./lazagne.exe | grep -x 'ed2f501408a7a6e1a854c29c4b0bc5648a6aa8612432df829008931b3e34bf56  ./lazagne.exe'); then
 			echo -e "${GREEN}[OK]${RESET}"
 		else
 			echo -e "${RED}[i]Bad signature.${RESET}"
@@ -770,15 +790,15 @@ function InstallExternalTools() {
 	# CVE-2021-4034 pwnkit
 	# https://github.com/arthepsy/CVE-2021-4034
 	# https://github.com/PwnFunction/CVE-2021-4034
-	if ! [ -e "$SETUPDIR"/pwnkit ]; then
+	if ! [ -e "$INSTALLDIR"/pwnkit ]; then
 		echo -e "${BLUE}[i]Downloading PwnKit CVE-2021-4034...${RESET}"
 		cd "$SETUPDIR"/ || exit
-		git clone 'https://github.com/PwnFunction/CVE-2021-4034.git'
+		git clone 'https://github.com/PwnFunction/CVE-2021-4034.git' "$SETUPDIR"/pwnkit
 	fi
 
 	# Didier Stevens Suite
 	# https://github.com/DidierStevens/DidierStevensSuite
-	if ! [ -e "$SETUPDIR"/DidierStevensSuite ]; then
+	if ! [ -e "$INSTALLDIR"/DidierStevensSuite ]; then
 		echo -e "${BLUE}[i]Didier Stevens Suite...${RESET}"
 		cd "$SETUPDIR"/ || exit
 		git clone 'https://github.com/DidierStevens/DidierStevensSuite.git'
@@ -797,7 +817,7 @@ function InstallExternalTools() {
 
 
 	# pspy
-	if ! [ -e "$SETUPDIR"/pspy ]; then
+	if ! [ -e "$INSTALLDIR"/pspy ]; then
 		echo -e "${BLUE}[i]Downloading pspy...${RESET}"
 		mkdir "$SETUPDIR"/pspy
 		cd "$SETUPDIR"/pspy || exit
@@ -829,7 +849,7 @@ function InstallExternalTools() {
 	fi
 
 	# PEASS
-	if ! [ -e "$SETUPDIR"/PEASS ]; then
+	if ! [ -e "$INSTALLDIR"/PEASS ]; then
 		echo -e "${BLUE}[i]Downloading PEASS...${RESET}"
 		mkdir "$SETUPDIR"/PEASS
 		cd "$SETUPDIR"/PEASS || exit
@@ -867,7 +887,7 @@ function InstallExternalTools() {
 	fi
 
 	# mimipenguin
-	if ! [ -e "$SETUPDIR"/mimipenguin ]; then
+	if ! [ -e "$INSTALLDIR"/mimipenguin ]; then
 		echo -e "${BLUE}[i]Downloading mimipenguin...${RESET}"
 		mkdir "$SETUPDIR"/mimipenguin
 		cd "$SETUPDIR"/mimipenguin || exit
@@ -886,7 +906,7 @@ function InstallExternalTools() {
 	fi
 
 	# Sysinternals
-	if ! [ -e "$SETUPDIR"/sysinternals ]; then
+	if ! [ -e "$INSTALLDIR"/sysinternals ]; then
 		# Binaries are signed by microsoft, review them with SigCheck64.exe and track them separately from this script
 		echo -e "${BLUE}[i]Downloading the Sysinternals Suite...${RESET}"
 		mkdir "$SETUPDIR"/sysinternals
@@ -897,7 +917,7 @@ function InstallExternalTools() {
 	fi
 
 	# Plink
-	if ! [ -e "$SETUPDIR"/Putty ]; then
+	if ! [ -e "$INSTALLDIR"/Putty ]; then
 		echo -e "${BLUE}[i]Downloading plink binaries...${RESET}"
 		mkdir "$SETUPDIR"/Putty
 		cd "$SETUPDIR"/Putty || exit
@@ -948,6 +968,8 @@ function InstallExternalTools() {
 	find "$SETUPDIR" -type d -print0 | xargs -0 chmod 755
 
 	sudo chown -R root:root "$SETUPDIR"/*
+	
+	sudo mv "$SETUPDIR"/* -t "$INSTALLDIR"
 
 	echo -e "${BLUE}[i]Done.${RESET}"
 
