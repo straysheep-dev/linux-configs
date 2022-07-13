@@ -427,7 +427,7 @@ function InstallExternalTools() {
 		echo -e "${BLUE}[i]Downloading Cutter AppImage...${RESET}"
 		mkdir "$SETUPDIR"/Cutter
 		cd "$SETUPDIR"/Cutter || exit
-		curl -LO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
+		curl -LfO 'https://github.com/rizinorg/cutter/releases/download/v2.0.5/Cutter-v2.0.5-x64.Linux.AppImage'
 		if (sha256sum ./Cutter-v2.0.5-x64.Linux.AppImage | grep '453b0d1247f0eab0b87d903ce4995ff54216584c5fd5480be82da7b71eb2ed3d'); then
 			echo -e "${GREEN}[OK]${RESET}"
 		else
@@ -968,7 +968,7 @@ function InstallExternalTools() {
 	find "$SETUPDIR" -type d -print0 | xargs -0 chmod 755
 
 	sudo chown -R root:root "$SETUPDIR"/*
-	
+
 	sudo mv "$SETUPDIR"/* -t "$INSTALLDIR"
 
 	echo -e "${BLUE}[i]Done.${RESET}"
