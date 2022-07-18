@@ -94,15 +94,15 @@ function checkFormatting() {
 
 checkFormatting
 
+# Automatically install the updated hosts file after passing all checks
+cp ./hosts.txt /etc/hosts
+
 # Add the system's hostname to /etc/hosts
 if ! (grep -Pq "^127.0.1.1\s$(hostname)$" /etc/hosts); then
 	echo "
 # System hostname
 127.0.1.1 $(hostname)" | tee -a /etc/hosts > /dev/null
 fi
-
-# Automatically install the updated hosts file after passing all checks
-cp ./hosts.txt /etc/hosts
 
 # Log successful installation of updated hosts file
 echo "[OK]: $(date +%Y-%m-%d) $(date +%H:%M:%S) hosts" >> /var/log/"$LOGFILE"
