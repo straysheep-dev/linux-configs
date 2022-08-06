@@ -16,18 +16,18 @@ echo -e "[${BLUE}>${RESET}]Updating all system packages..."
 
 # Package managers
 if (grep -Pqx '^ID=kali$' /etc/os-release); then
-	sudo apt update && \
-	sudo apt full-upgrade -y && \
-	sudo apt autoremove --purge -y && \
+	sudo apt update
+	sudo apt full-upgrade -y
+	sudo apt autoremove --purge -y
 	sudo apt-get clean
 elif (command -v apt > /dev/null); then
-	sudo apt update && \
-	sudo apt upgrade -y && \
-	sudo apt autoremove --purge -y && \
+	sudo apt update
+	sudo apt upgrade -y
+	sudo apt autoremove --purge -y
 	sudo apt-get clean
 elif (command -v dnf > /dev/null); then
-	sudo dnf upgrade -y && \
-	sudo dnf autoremove -y && \
+	sudo dnf upgrade -y
+	sudo dnf autoremove -y
 	sudo dnf clean all
 fi
 
@@ -64,7 +64,7 @@ echo -e "[${YELLOW}i${RESET}] ${BOLD}Save the above values to your password mana
 echo "=================================================="
 echo ""
 
-if (dmesg | grep -iPq 'hypervisor'); then
+if (sudo dmesg | grep -iPq 'hypervisor'); then
 
 	sudo journalctl --rotate --vacuum-size 10M
 
