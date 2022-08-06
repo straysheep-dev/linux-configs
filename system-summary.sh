@@ -1,6 +1,12 @@
 #!/bin/bash
 
-# Summarize the system state to a logfile, readable only by root.
+# Summarize the system state to /var/log/system-summary/system-summary.log*, readable only by root.
+# Writes a comparison of the current state against the previous logfile to /var/log/system-summary/system-changes/"$(date +%F_%T)"_system-changes.diff
+#
+# Creates a system logging configuration under /etc/logrotate.d/ to rotate 7 (maintains a file for each day of the week)
+# in case you choose to run this daily via cron
+#
+# The .log files can consume a few MB each, this is why the .log files are rotated for 7 and the .diff files are kept.
 
 # To do:
 # [x] filesystem io
@@ -11,8 +17,8 @@
 # [ ] webserver checks
 # [ ] fedora / bsd compatibility
 # [ ] selinux / tripwire / other security checks
-# [ ] auth / pam / other log checks
-# [/] diff between daily system states
+# [\] auth / pam / other log checks
+# [x] diff between daily system states
 
 # Crontab to run every day at 12:
 # 0 12 * * * /bin/bash /opt/system-summary.sh
@@ -81,6 +87,30 @@ function accounts() {
 	echo '#[v] environemnt'
 	echo ''
 	env
+
+	# https://github.com/carlospolop/hacktricks/tree/master/linux-hardening/linux-post-exploitation
+	echo '#======================================================================'
+	echo '#[v] pam_exec'
+	echo ''
+	grep -F 'pam_exec.so' /etc/pam.d/*
+
+	echo '#======================================================================'
+	echo '#[v] pam file paths with script extensions'
+	echo ''
+	grep -iP "\.(pl|ps1|py|rb|sh)" /etc/pam.d/*
+
+#	echo '#======================================================================'
+#	echo '#[v] pam executable file paths'
+#	echo ''
+#	for pam_file in $(grep -Pv "^#" /etc/pam.d/* | cut -b 12- | grep -ioP "(/.+){1,}" | grep -Pv "\s" | sort -u); do
+#		file "$pam_file" | grep -Px "$file\:.*(executable|text|UTF-8|ASCII).*" && (sha256sum "$file" | cut -d ' ' -f 1) && echo -e "\n";
+#	done
+
+	echo '#======================================================================'
+	echo '#[v] pam other file paths'
+	echo ''
+	grep -Pv "^#" /etc/pam.d/* | cut -b 12- | column -t | grep -iP "(/.+){1,}"
+
 }
 
 function kernel() {
@@ -165,6 +195,12 @@ function hardware() {
 	echo "# [v] usb devices"
 	echo ''
 	lsusb
+
+	# https://eclypsium.com/2022/07/26/firmware-security-realizations-part-1-secure-boot-and-dbx/
+#	echo '#======================================================================'
+#	echo "# [v] dmi table"
+#	echo ''
+#	dmidecode
 }
 
 function firmware() {
