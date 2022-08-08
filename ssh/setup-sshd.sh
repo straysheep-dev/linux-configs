@@ -294,8 +294,24 @@ function setSSH() {
 			;;
 		esac
 
+		# Be sure the previous firewall rules are deleted if running this script mulitple times 
+		SSH_PORT="$(grep -P '^(Port|#Port) (\d){1,5}$' /etc/ssh/sshd_config | cut -d ' ' -f 2)"
+
+		echo -e "${YELLOW}[-]${RESET}Removing any previous ssh firewall rules..."
+		if (sudo grep -Pqx "^-A ufw-user-input -i $PUB_NIC -p tcp --dport $SSH_PORT -j ACCEPT$" /etc/ufw/user.rules); then
+			sudo ufw delete allow in on "$PUB_NIC" to any proto tcp port "$SSH_PORT"
+		elif (sudo iptables -S | grep -Px "^-A INPUT -i $PUB_NIC -p tcp -m tcp --dport $SSH_PORT -j ACCEPT$"); then
+			sudo iptables -D INPUT -i "$PUB_NIC" -p tcp -m tcp --dport "$SSH_PORT" -j ACCEPT
+			# Same check for ipv6
+			if (sudo ip6tables -S | grep -Px "^-A INPUT -i $PUB_NIC -p tcp -m tcp --dport $SSH_PORT -j ACCEPT$"); then
+				sudo ip6tables -D INPUT -i "$PUB_NIC" -p tcp -m tcp --dport "$SSH_PORT" -j ACCEPT
+			fi
+		fi
+
+		# Write the port number to SSHD_CONF
 		sudo sed -i 's/.*Port .*$/Port '"${PORT}"'/' "$SSHD_CONF"
 
+		# Dialogue to setup new firewall rules
 		echo ""
 		if (command -v iptables > /dev/null); then
 			echo "iptables are available, use ip/ip6tables?"
@@ -309,7 +325,9 @@ function setSSH() {
 				read -rp "[y/n]: " IPTABLES_CHOICE
 			done
 			if [[ $IPTABLES_CHOICE == "y" ]]; then
+				echo -e "${GREEN}[+]${RESET}sudo iptables -A INPUT -i $PUB_NIC -p tcp -m tcp --dport $PORT -j ACCEPT"
 				sudo iptables -A INPUT -i "$PUB_NIC" -p tcp -m tcp --dport "$PORT" -j ACCEPT
+				echo -e "${GREEN}[+]${RESET}sudo ip6tables -A INPUT -i $PUB_NIC -p tcp -m tcp --dport $PORT -j ACCEPT"
 				sudo ip6tables -A INPUT -i "$PUB_NIC" -p tcp -m tcp --dport "$PORT" -j ACCEPT
 			elif [[ $IPTABLES_CHOICE == "n" ]]; then
 				if (command -v ufw > /dev/null); then
@@ -344,8 +362,61 @@ function setSSH() {
 	fi
 }
 
+function unsetSSH() {
+
+	if ! (command -v sshd); then
+		echo ''
+		echo "OpenSSH server not installed."
+		exit
+	fi
+
+	SSHD_CONF='/etc/ssh/sshd_config'
+	SSH_PORT="$(grep -P '^(Port|#Port) (\d){1,5}$' /etc/ssh/sshd_config | cut -d ' ' -f 2)"
+	
+	if (command -v sshd > /dev/null); then
+		echo ""
+		echo "Stop and uninstall OpenSSH server?"
+		echo ""
+		until [[ $SSHD_UNINSTALL_CHOICE =~ ^(y|n)$ ]]; do
+			read -rp "[y/n]: " SSHD_UNINSTALL_CHOICE
+		done
+	fi
+	if [[ $SSHD_UNINSTALL_CHOICE == "y" ]]; then
+	
+		echo -e "${BLUE}[i]Stopping sshd...${RESET}"
+
+		if (systemctl is-active sshd); then
+			sudo systemctl stop sshd
+		fi
+
+		echo -e "${BLUE}[i]Removing firewall rules...${RESET}"
+
+		if (sudo grep -Pqx "^-A ufw-user-input -i $PUB_NIC -p tcp --dport $SSH_PORT -j ACCEPT$" /etc/ufw/user.rules); then
+			sudo ufw delete allow in on "$PUB_NIC" to any proto tcp port "$SSH_PORT"
+		elif (sudo iptables -S | grep -Px "^-A INPUT -i $PUB_NIC -p tcp -m tcp --dport $SSH_PORT -j ACCEPT$"); then
+			sudo iptables -D INPUT -i "$PUB_NIC" -p tcp -m tcp --dport "$SSH_PORT" -j ACCEPT
+			# Same check for ipv6
+			if (sudo ip6tables -S | grep -Px "^-A INPUT -i $PUB_NIC -p tcp -m tcp --dport $SSH_PORT -j ACCEPT$"); then
+				sudo ip6tables -D INPUT -i "$PUB_NIC" -p tcp -m tcp --dport "$SSH_PORT" -j ACCEPT
+			fi
+		fi
+
+		echo -e "${BLUE}[i]Uninstalling...${RESET}"
+
+		if (command -v apt > /dev/null); then
+			sudo apt autoremove --purge -y openssh-server
+		elif (command -v dnf > /dev/null); then
+			sudo dnf autoremove -y openssh-server
+		fi
+
+		echo -e "${BLUE}[i]Done.${RESET}"
+	fi
+
+}
+
 function setMFA() {
 
+	# https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-20-04
 	# https://www.raspberrypi.org/blog/setting-up-two-factor-authentication-on-your-raspberry-pi/
 	# https://github.com/0ptsec/optsecdemo
 
@@ -354,8 +425,16 @@ function setMFA() {
 	PAM_GDM='/etc/pam.d/gdm-password'
 	PAM_SSHD='/etc/pam.d/sshd'
 
-	echo -e "${BLUE}[?]Configure libpam-google-authenticator for MFA login?${RESET}"
+	echo -e "${BLUE}[?]${RESET}Configure libpam-google-authenticator for MFA login?"
+	echo ""
+	echo "ssh: public key + password + otp"
+	echo "gui: password + otp"
+	echo ""
+	echo "Removing the ~/.google_authenticator file will remove the otp requirement."
+	echo "This is due to the 'nullok' option set in /etc/pam.d/sshd"
+	echo ""
 	if [ -e "$HOME"/.google_authenticator ]; then
+		echo ""
 		echo -e "${YELLOW}[i]${RESET}A $HOME/.google_authenticator already exists."
 	fi
 	echo ""
@@ -369,20 +448,38 @@ function setMFA() {
 			sudo apt install -y libpam-google-authenticator
 		fi
 
-		# Check if this machine is running an OpenSSH server
+		# Check if this machine is running an OpenSSH server, enable ChallengeResponseAuthentication + AuthenticationMethods
 		if [ -e "$SSHD_CONF" ]; then
-	                if ! (grep -Eq "^ChallengeResponseAuthentication = yes$" "$SSHD_CONF"); then
-	                        if (grep -Eq "^.*ChallengeResponseAuthentication.*$" "$SSHD_CONF"); then
-	                                sudo sed -i 's/^.*ChallengeResponseAuthentication.*$/ChallengeResponseAuthentication = yes/' "$SSHD_CONF"
-	                                echo -e "${GREEN}[+]${RESET}Setting: ChallengeResponseAuthentication = yes"
-	                        else
-	                                echo "ChallengeResponseAuthentication = yes" | sudo tee -a "$SSHD_CONF"
-	                                echo -e "${GREEN}[+]${RESET}Setting: ChallengeResponseAuthentication = yes"
-	                        fi
-	                fi
+			if ! (grep -Eq "^ChallengeResponseAuthentication yes$" "$SSHD_CONF"); then
+				if (grep -Eq "^.*ChallengeResponseAuthentication.*$" "$SSHD_CONF"); then
+					sudo sed -i 's/^.*ChallengeResponseAuthentication.*$/ChallengeResponseAuthentication yes/' "$SSHD_CONF"
+					echo -e "${GREEN}[+]${RESET}Setting: ChallengeResponseAuthentication = yes"
+				else
+					echo "ChallengeResponseAuthentication yes" | sudo tee -a "$SSHD_CONF" > /dev/null
+					echo -e "${GREEN}[+]${RESET}Setting: ChallengeResponseAuthentication = yes"
+				fi
+			fi
+
+			# man sshd_config
+			# search: /ChallengeResponseAuthentication
+			# search: /AuthenticationMethods
+			# search: /UsePAM
+			if ! (grep -Pq "^AuthenticationMethods publickey,password publickey,keyboard-interactive$" "$SSHD_CONF"); then
+				if (grep -Eq "^.*AuthenticationMethods.*$" "$SSHD_CONF"); then
+					sudo sed -i 's/^.*AuthenticationMethods.*$/AuthenticationMethods publickey,password publickey,keyboard-interactive/' "$SSHD_CONF"
+					echo -e "${GREEN}[+]${RESET}Setting: AuthenticationMethods = publickey,password publickey,keyboard-interactive"
+				else
+					echo "AuthenticationMethods publickey,password publickey,keyboard-interactive" | sudo tee -a "$SSHD_CONF" > /dev/null
+					echo -e "${GREEN}[+]${RESET}Setting: AuthenticationMethods = publickey,password publickey,keyboard-interactive"
+				fi
+			fi
+
+			# Enable MFA in /etc/pam.d/sshd
 	                if ! (grep -Eq "^auth required pam_google_authenticator.so no_increment_hotp nullok$" "$PAM_SSHD"); then
-				echo '# libpam-google-authenticator 2fa
-auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -a "$PAM_SSHD"
+				echo -e "${GREEN}[+]${RESET}Enabled MFA in /etc/pam.d/sshd"
+				echo '
+# libpam-google-authenticator 2fa
+auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -a "$PAM_SSHD" > /dev/null
 			fi
 
 			sudo systemctl restart sshd
@@ -390,13 +487,20 @@ auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -
 
 		# If this isn't a headless server, add MFA to desktop login as well.
 		if ! [[ $VPS == 'true' ]]; then
+			# Enable MFA in /etc/pam.d/login
 			if ! (grep -Eq "^auth required pam_google_authenticator.so no_increment_hotp nullok$" "$PAM_LOGIN"); then
-				echo '# libpam-google-authenticator 2fa
-auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -a "$PAM_LOGIN"
-		fi
+				echo -e "${GREEN}[+]${RESET}Enabled MFA in /etc/pam.d/login"
+				echo '
+# libpam-google-authenticator 2fa
+auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -a "$PAM_LOGIN" > /dev/null
+			fi
+
+			# Enable MFA in /etc/pam.d/gdm-password
 			if ! (grep -Eq "^auth required pam_google_authenticator.so no_increment_hotp nullok$" "$PAM_GDM"); then
-				echo '# libpam-google-authenticator 2fa
-auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -a "$PAM_GDM"
+				echo -e "${GREEN}[+]${RESET}Enabled MFA in /etc/pam.d/gdm-password"
+				echo '
+# libpam-google-authenticator 2fa
+auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -a "$PAM_GDM" > /dev/null
 			fi
 		fi
 
@@ -405,6 +509,29 @@ auth required pam_google_authenticator.so no_increment_hotp nullok' | sudo tee -
 	fi
 }
 
+# TO DO: add a function to undo MFA
+# Steps to undo MFA login and revert to public key auth as the only SSH login method:
+#
+# ChallengeResponseAuthentication -> no
+# AuthenticationMethods ... -> #AuthenticationMethods ...
+#
+# These will need to be tested to remove any duplicate lines for example, as having these 
+# enabled in some configurations can allow bypassing public key auth
+#
+# An alternative configuration permits the following two logins:
+# https://ubuntu.com/tutorials/configure-ssh-2fa
+#
+# * password + otp
+# * public key
+#
+# The ChallengeResponseAuthentication option seems to allow PasswordAuthentication even if it's set to 'no'
+# This means you'll need to ensure 'nullok' is not set for google auth under /etc/pam.d/sshd, otherwise
+# the otp requirement can be bypassed making it effectively password OR public key.
+# 
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-multi-factor-authentication-for-ssh-on-ubuntu-20-04
+# |_https://creativecommons.org/licenses/by-nc-sa/4.0/
+# Options under AuthenticationMethods will need tested to see what else is possible.
+
 # Command-Line-Arguments
 function manageMenu() {
 	echo ""
@@ -412,8 +539,9 @@ function manageMenu() {
 	echo ""
 	echo "   1) Setup openssh-server"
 	echo "   2) Configure MFA logins"
-	echo "   3) Exit"
-	until [[ $MENU_OPTION =~ ^[1-3]$ ]]; do
+	echo "   3) Stop and remove openssh-server"
+	echo "   4) Exit"
+	until [[ $MENU_OPTION =~ ^[1-4]$ ]]; do
 		read -rp "Select an option [1-4]: " MENU_OPTION
 	done
 
@@ -425,6 +553,9 @@ function manageMenu() {
 		setMFA
 		;;
 	3)
+		unsetSSH
+		;;
+	4)
 		exit 0
 		;;
 	esac
