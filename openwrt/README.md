@@ -420,6 +420,8 @@ service network reload
 
 **NOTE**: some `/etc/config/wireless` settings will reload in real time when edited with `vi`, such as `option isolate '1'`
 
+Other settings such as MAC address filtering `list maclist` will require `/etc/init.d/network restart`
+
 Regenerate factory wireless configuration
 ```ash
 # https://openwrt.org/docs/guide-user/network/wifi/basic#regenerate_configuration
