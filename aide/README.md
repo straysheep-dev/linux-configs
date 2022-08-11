@@ -11,6 +11,8 @@ How to setup `aide` for filesystem integrity monitoring and do basic tuning of t
 ## References
 
 - `man aide.conf`
+- <https://aide.github.io/>
+- <https://aide.github.io/doc>
 - The following shows good examples of writing configurations:
 	* <https://github.com/openshift/file-integrity-operator/blob/master/aide.conf.rhel8>
 
@@ -24,6 +26,26 @@ sudo apt install -y aide
 You may want to write your own cron task instead of the default which will execute daily:
 ```bash
 sudo chmod -x /etc/cron.daily/aide
+```
+
+## Quick Usage
+
+You can do this with any attribute you are monitoring. See the `summarize_changes` section under `man aide.conf` for the list of attributes (which are individual letters).
+
+When you run a check with `sudo -c </path/to/aide.conf> -C` and are summarizing changes, summary lines under `Changed entries:` are printed like this:
+
+```
+# your results will look slightly different
+d = ... .. .. .: /path/to/example/directory1
+f = ... .. .. .: /path/to/example/file1
+```
+
+Those `.` dots will be replaced with the letter of the attribute, if it differs from what's stored in your current database.
+
+This command will only return files where the checksum(s) `C` (Aide 0.16.1) or message digests `H` (Aide 0.17.4) have changed, filtering out any results under `/etc/vmware-installer/`.
+```bash
+sudo -c </path/to/aide.conf> -C | grep -P "<attribute(s)-to-check>" | grep -Fv "<results-to-filter>"
+sudo -c /etc/aide/aide.conf -C | grep -P "^f (<|>|=) ........(C|H)" | grep -Fv "/etc/vmware-installer/"
 ```
 
 ### Configuring `aide`
