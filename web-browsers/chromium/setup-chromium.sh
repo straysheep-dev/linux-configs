@@ -21,8 +21,8 @@ function isRoot() {
 isRoot
 
 function SetupPolicies() {
-	# This always creates the /etc/chromium-browser/ directory
-	# If /etc/opt/chrome exists, symlink the existing files over from /etc/chromium-browser/
+	# This always creates the /etc/chromium-browser/ and /etc/opt/chrome directories,
+	# symlinking the existing files over from /etc/chromium-browser/ to /etc/opt/chrome
 
 	# https://www.chromium.org/administrators/linux-quick-start/
         sudo mkdir -p /etc/chromium-browser/policies/managed
