@@ -143,6 +143,15 @@ Start `vmware` and the new modules will be installed automatically.
 
 If SecureBoot is enabled, the modules **will build correctly** but fail to install because they aren't signed.
 
+You can confirm the modules were built with:
+
+```bash
+modinfo -n vmmon
+modinfo -n vmnet
+```
+
+Which should show the filesystem path where they exist.
+
 ---
 
 ## Signing the Kernel Modules (First Time Setup)
@@ -192,13 +201,17 @@ sudo /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMw.priv ./VM
 
 #### Importing the Key with mokutil
 
+**NOTE**: In some cases, you may need to re-import signing keys at a later time. For example, after updating the UEFI/BIOS.
+
 `mokutil` requires a password during the boot sequence to import keys into the UEFI system.
 
-This password exists solely for this purpose, of ensuring authorization during the mokutil dialogues.
+This password exists solely for this purpose, of ensuring you have physical access to the device during the mokutil dialogues.
 
 Create an 8-16 character password for this purpose using your **password manager**.
 
 Be sure to have access to it while the machine is powered off, you'll be prompted to enter it during the boot process.
+
+Import the *public key*, in this case the `.der` file:
 
 ```bash
 sudo mokutil --import VMw.der
@@ -209,6 +222,22 @@ reboot
 Follow the prompts in the UEFI/BIOS menu to enroll the new MOK key.
 
 These prompts will automatically appear when a mokutil operation is pending.
+
+# IMPORTANT
+
+From here it's critical to remove the private key you just created and imported into MOK from the filesystem.
+
+A local attacker with root privileges can bypass all of the protections of Secure Boot by using this (or any enrolled `.priv` / private key locally available) to sign a malicious kernel module.
+
+The public part of the key pair (the `.der` file) can safely remain on the system. Should you ever need to import it into MOK again, for example after updating your system's firmware, you can do so using the `.der` file alone.
+
+For managing the `.priv` or private key, there are roughly three approaches to this:
+
+- For a lower threat model, there is a convenience to having the keys available on disk. Secure Boot being enabled alone is a good baseline.
+
+- For a mid-level threat model, moving those keys to an external storage device or backing them up to a password manager to be retrieved when kernel modules need updated and signed is a reasonable compromise.
+
+- For a higher threat model, deleting the private keys after signing is recommended. Using a script you can create new private keys to sign modules as needed. The overhead here is the additional reboot required when enrolling new keys through `mokutil`. This means each time a module needs signed, you must create a MOK password and walk through the prompts at boot to enroll the new key. Additionally you may want to delete previous keys from MOK with `sudo mokutil --delete-key <sha1-hash>` when creating new keys.
 
 
 ## Signing the Kernel Modules (Recurring Updates)
@@ -354,6 +383,24 @@ lsmod | grep -P "vm(mon|net)"
 The linked resources [above the install](#vmware-workstation-for-linux) section will have detailed solutions for most anything you'll encounter.
 
 The following are specific issues I've identified during usage.
+
+---
+
+### Kernel Modules Do Not Build
+
+In the worst case scenario, after a kernel update you can enter the GRUB2 menu at boot, and boot using the previous kernel.
+
+https://www.gnu.org/software/grub/manual/grub/grub.html#Simple-configuration
+
+Set `GRUB_TIMEOUT_STYLE=countdown` and update grub:
+
+```bash
+sudo update-grub
+```
+
+When you see the countdown prior to boot, press `ESC` or `F4`. GRUB can also be accessed by holding `Shift` during boot.
+
+From here choose a previous kernel version to boot into the OS.
 
 ---
 
