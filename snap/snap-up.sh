@@ -157,11 +157,11 @@ function SyncUp() {
 		fi
 		
 		echo ""
-		echo "[EXEC]: $ rsync -arv --delete /home/$USERNAME/snap/backups $SET_SYNC_PATH"
+		echo "[EXEC]: $ rsync -arv --safe-links --delete /home/$USERNAME/snap/backups $SET_SYNC_PATH"
 		echo ""
 		sleep 1
 		echo -e "[${BLUE}>${RESET}] Syncing to -> $SET_SYNC_PATH" 
-		rsync -arv --delete /home/"$USERNAME"/snap/backups "$SET_SYNC_PATH"
+		rsync -arv --safe-links --delete /home/"$USERNAME"/snap/backups "$SET_SYNC_PATH"
 		echo ""
 		echo -e "[${GREEN}✓${RESET}]Done."
 		
