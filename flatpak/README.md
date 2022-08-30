@@ -20,6 +20,8 @@ Read these first before jumping in:
 
 - https://wiki.gnome.org/Design/Whiteboards/ApplicationSandboxing
 
+- https://docs.flatpak.org/en/latest/conventions.html
+
 Flatpak documentation is licensed under the `CC-BY 4.0`
 
 - https://github.com/flatpak/flatpak-docs/blob/master/COPYING
@@ -121,6 +123,33 @@ You can then read the key data with:
 ```bash
 grep GPG ./org.example.app.flatpakref | cut -d '=' -f 2 | base64 -d | gpg
 ```
+
+## Verifying a flatpak Application
+
+While flatpaks exist within a security sandbox, it's still a good idea to verify you're installing the intended application from the correct developer.
+
+https://docs.flatpak.org/en/latest/using-flatpak.html#identifiers
+
+> Flatpak identifies each application and runtime using a unique three-part identifier, such as `com.company.App`. The final segment of this address is the object’s name, and the preceding part identifies the developer, so that the same developer can have multiple applications, like `com.company.App1` and `com.company.App2`.
+
+https://docs.flatpak.org/en/latest/conventions.html#application-ids
+
+https://github.com/flathub/flathub/wiki/App-Requirements#application-id
+
+> As described in Using Flatpak, Flatpak requires each application to have a unique identifier, which has a form such as `org.gnome.Dictionary`.
+
+> The format is in reverse-DNS style so the first section is generally a domain controlled by the project and the trailing section represents the specific project. There are some exceptions to this, such as extensions using the base application-id of the project they extend rather than their own.
+
+> As will be seen below and in future sections, this ID is expected to be used in a number of places. Developers must follow the standard D-Bus naming conventions for bus names when creating their own IDs. This format is already recommended by the Desktop File specification and Appstream specification also.
+
+The above seems to indicate that extensions can use an existing application ID, but may **not necessarily be maintained by the same developer**.
+
+Ways you can verify you have the correct flatpak:
+
+- Check the developer's documentation on how and where to obtain the application, it should point to an official flatpak.
+- Check the flatpak id, it's often formatted as `tld.developer.application`
+- On the application's flathub page `https://flathub.org/apps/details/<tld.developer.application>` go to Publisher, then `See details`, confirm the developer is a contributer.
+- Alternatively, browser to `https://github.com/flathub/<tld.developer.application>` and review the contributers.
 
 ## General Commands
 
