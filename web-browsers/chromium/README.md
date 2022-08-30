@@ -104,6 +104,35 @@ However, tabs from different profiles cannot exist in the same Chrome window. A 
 
 Settings specific to installed extensions that you'd like to replicate in other profiles will need to be exported from a current profile, and imported into the other profile(s) extension(s). Each newly created profile launches with all of the policies (and extensions to be installed) applied, as if it was the first launch.
 
+### Chrome User-Agent
+
+<https://www.chromium.org/updates/ua-reduction/>
+
+[chrome://version](chrome://version) will show the current `User-Agent` string.
+
+You can set a User-Agent string by starting chromium from the CLI with `--user-agent=`:
+```bash
+chromium --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
+```
+
+Possible desktop platform values:
+- Windows NT 10.0; Win64; x64
+- Macintosh; Intel Mac OS X 10_15_7
+- X11; Linux x86_64
+- X11; CrOS x86_64 14541.0.0
+
+Example Values:
+- `Mozilla/5.0 (<platform>; <oscpu>) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/<majorVersion>.<minorVersion>; Safari/537.36`
+- `Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36`
+- `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36`
+
+Edge (Chromium)
+
+[edge://version](edge://version) will show the current `User-Agent` string.
+
+Captured from Wireshark:
+- `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36 Edg/102.0.1245.39`
+
 ## Thanks and References:
 
 - OpenSCAP
