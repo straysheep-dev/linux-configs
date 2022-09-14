@@ -323,6 +323,15 @@ function processes() {
 	echo '#[v] process tree'
 	echo ''
 	ps axjf
+
+	echo '#======================================================================'
+	echo '#[v] processes missing their binary'
+	echo ''
+	# https://github.com/carlospolop/hacktricks/blob/master/forensics/basic-forensic-methodology/linux-forensics.md#recover-deleted-running-binaries
+	process_bins=$(ps -ef | awk '{print $8}' |  grep -P "^/\w+/")
+	for bin in $process_bins; do if ! [ -e "$bin" ]; then echo "WARNING: $bin only found in memory"; fi ; done
+	unset process_bins
+
 }
 
 function services() {
