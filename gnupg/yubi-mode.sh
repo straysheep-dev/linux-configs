@@ -104,9 +104,11 @@ if [ "${1}" == 'gpg' ]; then
 
         echo -e "${BLUE}[✓]Done.${RESET}"
 
-elif [ "${1}" == 'oath' ]; then
+elif [ "${1}" == 'snap-oath' ]; then
 
-        echo -e "${BLUE}[>]oath mode${RESET}"
+	# This needs revised to consider the other yubico software packages, like ykman via the PPA or via pip / pipx / venv / etc...
+
+        echo -e "${BLUE}[>]snap-oath mode${RESET}"
 
 	# This line is necessary in cases where the yubikey still cannot be read after changing pcscd daemons
 	pkill gpg-agent ; pkill ssh-agent ; pkill pinentry
@@ -156,5 +158,5 @@ elif [ "${1}" == 'oath' ]; then
 	# Close this shell once the GUI application is running
 	exit 0
 else
-        echo "Usage: yubi-mode [oath/gpg]"
+        echo "Usage: yubi-mode [snap-oath/gpg]"
 fi
