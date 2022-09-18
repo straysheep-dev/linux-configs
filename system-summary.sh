@@ -528,28 +528,37 @@ function logs() {
 
 function integrity() {
 	echo '#======================================================================'
+	echo '#[v] rootkit checks'
+	echo ''
 	if ! (command -v rkhunter > /dev/null); then
 		echo '[!!] rkhunter not installed!'
 		echo ''
 	else
-		echo '#[v] rootkit checks'
-		echo ''
 		rkhunter --sk --check --rwo
 		echo ''
 	fi
 
+	if ! (command -v chkrootkit > /dev/null); then
+		echo '[!!] chkrootkit not installed!'
+		echo ''
+	else
+		echo ''
+		chkrootkit -q
+		echo ''
+	fi
+
+	echo '#======================================================================'
+	echo '#[v] system integrity checks'
+	echo ''
 	if ! (command -v aide > /dev/null); then
 		echo '[!!] aide not installed!'
 		echo ''
 	else
-		echo '#======================================================================'
-		echo '#[v] system integrity checks'
-		echo ''
 		aide -c /etc/aide/aide.conf -C
 		echo ''
 
 	fi
-	
+
 	# Get database and file hashes
 	if (command -v aide > /dev/null); then
 		echo '#======================================================================'
