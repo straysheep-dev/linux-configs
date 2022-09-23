@@ -358,6 +358,17 @@ From here choose a previous kernel version to boot into the OS.
 
 ---
 
+### VM's Copied from Another Host Fail to Boot
+
+Check the VM's configuration on the source host (the machine you copied the VM from), under `VM > Settings > Hardware > Processors` to see if `Virtualize IOMMU` is available and checked. If it's not available on the destination host (the host you copied the VM to), and this VM has it enabled, such as Windows guests with VBS (Virtualization Based Security), the VM will fail to boot.
+
+In one case with a Windows 11 VM, it quickly failed to boot producing a stopcode that does not directly point to the issue being related to the hypervisor. Booting into safe mode works, however attempting to reinstall or recover Windows locally always fails.
+
+To fix this, you'll need to turn both of the following options off on the host that has VBS and IOMMU support, **prior to copying the VM's to the destination machine that does not support them**:
+
+- `VM > Settings > Options > Advanced` uncheck `Enable VBS (Virtualization Based Security) support`
+- `VM > Settings > Hardware > Processors` uncheck `Virtualize IOMMU (IO memory management unit)`
+
 ### /etc/vmware/networking does not exist
 
 Segfault if `/etc/vmware/networking` or `/etc/vmware/netmap.conf` do not exist.
