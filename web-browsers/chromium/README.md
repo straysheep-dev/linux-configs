@@ -115,6 +115,16 @@ You can set a User-Agent string by starting chromium from the CLI with `--user-a
 chromium --user-agent='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.115 Safari/537.36'
 ```
 
+You can change the User-Agent dynamically (*without installing an extension*) while browsing using the developer tools. Thanks to Micah ([@WebBreacher](https://twitter.com/WebBreacher/status/1572595024046465024)) for sharing this. The linked twitter post shows screenshots of these steps:
+
+1. Open the developer tools
+2. Navigate to the Network tab
+3. Choose `More network conditions...` (WiFi icon with a small gear on it)
+4. On the new pane that appears, under `User agent` uncheck `Use browser default`
+5. Opening the menu that says `Custom...` will allow you to set your user agent to any modern user agent
+
+**NOTE**: This change only exists on the tab where you configured it, meaning to maintain the same user agent when opening links in new tabs you must open a blank tab, repeat these steps, and then copy & paste the link into the url bar of the newly configured tab.
+
 Possible desktop platform values:
 - Windows NT 10.0; Win64; x64
 - Macintosh; Intel Mac OS X 10_15_7
