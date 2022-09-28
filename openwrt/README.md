@@ -175,8 +175,16 @@ sysupgrade -l
 Generate a backup
 ```ash
 umask go=
-# download this backup to your PC before power cycling / upgrading the OpenWrt device or it will be erased
 sysupgrade -b /tmp/backup-${HOSTNAME}-$(date +%F).tar.gz
+
+# Get the hash of the backup archive
+sha256sum /tmp/backup-*
+
+# Download this backup to your PC before power cycling / upgrading the OpenWrt device or it will be erased
+scp root@<ip>:/tmp/backup-*.tar.gz .
+
+# Check the hash locally to make sure the backup configuration is OK
+sha256sum ./backup-* | grep <hash>
 ```
 
 ### 2. Perform the upgrade
@@ -206,21 +214,39 @@ Performing the upgrade:
 ```ash
 scp <sysupgrade.bin> root@<ip>:/tmp/      # must be /tmp/ as flash storage is unmounted during upgrades
 ssh root@<ip>
+sha256sum /tmp/*.bin                      # be sure the files's signature uploaded to the AP matches your local copy
 sysupgrade -v /tmp/*.bin                  # preserve settings
 sysupgrade -n -v /tmp/*.bin               # factory default settings
 ```
 
-- 'TRX header' errors can be safely ignored
+If you're conducting this upgrade remotely or over WiFi you'll likely see:
 
+```
+<datetime> upgrade: Commencing upgrade. Closing all shell sessions.
+Command failed: Connection failed
+root@OpenWrt:/tmp# Connection to <openwrt-ip> closed by remote host.
+Connection to <openwrt-ip> closed.
+```
+
+If you're physically near the AP, you may see the device's indicator lights signalling an upgrade is happening.
+
+If you cannot physically see the AP, watch the list of access points on the machine you'll be reconnecting from until it comes back online.
+
+- 'TRX header' errors can be safely ignored
 - If the device is unresponsive after an upgrade, wait 5 minutes before dis/re-connecting power to the device
 
-**TIP**: Using `tcpdump` with `-Q in` you'll see when the device is back online
+In cases where you're either 1) connected directly to the AP or 2) have a shell on a device directly connected to the AP and the AP can obtain a DHCP lease in that subnet:
+
+- Using `tcpdump` with `-Q in` you'll be able to see when the device is back online based on the traffic and MAC addresses (you may need to know the MAC address).
+
+In all cases, once the device is back online you'll be able to reconnect over ssh to confirm the upgrade succeeded when the ssh banner prints the current version.
 
 ### 3. Restore your configuration
 
 Automated restore process:
 ```ash
 scp <backup-*.tar.gz> root@<ip>:/tmp/
+ssh root@<ip>
 sysupgrade -r /tmp/backup-*.tar.gz
 ```
 
@@ -727,13 +753,24 @@ Using qemu-utils is the quickest way to create an OpenWrt VM.
 sudo apt install -y qemu-utils
 ```
 
-Obtain the OpenWrt image and signatures:
+Obtain the OpenWrt signatures for x86/64, replacing <verison> with the one you want:
 ```bash
-curl -LfO 'https://downloads.openwrt.org/releases/21.02.1/targets/x86/64/sha256sums.asc'
-curl -LfO 'https://downloads.openwrt.org/releases/21.02.1/targets/x86/64/sha256sums'
+curl -LfO 'https://downloads.openwrt.org/releases/<version>/targets/x86/64/sha256sums.asc'
+curl -LfO 'https://downloads.openwrt.org/releases/<version>/targets/x86/64/sha256sums'
 ```
 
-If you want the UEFI compatible image (recommended), use `combined-efi.img` instead of `combined.img`.
+On the `https://downloads.openwrt.org/releases/<version>/targets/x86/64/` page you'll see a few different images to choose from:
+
+- generic-ext4-combined-efi.img.gz    <- this is the image we want
+- generic-ext4-combined.img.gz
+- generic-ext4-rootfs.img.gz
+- generic-kernel.bin
+- generic-squashfs-combined-efi.img.gz
+- generic-squashfs-combined.img.gz
+- generic-squashfs-rootfs.img.gz
+- rootfs.tar.gz
+
+If you want the UEFI compatible image (recommended), use `generic-ext4-combined-efi.img.gz` instead of `generic-ext4-combined.img.gz`.
 ```bash
 curl -LfO 'https://downloads.openwrt.org/releases/21.02.1/targets/x86/64/openwrt-21.02.1-x86-64-generic-ext4-combined-efi.img.gz'
 ```
