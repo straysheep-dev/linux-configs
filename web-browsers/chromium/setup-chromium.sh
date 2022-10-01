@@ -106,8 +106,8 @@ function InstallBrowser() {
 			sudo chown root:root /etc/apt/trusted.gpg.d/google-chrome.gpg
 			sudo chmod 644 /etc/apt/trusted.gpg.d/google-chrome.gpg
 
-			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep '4CCA 1EAF 950C EE4A B839  76DC A040 830F 7FAC 5991'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
-			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
+			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep -P "4CCA\s?1EAF\s?950C\s?EE4A\s?B839\s?\s?76DC\s?A040\s?830F\s?7FAC\s?5991"); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
+			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep -P "EB4C\s?1BFD\s?4F04\s?2F6D\s?DDCC\s?\s?EC91\s?7721\s?F63B\s?D38B\s?4796"); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
 		fi
 
 		sudo apt update && \
