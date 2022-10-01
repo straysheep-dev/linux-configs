@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Reset firewall to a baseline policy
+# Reset firewall to a baseline policy with egress filtering
 
 # Vars
 PUB_NIC="$(ip route | grep 'default' | grep -Po '(?<=dev )(\S+)' | head -1)"
