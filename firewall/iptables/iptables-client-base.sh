@@ -9,7 +9,7 @@ iptables -X    # Delete all user-defined chains
 
 iptables -P INPUT DROP
 iptables -P FORWARD DROP
-iptables -P OUTPUT DROP
+iptables -P OUTPUT ACCEPT
 iptables -N ip-after-forward
 iptables -N ip-after-input
 iptables -N ip-after-logging-forward
@@ -100,19 +100,19 @@ iptables -A ip-not-local -m limit --limit 3/min --limit-burst 10 -j ip-logging-d
 iptables -A ip-not-local -j DROP
 iptables -A ip-skip-to-policy-forward -j DROP
 iptables -A ip-skip-to-policy-input -j DROP
-iptables -A ip-skip-to-policy-output -j DROP
+iptables -A ip-skip-to-policy-output -j ACCEPT
 iptables -A ip-user-limit -m limit --limit 3/min -j LOG --log-prefix "[IPTABLES LIMIT BLOCK] "
 iptables -A ip-user-limit -j REJECT --reject-with icmp-port-unreachable
 iptables -A ip-user-limit-accept -j ACCEPT
-iptables -A ip-user-output -d "$GTWY" -o "$PUB_NIC" -j ACCEPT
-iptables -A ip-user-output -d 127.0.0.0/8 -o "$PUB_NIC" -j DROP
-iptables -A ip-user-output -d 10.0.0.0/8 -j DROP
-iptables -A ip-user-output -d 169.254.0.0/16 -j DROP
-iptables -A ip-user-output -d 172.16.0.0/12 -j DROP
-iptables -A ip-user-output -d 192.168.0.0/16 -j DROP
-iptables -A ip-user-output -o "$PUB_NIC" -p tcp -m multiport --dports 80,443 -j ACCEPT
-iptables -A ip-user-output -o "$PUB_NIC" -p udp -m udp --dport 53 -j ACCEPT
-iptables -A ip-user-output -o "$PUB_NIC" -p udp -m udp --dport 123 -j ACCEPT
+#iptables -A ip-user-output -d "$GTWY" -o "$PUB_NIC" -j ACCEPT
+#iptables -A ip-user-output -d 127.0.0.0/8 -o "$PUB_NIC" -j DROP
+#iptables -A ip-user-output -d 10.0.0.0/8 -j DROP
+#iptables -A ip-user-output -d 169.254.0.0/16 -j DROP
+#iptables -A ip-user-output -d 172.16.0.0/12 -j DROP
+#iptables -A ip-user-output -d 192.168.0.0/16 -j DROP
+#iptables -A ip-user-output -o "$PUB_NIC" -p tcp -m multiport --dports 80,443 -j ACCEPT
+#iptables -A ip-user-output -o "$PUB_NIC" -p udp -m udp --dport 53 -j ACCEPT
+#iptables -A ip-user-output -o "$PUB_NIC" -p udp -m udp --dport 123 -j ACCEPT
 
 
 if (command -v apt > /dev/null); then

@@ -25,7 +25,7 @@ GTWY="$(ip route | grep default | cut -d " " -f3)"
 #    Allow Types 144-147 ONLY if "mobility enabled"
 #    Allow Types 151-153 ONLY if participating in global multicast
 #
-## Egress:
+# Egress:
 #    Deny all
 #    Allow Types 133/134: Router solicitation/advertisement
 #    Allow Types 135/136: Neighbor solicitation/advertisement
@@ -38,7 +38,7 @@ ip6tables -X    # Delete all user-defined chains
 
 ip6tables -P INPUT DROP
 ip6tables -P FORWARD DROP
-ip6tables -P OUTPUT DROP
+ip6tables -P OUTPUT ACCEPT
 ip6tables -N ip6-after-forward
 ip6tables -N ip6-after-input
 ip6tables -N ip6-after-logging-forward
@@ -171,15 +171,15 @@ ip6tables -A ip6-logging-deny -m conntrack --ctstate INVALID -m limit --limit 3/
 ip6tables -A ip6-logging-deny -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[IP6TABLES BLOCK] "
 ip6tables -A ip6-skip-to-policy-forward -j DROP
 ip6tables -A ip6-skip-to-policy-input -j DROP
-ip6tables -A ip6-skip-to-policy-output -j DROP
+ip6tables -A ip6-skip-to-policy-output -j ACCEPT
 ip6tables -A ip6-user-limit -m limit --limit 3/min -j LOG --log-prefix "[IP6TABLES LIMIT BLOCK] "
 ip6tables -A ip6-user-limit -j REJECT --reject-with icmp6-port-unreachable
 ip6tables -A ip6-user-limit-accept -j ACCEPT
-ip6tables -A ip6-user-output -d fc00::/7 -j DROP
-ip6tables -A ip6-user-output -d ::1/128 -o "$PUB_NIC" -j DROP
-ip6tables -A ip6-user-output -o "$PUB_NIC" -p tcp -m multiport --dports 80,443 -j ACCEPT
-ip6tables -A ip6-user-output -o "$PUB_NIC" -p udp -m udp --dport 53 -j ACCEPT
-ip6tables -A ip6-user-output -o "$PUB_NIC" -p udp -m udp --dport 123 -j ACCEPT
+#ip6tables -A ip6-user-output -d fc00::/7 -j DROP
+#ip6tables -A ip6-user-output -d ::1/128 -o "$PUB_NIC" -j DROP
+#ip6tables -A ip6-user-output -o "$PUB_NIC" -p tcp -m multiport --dports 80,443 -j ACCEPT
+#ip6tables -A ip6-user-output -o "$PUB_NIC" -p udp -m udp --dport 53 -j ACCEPT
+#ip6tables -A ip6-user-output -o "$PUB_NIC" -p udp -m udp --dport 123 -j ACCEPT
 
 
 if (command -v apt > /dev/null); then
