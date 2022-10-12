@@ -35,7 +35,7 @@ After=network.target
 [Service]
 Type=simple
 PermissionsStartOnly=true
-ExecStart=/usr/bin/nice -n 15 /usr/sbin/tcpdump -i $CAP_IFACE_CHOICE -G 3600 -w '/opt/pcaps/$(hostname -s).%%Y%%m%%d%%H%%M%%S.pcap' '((tcp[13] & 0x17 != 0x10) or not tcp)'
+ExecStart=/usr/bin/nice -n 15 /usr/sbin/tcpdump -i -Z nobody $CAP_IFACE_CHOICE -G 3600 -w '/opt/pcaps/$(hostname -s).%%Y%%m%%d%%H%%M%%S.pcap' '((tcp[13] & 0x17 != 0x10) or not tcp)'
 Restart=always
 RestartSec=10
 
