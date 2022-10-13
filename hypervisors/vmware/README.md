@@ -115,12 +115,40 @@ Essentially, have the following in your openssl config used to make the key in t
 - `basicConstraints=CA:FALSE`
 - `keyUsage=digitalSignature`
 
+The Fedora Project Documentation provides a [configuration file suitable for generating a kernel module signing key](https://docs.fedoraproject.org/en-US/fedora/latest/system-administrators-guide/kernel-module-driver-configuration/Working_with_Kernel_Modules/#sect-generating-a-public-private-x509-key-pair) under the [Creative Commons BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+
+- Replace `CN = Organization signing key` with `CN = VMware Secure Boot Module Signing Key`
+- Make any additional changes you may require
+- Write this `.conf` file to /var/lib/shim-signed/mok/
+
+```
+[ req ]
+default_bits = 4096
+distinguished_name = req_distinguished_name
+prompt = no
+string_mask = utf8only
+x509_extensions = myexts
+
+[ req_distinguished_name ]
+#O = Organization                           # optional
+CN = VMware Secure Boot Module Signing Key
+#emailAddress = E-mail address              # optional
+
+[ myexts ]
+basicConstraints=critical,CA:FALSE
+keyUsage=digitalSignature
+subjectKeyIdentifier=hash
+authorityKeyIdentifier=keyid
+```
+
+Use the above configuration file to generate the X.509 public private key pair. The `openssl` command has also been updated to reflect what's shown in the [Fedora User Docs](https://docs.fedoraproject.org/en-US/fedora/latest/system-administrators-guide/kernel-module-driver-configuration/Working_with_Kernel_Modules/#sect-generating-a-public-private-x509-key-pair):
+
 ```bash
 # Change to the directory containing your machine owner keys, which is only readable by root
 cd /var/lib/shim-signed/mok/
 
 # Create a key for code signing
-sudo openssl req -new -x509 -newkey rsa:2048 -keyout VMw.priv -outform DER -out VMw.der -nodes -days 36500 -subj "/CN=VMware Secure Boot Module Signing Key/"
+sudo openssl req -x509 -new -nodes -utf8 -sha256 -days 36500 -batch -config signing_key.config -outform DER -out VMw.der -keyout VMw.priv
 
 # Sign both vmmon and vmnet with the new key
 sudo /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMw.priv ./VMw.der $(modinfo -n vmmon)
