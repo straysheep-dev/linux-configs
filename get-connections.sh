@@ -6,7 +6,7 @@ function GetSSHConnections() {
 	echo "SSH Connections:"
 	echo ""
 	for log in /var/log/auth.log*; do
-		if (sudo file "$log" | grep -P "ASCII text(, with very long lines)?$" > /dev/null); then
+		if (sudo file "$log" | grep -P "ASCII text(, with very long lines( \(\d+\))?)?$" > /dev/null); then
 			echo "$log:"
 			sudo grep -F 'Accepted' "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sort | uniq -c | sort -n -r
 		fi
@@ -25,7 +25,7 @@ function GetVPNConnections() {
 	echo "VPN Connections:"
 	echo ""
 	for log in /var/log/kern.log*; do
-		if (sudo file "$log" | grep -P "ASCII text(, with very long lines)?$" > /dev/null); then
+		if (sudo file "$log" | grep -P "ASCII text(, with very long lines( \(\d+\))?)?$" > /dev/null); then
 			echo "$log:"
 			sudo grep 'Connection' "$log" | sed 's/SRC=/\nSRC=/g' | grep 'SRC=' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r
 		fi
