@@ -8,7 +8,7 @@ function GetSSHConnections() {
 	for log in /var/log/auth.log*; do
 		if (sudo file "$log" | grep -P "ASCII text(, with very long lines( \(\d+\))?)?$" > /dev/null); then
 			echo "$log:"
-			sudo grep -F 'Accepted' "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sort | uniq -c | sort -n -r
+			sudo grep -F 'Accepted' "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r
 		fi
 	done
 }
