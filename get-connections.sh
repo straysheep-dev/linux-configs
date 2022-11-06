@@ -27,3 +27,5 @@ function GetVPNConnections() {
 	echo ""
 	sudo grep 'Connection' /var/log/kern.log | sed 's/SRC=/\nSRC=/g' | grep 'SRC=' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r
 }
+
+GetVPNConnections
