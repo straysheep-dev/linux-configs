@@ -60,6 +60,8 @@ function CheckEnrolledKeys() {
 		echo "2. Enter the password you just created"
 		echo -e "3. ${BOLD}$ sudo reboot${RESET}"
 		echo ""
+	elif (mokutil --list-enrolled | grep -qi "vmware"); then
+		echo -e "[${GREEN}✓${RESET}]VMware kernel module signing key found in shim database."
 	fi
 }
 
@@ -70,8 +72,9 @@ if (lsmod | grep -q "vmmon") && (lsmod | grep -q "vmnet"); then
 elif [[ "$(modinfo -F signature vmnet)" == '' ]] || [[ "$(modinfo -F signature vmmon)" == '' ]]; then
 
 	if ! [[ -e "$(modinfo -n vmnet)" ]] || ! [[ -e "$(modinfo -n vmmon)" ]]; then
+		echo ""
 		echo -e "[${BLUE}*${RESET}] Building new kernel modules..."
-		echo "Looking error message: 'Unable to install all modules. See log /tmp/vmware-$USERNAME/... for details. (Exit code 1)'."
+		echo -e "Looking for error message: ${BOLD}'Unable to install all modules. See log /tmp/vmware-$USERNAME/... for details. (Exit code 1)'.${RESET}"
 		echo "IT IS OK TO CANCEL HERE, KERNEL MODULES WILL BE SIGNED TO PROCEED."
 		if (command -v vmware > /dev/null); then
 			vmware ; if [ "$?" -eq 1 ]; then echo -e "[${BLUE}i${RESET}]Error code is 1, which is expected."; fi
@@ -82,6 +85,7 @@ elif [[ "$(modinfo -F signature vmnet)" == '' ]] || [[ "$(modinfo -F signature v
 	fi
 
 	sleep 1
+	echo ""
 
 	if ! [[ -e '/var/lib/shim-signed/mok/VMw.der' ]]; then
 
