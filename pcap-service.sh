@@ -4,6 +4,8 @@
 
 # GPL-3.0-or-later
 
+# shellcheck disable=SC2034
+
 # Works with:
 # - Ubuntu
 # - pfSense (to do)
@@ -20,6 +22,7 @@
 
 # Thanks and credits:
 # https://github.com/william-stearns (wstearns-ACM) in the Threat Hunter Community Discord
+# https://unix.stackexchange.com/questions/194863/delete-files-older-than-x-days (user basic6's answer)
 
 RED="\033[01;31m"      # Issues/Errors
 GREEN="\033[01;32m"    # Success
@@ -160,7 +163,7 @@ function SchedulePCAPRotation() {
 # Rotates pcap files under $PCAP_PATH based on the range of time in days
 # For example, +60 means 60 days of pcaps are maintained
 
-* 0  * * * root /usr/bin/find $PCAP_PATH -mtime +$DAYS -delete" >> /etc/cron.d/pcap-rotation-service
+* 0  * * * root /usr/bin/find $PCAP_PATH -type f -mtime +$DAYS -delete" >> /etc/cron.d/pcap-rotation-service
 
 	echo -e "${GREEN}[>]${RESET}Added task to /etc/cron.d/pcap-rotation-service"
 }
