@@ -24,9 +24,26 @@ function IsRoot() {
 }
 IsRoot
 
+function checkOS() {
+
+	# Check OS version
+	OS="$(grep -E "^ID=" /etc/os-release | cut -d '=' -f 2)"
+
+	if [[ $OS == "ubuntu" ]]; then
+		CODENAME="$(grep VERSION_CODENAME /etc/os-release | cut -d '=' -f 2)" # debian or ubuntu
+		echo -e "${BLUE}[i]$OS $CODENAME detected.${RESET}"
+		MAJOR_UBUNTU_VERSION=$(grep VERSION_ID /etc/os-release | cut -d '"' -f2 | cut -d '.' -f 1)
+		if [[ $MAJOR_UBUNTU_VERSION -lt 18 ]] || [[ $MAJOR_UBUNTU_VERSION -gt 21 ]]; then
+			echo "Your version of Ubuntu is not supported."
+			exit 1
+		fi
+	fi
+}
+checkOS
+
 function InstallSysmon() {
 	echo -e "${BLUE}[i]Obtaining Microsoft signing key...${RESET}"
-	wget -q https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+	wget -q https://packages.microsoft.com/config/ubuntu/"$(lsb_release -rs)"/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
 	sudo dpkg -i packages-microsoft-prod.deb
 
 	echo -e "${BLUE}[>]Updating apt and installing Sysmon...${RESET}"
@@ -90,7 +107,7 @@ until [[ $MENU_CHOICE =~ ^(1|2|3)$ ]]; do
 	read -rp "Enter [1/2/3]: " -e MENU_CHOICE
 done
 if [[ $MENU_CHOICE == "1" ]]; then
-	if ! (systemctl is-active sysmon > /dev/null); then
+	if (command -v sysmon > /dev/null) && ! (systemctl is-active sysmon > /dev/null); then
 		echo -e "${BLUE}[>]Starting Sysmon...${RESET}"
 		sudo sysmon -accepteula -i
 		echo ""
