@@ -183,6 +183,9 @@ echo ""
 echo -e "${ITALIC}${YELLOW}PORTS BY FREQUENCY${NC}"
 grep -oP "lport=(\w){1,5}" /tmp/net-connections.txt | sort | uniq -c | sort -n -r
 echo ""
+echo -e "${ITALIC}${YELLOW}ADDRESSES BY FREQUENCY${NC}"
+grep -oP "laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})" /tmp/net-connections.txt | sort | uniq -c | sort -n -r
+echo ""
 echo -e "${ITALIC}${YELLOW}CONNECTIONS BY FREQUENCY${NC}"
 sed -E "s/laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" /tmp/net-connections.txt | sed -E "s/lport=(\w){1,5}/${SED_GREEN}/" | sed -E "s/(\/|=)\w+\S?\w+\s/${SED_LIGHT_MAGENTA}/"  | sort | uniq -c | sort -n -r
 echo ""
