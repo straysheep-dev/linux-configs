@@ -48,7 +48,7 @@ if (command -v rkhunter > /dev/null); then
 	sudo rkhunter --propupd
 fi
 
-if [ -e '/var/lib/aide/aide.db' ]; then
+if (command -v aide > /dev/null); then
 	echo -e "[${BLUE}>${RESET}]Updating aide database..."
 	sudo aide -u -c /etc/aide/aide.conf
 	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
