@@ -172,27 +172,29 @@ for cmd in $CMD_LIST; do
 	fi
 done
 
+NET_LIST='/tmp/net-connections.tmp'
+
 # https://unix.stackexchange.com/questions/304389/remove-newline-character-just-every-n-lines
 echo -e "=================================================="
 echo -e ""
 echo -e "${ITALIC_BLUE}NETWORK CONNECTIONS${NC}"
 echo -e ""
 NET_CONNECTIONS="$(sudo ausearch -ts today -i -l -sc connect -sv yes | grep -P "( proctitle=| saddr=)" | sed 's/ proctitle=/\nproctitle=/g' | sed 's/ saddr=/\nsaddr=/g' | grep -P "(proctitle=|saddr=)" | paste -sd ' \n' - | sort )"
-echo "$NET_CONNECTIONS" > /tmp/net-connections.txt
+echo "$NET_CONNECTIONS" > "$NET_LIST"
 echo ""
 echo -e "${ITALIC}${YELLOW}PORTS BY FREQUENCY${NC}"
-grep -oP "lport=(\w){1,5}" /tmp/net-connections.txt | sort | uniq -c | sort -n -r
+grep -oP "lport=(\w){1,5}" "$NET_LIST" | sort | uniq -c | sort -n -r
 echo ""
 echo -e "${ITALIC}${YELLOW}ADDRESSES BY FREQUENCY${NC}"
-grep -oP "laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})" /tmp/net-connections.txt | sort | uniq -c | sort -n -r
+grep -oP "laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})" "$NET_LIST" | sort | uniq -c | sort -n -r
 echo ""
 echo -e "${ITALIC}${YELLOW}EXTRACTED URLS${NC}"
 # Try to match all protocols, infinite subdomains, directory paths, and finally special characters (essentially any non-space character) appended, followed by alphanumeric characters
-grep -oP "\b\w+(://|@)((\w+\.)?){1,}\w+\.\w+((/\w+)?){1,}(((\S){1,}\w+)?){1,}" /tmp/net-connections.txt | sort | uniq -c | sort -n -r
+grep -oP "\b\w+(://|@)((\w+\.)?){1,}\w+\.\w+((/\w+)?){1,}(((\S){1,}\w+)?){1,}" "$NET_LIST" | sort | uniq -c | sort -n -r
 echo ""
 echo -e "${ITALIC}${YELLOW}CONNECTIONS BY FREQUENCY${NC}"
-sed -E "s/laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" /tmp/net-connections.txt | sed -E "s/lport=(\w){1,5}/${SED_GREEN}/" | sed -E "s/(\/|=)\w+\S?\w+\s/${SED_LIGHT_MAGENTA}/"  | sort | uniq -c | sort -n -r
+sed -E "s/laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" "$NET_LIST" | sed -E "s/lport=(\w){1,5}/${SED_GREEN}/" | sed -E "s/(\/|=)(\w+[-_]?){1,}\w+(\s|$)/${SED_LIGHT_MAGENTA}/"  | sort | uniq -c | sort -n -r
 echo ""
 echo -e "${ITALIC}${YELLOW}CONNECTIONS BY APPLICATION${NC}"
-sed -E "s/laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" /tmp/net-connections.txt | sed -E "s/lport=(\w){1,5}/${SED_GREEN}/" | sed -E "s/(\/|=)\w+\S?\w+\s/${SED_LIGHT_MAGENTA}/"  | sort | uniq -c | sort -k 2
-rm /tmp/net-connections.txt
+sed -E "s/laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" "$NET_LIST" | sed -E "s/lport=(\w){1,5}/${SED_GREEN}/" | sed -E "s/(\/|=)(\w+[-_]?){1,}\w+(\s|$)/${SED_LIGHT_MAGENTA}/"  | sort | uniq -c | sort -k 2
+rm "$NET_LIST"
