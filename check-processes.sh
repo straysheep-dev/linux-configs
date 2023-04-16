@@ -90,9 +90,17 @@ top -b -n 1 | head -n 3
 echo ""
 echo -e "${ITALIC}${YELLOW}RAM (GB)${NC}"
 free -h
+# Parsing UIDS should come before adding lsof network files to the $PS_LIST file, else it parses applications listed by lsof as users 
+echo ""
+echo -e "${ITALIC}${YELLOW}UIDS IN USE${NC}"
+cut -d ' ' -f 1 "$PS_LIST" | sort | uniq -c | sort -nr
 #echo ""
 #echo -e "${ITALIC}${YELLOW}RUNNING JOBS${NC}"
 #jobs -l | sort
+# https://github.com/strandjs/IntroLabs/blob/master/IntroClassFiles/Tools/IntroClass/LinuxCLI/LinuxCLI.md
+echo ""
+echo -e "${ITALIC}${YELLOW}NETWORK PROCESS FILES${NC}"
+lsof -i -n -P | tee -a "$PS_LIST"
 echo ""
 echo -e "${ITALIC}${YELLOW}ADDRESSES BY FREQUENCY${NC}"
 grep -oP "(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})" "$PS_LIST" | sort | uniq -c | sort -nr
@@ -107,9 +115,6 @@ grep -oP "(\\\\\\\\|//)((((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-
 echo ""
 echo -e "${ITALIC}${YELLOW}UNIQUE APPLICATIONS${NC}"
 grep -oP "\/(\w+[-_]?){1,}\w+(\s|$)" "$PS_LIST" | sort | uniq -c | sort -nr
-echo ""
-echo -e "${ITALIC}${YELLOW}UIDS IN USE${NC}"
-cut -d ' ' -f 1 "$PS_LIST" | sort | uniq -c | sort -nr
 
 # Cleanup
 rm "$PS_LIST"
