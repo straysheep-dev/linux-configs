@@ -192,6 +192,9 @@ echo -e "${ITALIC}${YELLOW}EXTRACTED URLS${NC}"
 # Try to match all protocols, infinite subdomains, directory paths, and finally special characters (essentially any non-space character) appended, followed by alphanumeric characters
 grep -oP "\b\w+(://|@)((\w+\.)?){1,}\w+\.\w+((/\w+)?){1,}(((\S){1,}\w+)?){1,}" "$NET_LIST" | sort | uniq -c | sort -n -r
 echo ""
+echo -e "${ITALIC}${YELLOW}UNIQUE APPLICATIONS${NC}"
+cut -d ' ' -f 1 "$NET_LIST" | sort | uniq -c | sort -nr | sed 's/proctitle=//g'
+echo ""
 echo -e "${ITALIC}${YELLOW}CONNECTIONS BY FREQUENCY${NC}"
 sed -E "s/laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" "$NET_LIST" | sed -E "s/lport=(\w){1,5}/${SED_GREEN}/" | sed -E "s/(\/|=)(\w+[-_]?){1,}\w+(\s|$)/${SED_LIGHT_MAGENTA}/"  | sort | uniq -c | sort -n -r
 echo ""
