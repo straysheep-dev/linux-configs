@@ -200,6 +200,8 @@ For managing the `.priv` or private key, there are roughly three approaches to t
 
 As mentioned above, anytime after the kernel, the vmmon / vmnet modules, or VMware itself is updated:
 
+*NOTE: If you update VMware by letting the latest bundle installer uninstall the previous version, you can sign the new kernel modules immediately after, requiring only one reboot for the new modules to be loaded.*
+
 - Start VMware.
 - Let it build the modules successfully but fail to load them into the running kernel.
 - Sign the newly compiled kernel modules with the following commands, and reboot.
@@ -311,15 +313,11 @@ sudo vmware-installer -u vmware-workstation
 
 - Obtain the latest bundle installer from <https://www.vmware.com/go/getworkstation-linux>
 
-- [Uninstall](#uninstall) the currently installed version of VMware Workstation.
+- ***Optional:*** [Uninstall](#uninstall) the currently installed version of VMware Workstation. This will require two reboots to sign the new kernel modules.
 
-- [Install](#install) from the latest bundle installer.
+- [Install](#install) from the latest bundle installer. This will automatically handle uninstalling the previous version.
 
-- Launch the VMware Workstation application, accept the license and walk through the prompts.
-
-With SecureBoot enabled, you may try to launch a VM here and receive an error that 'vmmon' cannot be found.
-
-Re-sign the kernel modules just like before:
+- If SecureBoot is enabled, [sign the kernel modules](#signing-the-kernel-modules-recurring-updates) just like before:
 
 ```bash
 cd /var/lib/shim-signed/mok/
@@ -329,7 +327,7 @@ sudo /usr/src/linux-headers-$(uname -r)/scripts/sign-file sha256 ./VMw.priv ./VM
 
 - Reboot the system.
 
-Launch VMware Workstation and check to ensure both kernel modules are loaded:
+Launch VMware Workstation, walk through the prompts, then check to ensure both kernel modules are loaded:
 ```bash
 lsmod | grep -P "vm(mon|net)"
 ```
@@ -533,3 +531,4 @@ You can try restarting the GNOME desktop, or simply closing / suspending all VM'
 An easy way around this error is by using the keyboard shortcuts listed under `Settings > Keyboard Shortcuts` for taking and saving screenshots.
 
 ---
+
