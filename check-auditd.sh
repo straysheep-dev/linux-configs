@@ -191,14 +191,16 @@ echo -e "=================================================="
 echo -e ""
 echo -e "${ITALIC_BLUE}NETWORK CONNECTIONS${NC}"
 echo -e ""
-NET_CONNECTIONS="$(sudo ausearch -ts today -i -l -sc connect -sv yes | grep -P "( proctitle=| saddr=)" | sed 's/ proctitle=/\nproctitle=/g' | sed 's/ saddr=/\nsaddr=/g' | grep -P "(proctitle=|saddr=)" | paste -sd ' \n' - | sort )"
+NET_CONNECTIONS="$(sudo ausearch -ts "$START_TIME" -i -l -sc connect -sv yes | grep -P "( proctitle=| saddr=)" | sed 's/ proctitle=/\nproctitle=/g' | sed 's/ saddr=/\nsaddr=/g' | grep -P "(proctitle=|saddr=)" | paste -sd ' \n' - | sort )"
 echo "$NET_CONNECTIONS" > "$NET_LIST"
 echo ""
 echo -e "${ITALIC}${YELLOW}PORTS BY FREQUENCY${NC}"
 grep -oP "lport=(\w){1,5}" "$NET_LIST" | sort | uniq -c | sort -n -r
 echo ""
 echo -e "${ITALIC}${YELLOW}ADDRESSES BY FREQUENCY${NC}"
-grep -oP "laddr=(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})" "$NET_LIST" | sort | uniq -c | sort -n -r
+echo "  TOTAL | HOST          | SYSCALL | USER"
+echo "  --------------------------------------"
+sudo aureport -ts "$START_TIME" -h -i | cut -d ' ' -f 4-6 | grep -Pv "(^\s|^=+|host syscall auid)" | sort | uniq -c | sort -nr | column -t | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4})/${SED_LIGHT_CYAN}/" | sed 's/^/    /g' | sed -E "s/root$/${SED_RED}/"
 echo ""
 echo -e "${ITALIC}${YELLOW}EXTRACTED URLS${NC}"
 # Try to match all protocols, infinite subdomains, directory paths, and finally special characters (essentially any non-space character) appended, followed by alphanumeric characters
