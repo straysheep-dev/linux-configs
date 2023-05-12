@@ -108,6 +108,13 @@ wget
 curl
 sudo
 whoami
+useradd
+groupadd
+usermod
+groupmod
+adduser
+addgroup
+passwd
 pkexec
 dbus-send
 gdbus
@@ -155,6 +162,11 @@ python3
 ruby
 perl
 '
+
+echo -e ""
+echo -e "${ITALIC_BLUE}EVENTS BY UID${NC}"
+echo -e ""
+sudo aureport -ts "$START_TIME" -u | cut -d ' ' -f 4 | sort | grep -P "(\-1|(\d){1,})" | uniq -c | sort -nr
 
 echo -e ""
 echo -e "${ITALIC_BLUE}COMMAND HISTORY${NC}"
