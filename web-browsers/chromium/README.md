@@ -175,11 +175,13 @@ Differences have been noted below, and made either for compatability / usability
 * [DataLeakPreventionRulesList](https://chromeenterprise.google/policies/#DataLeakPreventionRulesList)
 	- This policy allows granular control and reporting of things such as clipboard access, screenshots, printing, etc
 
-### Policies that you should change to your requirements:
+---
+
+## Policies that you should change to your requirements:
 
 #### DefaultCookiesSetting | RestoreOnStartup | ClearBrowsingDataOnExitList
 
-By default this policy clears all data when closing the browser. If you want your login sessions and previous tabs to restore, you'll need to change the following:
+By default the policy in this repo clears all data when closing the browser. If you want your login sessions and previous tabs to restore, you'll need to change the following:
 
 - `ClearBrowsingDataOnExitList` != `cookies_and_other_site_data` Removing this line will allow cookies to persist
 - `DefaultCookiesSetting` = `1` Will allow all sites to set cookies, you'll need to delete cookies manually
