@@ -3,7 +3,7 @@
 Automatically generate a hardened policy file and the [correct](https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/1714244) [directories](https://forum.snapcraft.io/t/auto-connecting-the-system-files-interface-for-the-chromium-snap/20245) for the [Chromium Snap package](https://snapcraft.io/chromium), as well as the [directories](https://support.google.com/chrome/a/answer/9027408?hl=en) used by the [official deb/rpm packages](https://www.google.com/linuxrepositories/) of [Google Chrome](https://www.google.com/chrome/).
 
 Tested on: 
-* Ubuntu 20.04 
+* Ubuntu 20.04, 22.04
 * Fedora 34, 35
 
 Install Chromium:
@@ -176,6 +176,14 @@ Differences have been noted below, and made either for compatability / usability
 	- This policy allows granular control and reporting of things such as clipboard access, screenshots, printing, etc
 
 ### Policies that you should change to your requirements:
+
+#### DefaultCookiesSetting | RestoreOnStartup | ClearBrowsingDataOnExitList
+
+By default this policy clears all data when closing the browser. If you want your login sessions and previous tabs to restore, you'll need to change the following:
+
+- `ClearBrowsingDataOnExitList` != `cookies_and_other_site_data` Removing this line will allow cookies to persist
+- `DefaultCookiesSetting` = `1` Will allow all sites to set cookies, you'll need to delete cookies manually
+- `RestoreOnStartup` = `1` Will restore the last session
 
 #### CookiesAllowedForUrls | URLBlockList | URLAllowList
 
