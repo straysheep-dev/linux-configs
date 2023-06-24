@@ -73,9 +73,10 @@ elif [[ "$(modinfo -F signature vmnet)" == '' ]] || [[ "$(modinfo -F signature v
 
 	if ! [[ -e "$(modinfo -n vmnet)" ]] || ! [[ -e "$(modinfo -n vmmon)" ]]; then
 		echo ""
-		echo -e "[${BLUE}*${RESET}] Building new kernel modules..."
+		echo -e "[${BLUE}>${RESET}] Building new kernel modules..."
+		echo -e "[${BLUE}*${RESET}] Click INSTALL when prompted to start the build process."
 		echo -e "Looking for error message: ${BOLD}'Unable to install all modules. See log /tmp/vmware-$USERNAME/... for details. (Exit code 1)'.${RESET}"
-		echo "IT IS OK TO CANCEL HERE, KERNEL MODULES WILL BE SIGNED TO PROCEED."
+		echo -e "[${BLUE}*${RESET}] Next, click CANCEL. The kernel modules were built but need signed next to be installed."
 		if (command -v vmware > /dev/null); then
 			vmware ; if [ "$?" -eq 1 ]; then echo -e "[${BLUE}i${RESET}]Error code is 1, which is expected."; fi
 		else
