@@ -53,9 +53,9 @@ function AddEdgeRepo() {
 	# Public Key Fingerprint: BC52 8686 B50D 79E3 39D3 721C EB3E 94AD BE12 29CF
 
 	# This source list is only for Edge, but this Microsoft GPG key works for their other Linux repositories as well
-	# CLI instructions for beta and dev channels: https://www.microsoftedgeinsider.com/en-us/download
+	# CLI instructions for beta and dev channels: https://www.microsoft.com/en-us/edge/download/insider?form=MA13FJ
 	if ! [ -e /etc/apt/sources.list.d/microsoft-edge* ]; then
-		echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge.list > /dev/null
+		echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/repos/edge stable main" | sudo tee /etc/apt/sources.list.d/microsoft-edge.list > /dev/null
 	fi
 
 	if ! [ -e /etc/apt/trusted.gpg.d/microsoft.gpg ]; then
@@ -66,6 +66,8 @@ function AddEdgeRepo() {
 		# uid                             Microsoft (Release signing) <gpgsecurity@microsoft.com>
 
 		# Method from: https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
+		# Example: https://learn.microsoft.com/en-us/windows-server/administration/linux-package-repository-for-microsoft-software#examples
+		# It appears both asc and gpg format for the key will work fine
 		wget -q -O - https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > microsoft.gpg
 		sudo mv microsoft.gpg /etc/apt/trusted.gpg.d/
 		sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.gpg
