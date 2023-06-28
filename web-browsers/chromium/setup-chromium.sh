@@ -28,8 +28,10 @@ function SetupPolicies() {
         sudo mkdir -p /etc/chromium-browser/policies/managed
         sudo mkdir -p /etc/chromium-browser/policies/recommended
 
-        if [ -e ./chromium-policies.json ]; then
-        	echo -e "[${BLUE}>${RESET}]Installing policies from ./chromium-policies.json..."
+	if [ -e /etc/chromium-browser/policies/managed/policies.json ]; then
+		echo -e "[${BLUE}i${RESET}]Policy file already installed."
+	elif [ -e ./chromium-policies.json ]; then
+		echo -e "[${BLUE}>${RESET}]Installing policies from ./chromium-policies.json..."
 		sudo tee /etc/chromium-browser/policies/managed/policies.json < ./chromium-policies.json > /dev/null
 	else
         	echo -e "[${BLUE}>${RESET}]Downloading chromium-policies.json..."
