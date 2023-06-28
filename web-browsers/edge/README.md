@@ -12,7 +12,7 @@ The following policies will show an `Error` under `Status` but are working and r
 - DiagnosticData
 - TyposquattingCheckerEnabled
 
-### Install Edge:
+## Install Edge:
 
 Command line instructions adapted from here: <https://www.microsoftedgeinsider.com/en-us/download>
 
@@ -25,6 +25,24 @@ echo "deb [arch=amd64] https://packages.microsoft.com/repos/edge stable main" | 
 
 sudo apt update
 sudo apt install microsoft-edge-stable
+```
+
+## Optional Policies
+
+You may want to adjust these policies.
+
+Restore the previous session when the browser starts:
+
+```json
+ "RestoreOnStartup": 1,
+```
+
+Maintain login sessions and cookies for specific sites:
+
+```json
+  "SaveCookiesOnExit": [
+    "https://[*.]google.com"
+  ],
 ```
 
 ## Thanks & References
