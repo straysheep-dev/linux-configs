@@ -98,17 +98,27 @@ function InstallBrowser() {
 			# sub   rsa4096 2019-07-22 [S] [expires: 2022-07-21]
 			# sub   rsa4096 2021-10-26 [S] [expires: 2024-10-25]
 
+			# Get the latest deb package from https://www.google.com/chrome/
 
 			# Method 1 from: https://www.google.com/linuxrepositories/
 			#wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
 
 			# Method 2 from: https://github.com/Sysinternals/SysmonForLinux/blob/main/INSTALL.md
-			wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > google-chrome.gpg
+
+			# This public key has the old dsa signature still attached:
+			#wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | gpg --dearmor > google-chrome.gpg
+
+			# Obtaining the public key directly from a keyserver has the latest signature data without the older dsa key:
+			# https://keyserver.ubuntu.com/pks/lookup?search=EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796&fingerprint=on&op=index
+			gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'
+			gpg --export 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796' > google-chrome.gpg
+
 			sudo mv google-chrome.gpg /etc/apt/trusted.gpg.d/
 			sudo chown root:root /etc/apt/trusted.gpg.d/google-chrome.gpg
 			sudo chmod 644 /etc/apt/trusted.gpg.d/google-chrome.gpg
 
-			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep -P "4CCA\s?1EAF\s?950C\s?EE4A\s?B839\s?\s?76DC\s?A040\s?830F\s?7FAC\s?5991"); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
+			# Only check for this signature if you're using the old key
+			#if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep -P "4CCA\s?1EAF\s?950C\s?EE4A\s?B839\s?\s?76DC\s?A040\s?830F\s?7FAC\s?5991"); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
 			if ! (gpg /etc/apt/trusted.gpg.d/google-chrome.gpg | grep -P "EB4C\s?1BFD\s?4F04\s?2F6D\s?DDCC\s?\s?EC91\s?7721\s?F63B\s?D38B\s?4796"); then echo -e "${RED}BAD SIGNATURE${RESET}"; exit; else echo -e "[${GREEN}OK${RESET}]"; fi
 		fi
 
