@@ -111,18 +111,18 @@ fi
 
 function DefinePCAPPath() {
 	echo ""
-	echo -e "[${BLUE}>${RESET}]Please enter a path for pcap storage (default is ${GREEN}/opt/pcaps${RESET})"
+	echo -e "[${BLUE}>${RESET}]Please enter a path for pcap storage (default is ${GREEN}/var/log/pcaps${RESET})"
 	echo ""
 	until [[ $PCAP_PATH =~ ^(/[a-zA-Z0-9_-]+){1,}$ ]]; do
-		read -rp "[Enter full path without the trailing '/']: " -e -i '/opt/pcaps' PCAP_PATH
+		read -rp "[Enter full path without the trailing '/']: " -e -i '/var/log/pcaps' PCAP_PATH
 	done
 
 	if [ "$PCAP_PATH" == '' ]; then
-		if ! [ -e /opt/pcaps ]; then
-			echo -e "[${GREEN}>${RESET}]Creating /opt/pcaps..."
-			mkdir -p /opt/pcaps
+		if ! [ -e /var/log/pcaps ]; then
+			echo -e "[${GREEN}>${RESET}]Creating /var/log/pcaps..."
+			mkdir -p /var/log/pcaps
 		else
-			echo -e "[${GREEN}✓${RESET}]/opt/pcaps already exits."
+			echo -e "[${GREEN}✓${RESET}]/var/log/pcaps already exits."
 		fi
 	else
 		if ! [ -e "$PCAP_PATH" ]; then
