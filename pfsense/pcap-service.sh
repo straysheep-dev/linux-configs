@@ -59,7 +59,7 @@ pw groupmod logsync -m "$(whoami)"
 if ! [ -e /etc/cron.d/pcap-service ]; then
 
 	echo "# Cron task to rotate pcaps
-# Rotates pcap files under $PCAP_PATH based on the range of time in $DAYS
+# Rotates pcap files under $PCAP_PATH based on the range of time in DAYS
 # For example, +60 means the last 60 days of pcaps are maintained
 
 * 0  * * * root /usr/bin/find $PCAP_PATH -type f -mtime +$DAYS -delete
