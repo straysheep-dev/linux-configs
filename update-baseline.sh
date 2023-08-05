@@ -51,10 +51,17 @@ if (command -v rkhunter > /dev/null); then
 fi
 
 if (command -v aide > /dev/null); then
+	if [ -f /etc/aide.conf ]; then
+		# fedora
+		AIDE_CONF='/etc/aide.conf'
+	elif [ -f /etc/aide/aide.conf ]; then
+		# debian / ubuntu
+		AIDE_CONF='/etc/aide/aide.conf'
+	fi
 	echo ""
 	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating aide database...${RESET}"
-	sudo aide --config-check -c /etc/aide/aide.conf
-	sudo aide -u -c /etc/aide/aide.conf | grep -A 50 -F 'The attributes of the (uncompressed) database(s):'
+	sudo aide --config-check -c "$AIDE_CONF"
+	sudo aide -u -c "$AIDE_CONF" | grep -A 50 -F 'The attributes of the (uncompressed) database(s):'
 	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 fi
 
