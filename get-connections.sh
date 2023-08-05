@@ -69,7 +69,7 @@ function GetAccountSessions() {
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
 		# sudo:session and cron:session authentications are noisy, this filters them out
-		sudo "$GREP_CMD" -Pv "((sudo|cron):session|sudo)" "$log" | grep -P "(session opened for user|Accepted google_authenticator)" | sort | uniq -c | sed -E "s/user [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/google_authenticator/${SED_GREEN}/" | sed -E "s/(pkexec|su)/${SED_YELLOW}/" | sed -E "s/sshd/${SED_LIGHT_CYAN}/" | sed -E "s/(gdm|systemd)/${SED_GREEN}/" | sed -E "s/root/${SED_RED}/"
+		sudo "$GREP_CMD" -Pv "((sudo|cron):session|sudo)" "$log" | grep -P "(session opened for user|Accepted google_authenticator)" | sort | uniq -c | sed -E "s/user [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/(pkexec|su)/${SED_YELLOW}/" | sed -E "s/sshd/${SED_LIGHT_CYAN}/" | sed -E "s/(gdm|systemd|google_authenticator)/${SED_GREEN}/" | sed -E "s/root/${SED_RED}/"
 		echo ""
 	done
 }
@@ -86,7 +86,7 @@ function GetSSHConnections() {
 			GREP_CMD=zgrep
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
-		sudo grep -P "Accepted (password|publickey)" "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r | sed -E "s/publickey/${SED_GREEN}/" | sed -E "s/for [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/password/${SED_RED_YELLOW}/" | sed -E "s/root/${SED_RED_YELLOW}/" | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
+		sudo grep -P "Accepted (password|publickey)" "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r | sed -E "s/publickey/${SED_GREEN}/" | sed -E "s/for [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/(root|password)/${SED_RED_YELLOW}/" | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
 		echo ""
 	done
 }
