@@ -37,7 +37,7 @@ CheckBaseline() {
 	if (command -v aide > /dev/null); then
 		echo -e "${YELLOW}aide${RESET} summary:"
 		echo -e ""
-		sudo aide -c /etc/aide/aide.conf -C --verbose=2
+		sudo aide -c /etc/aide/aide.conf -C
 		echo -e ""
 		echo -e ""
 		echo -e "======================================================================"
