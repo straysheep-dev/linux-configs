@@ -54,7 +54,7 @@ if (command -v aide > /dev/null); then
 	echo ""
 	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating aide database...${RESET}"
 	sudo aide --config-check -c /etc/aide/aide.conf
-	sudo aide -u -c /etc/aide/aide.conf --verbose=2 | grep -A 50 -F 'The attributes of the (uncompressed) database(s):'
+	sudo aide -u -c /etc/aide/aide.conf | grep -A 50 -F 'The attributes of the (uncompressed) database(s):'
 	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 fi
 
