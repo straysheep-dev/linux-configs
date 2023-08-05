@@ -11,6 +11,7 @@
 # https://github.com/angristan/openvpn-install
 # https://github.com/carlospolop/PEASS-ng
 
+# shellcheck disable=SC2034
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')
@@ -63,13 +64,18 @@ function GetAccountSessions() {
 	echo -e ""
 	for log in /var/log/auth.log*; do
 		if (sudo file "$log" | grep -P "ASCII text(, with very long lines( \(\d+\))?)?$" > /dev/null); then
-			GREP_CMD=grep
+			GREP_CMD='grep'
 		elif (sudo file "$log" | grep -F "gzip compressed data," > /dev/null); then
-			GREP_CMD=zgrep
+			GREP_CMD='zgrep'
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
 		# sudo:session and cron:session authentications are noisy, this filters them out
-		sudo "$GREP_CMD" -Pv "((sudo|cron):session|sudo)" "$log" | grep -P "(session opened for user|Accepted google_authenticator)" | sort | uniq -c | sed -E "s/user [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/(pkexec|su)/${SED_YELLOW}/" | sed -E "s/sshd/${SED_LIGHT_CYAN}/" | sed -E "s/(gdm|systemd|google_authenticator)/${SED_GREEN}/" | sed -E "s/root/${SED_RED}/"
+		sudo "$GREP_CMD" -Pv "((sudo|cron):session|sudo)" "$log" | grep -P "(session opened for user|Accepted google_authenticator)" | sort | uniq -c | \
+		sed -E "s/user [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | \
+		sed -E "s/(pkexec|su)/${SED_YELLOW}/" | \
+		sed -E "s/sshd/${SED_LIGHT_CYAN}/" | \
+		sed -E "s/(gdm|systemd|google_authenticator)/${SED_GREEN}/" | \
+		sed -E "s/root/${SED_RED}/"
 		echo ""
 	done
 }
@@ -81,12 +87,16 @@ function GetSSHConnections() {
 	echo -e ""
 	for log in /var/log/auth.log*; do
 		if (sudo file "$log" | grep -P "ASCII text(, with very long lines( \(\d+\))?)?$" > /dev/null); then
-			GREP_CMD=grep
+			GREP_CMD='grep'
 		elif (sudo file "$log" | grep -F "gzip compressed data," > /dev/null); then
-			GREP_CMD=zgrep
+			GREP_CMD='zgrep'
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
-		sudo "$GREP_CMD" -P "Accepted (password|publickey)" "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r | sed -E "s/publickey/${SED_GREEN}/" | sed -E "s/for [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/(root|password)/${SED_RED_YELLOW}/" | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
+		sudo "$GREP_CMD" -P "Accepted (password|publickey)" "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r | \
+		sed -E "s/publickey/${SED_GREEN}/" | \
+		sed -E "s/for [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | \
+		sed -E "s/(root|password)/${SED_RED_YELLOW}/" | \
+		sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
 		echo ""
 	done
 }
@@ -102,12 +112,13 @@ function GetVPNConnections() {
 	echo -e ""
 	for log in /var/log/kern.log*; do
 		if (sudo file "$log" | grep -P "ASCII text(, with very long lines( \(\d+\))?)?$" > /dev/null); then
-			GREP_CMD=grep
+			GREP_CMD='grep'
 		elif (sudo file "$log" | grep -F "gzip compressed data," > /dev/null); then
-			GREP_CMD=zgrep
+			GREP_CMD='zgrep'
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
-		sudo "$GREP_CMD" 'Connection' "$log" | sed 's/SRC=/\nSRC=/g' | grep 'SRC=' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
+		sudo "$GREP_CMD" 'Connection' "$log" | sed 's/SRC=/\nSRC=/g' | grep 'SRC=' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r | \
+		sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
 		echo ""
 	done
 }
