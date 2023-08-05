@@ -86,7 +86,7 @@ function GetSSHConnections() {
 			GREP_CMD=zgrep
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
-		sudo grep -P "Accepted (password|publickey)" "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r | sed -E "s/publickey/${SED_GREEN}/" | sed -E "s/for [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/(root|password)/${SED_RED_YELLOW}/" | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
+		sudo "$GREP_CMD" -P "Accepted (password|publickey)" "$log" | sed 's/Accepted/\nAccepted/g' | grep 'Accepted' | sed -E 's/port (\w){1,5} //g' | sort | uniq -c | sort -n -r | sed -E "s/publickey/${SED_GREEN}/" | sed -E "s/for [[:alnum:]]+/${SED_LIGHT_MAGENTA}/" | sed -E "s/(root|password)/${SED_RED_YELLOW}/" | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
 		echo ""
 	done
 }
@@ -107,7 +107,7 @@ function GetVPNConnections() {
 			GREP_CMD=zgrep
 		fi
 		echo -e "${BLUE}${BOLD}$log${NC}:"
-		sudo grep 'Connection' "$log" | sed 's/SRC=/\nSRC=/g' | grep 'SRC=' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
+		sudo "$GREP_CMD" 'Connection' "$log" | sed 's/SRC=/\nSRC=/g' | grep 'SRC=' | cut -d ' ' -f 1 | sort | uniq -c | sort -n -r | sed -E "s/(((\w){1,3}\.){3}(\w){1,3}|([a-f0-9]{1,4}(:|::)){3,8}[a-f0-9]{1,4}|\:\:1)/${SED_LIGHT_CYAN}/"
 		echo ""
 	done
 }
