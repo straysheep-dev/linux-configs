@@ -12,7 +12,7 @@ BOLD="\033[01;01m"
 RESET="\033[00m"
 
 
-echo -e "[${BLUE}>${RESET}]Updating all system packages..."
+echo -e "[${BLUE}>${RESET}] ${BOLD}Updating all system packages...${RESET}"
 
 # Package managers
 if (grep -Pqx '^ID=kali$' /etc/os-release); then
@@ -39,24 +39,23 @@ fi
 
 if (command -v flatpak > /dev/null); then
 	true
-	#sudo flatpak update
+	sudo flatpak update
 fi
 
 # IDS
 if (command -v rkhunter > /dev/null); then
-	echo -e "[${BLUE}>${RESET}]Updating rkhunter database..."
+	echo ""
+	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating rkhunter database...${RESET}"
 	sudo rkhunter --propupd
+	sudo sha256sum /var/lib/rkhunter/db/*\.*
 fi
 
 if (command -v aide > /dev/null); then
-	echo -e "[${BLUE}>${RESET}]Updating aide database..."
-	sudo aide -u -c /etc/aide/aide.conf
-	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
-fi
-
-if (command -v rkhunter > /dev/null); then
 	echo ""
-	sudo sha256sum /var/lib/rkhunter/db/*\.*
+	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating aide database...${RESET}"
+	sudo aide --config-check -c /etc/aide/aide.conf
+	sudo aide -u -c /etc/aide/aide.conf --verbose=2 | grep -A 50 -F 'The attributes of the (uncompressed) database(s):'
+	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 fi
 
 echo ""
@@ -66,12 +65,24 @@ echo ""
 
 if (sudo dmesg | grep -iPq 'hypervisor'); then
 
+	echo -e "[${YELLOW}i${RESET}] ${BOLD}Virtual Machine detected.${RESET}"
+	echo ""
+
+	echo -e "[${BLUE}>${RESET}] ${BOLD}Vacuuming journal files...${RESET}"
 	sudo journalctl --rotate --vacuum-size 10M
 
 	echo ""
-	echo "Prepare to compact virtual disk with 'dd'?"
-	echo "(overwrites free space with /dev/zero, to clone or compress)"
-	echo ""
+	echo -e "[${BLUE}>${RESET}] ${BOLD}Getting available disk space...${RESET}"
+	# Attempt to find the device name where the root filesystem exists
+	DEV_NAME="$(mount | grep -P 'on / ' | cut -d ' ' -f 1)"
+	# https://www.gnu.org/software/gawk/manual/gawk.html#Print-Examples
+	DISK_STATS="$(df -hl | grep "$DEV_NAME" | awk '{print $2"\t"$3"\t"$4"\t"$5"\t"$6}')"
+	echo -e "${YELLOW}${BOLD}Size\tUsed\tAvail\tUse%\tMounted on${RESET}"
+	echo -e "${BOLD}$DISK_STATS${RESET}"
+	echo -e ""
+	echo -e "${BOLD}Prepare to compact virtual disk with 'dd'?${RESET}"
+	echo -e "${BOLD}(overwrites free space with /dev/zero, to clone or compress)${RESET}"
+	echo -e ""
 	until [[ $DD_CHOICE =~ ^(y|n)$ ]]; do
 		read -rp "[y/n]: " -e -i n DD_CHOICE
 		done
@@ -83,5 +94,5 @@ if (sudo dmesg | grep -iPq 'hypervisor'); then
 	fi
 fi
 
-echo -e "[${BLUE}✓${RESET}]Done."
+echo -e "[${BLUE}✓${RESET}] ${BOLD}Done.${RESET}"
 exit 0
