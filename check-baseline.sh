@@ -14,6 +14,8 @@ RED="${C}[1;31m"
 SED_RED="${C}[1;31m&${C}[0m"
 GREEN="${C}[1;32m"
 SED_GREEN="${C}[1;32m&${C}[0m"
+LIGHT_GREEN="${C}[1;92m"
+SED_LIGHT_GREEN="${C}[1;92m&${C}[0m"
 YELLOW="${C}[1;33m"
 SED_YELLOW="${C}[1;33m&${C}[0m"
 RED_YELLOW="${C}[1;31;103m"
@@ -29,6 +31,8 @@ LIGHT_MAGENTA="${C}[1;95m"
 SED_LIGHT_MAGENTA="${C}[1;95m&${C}[0m"
 LIGHT_CYAN="${C}[1;96m"
 SED_LIGHT_CYAN="${C}[1;96m&${C}[0m"
+WHITE_RED="${C}[1;97;41m"
+SED_WHITE_RED="${C}[1;97;41m&${C}[0m"
 LG="${C}[1;37m" #LightGray
 SED_LG="${C}[1;37m&${C}[0m"
 DG="${C}[1;90m" #DarkGray
@@ -47,11 +51,11 @@ function PrintBanner() {
 	echo -e "${ITALIC}${BOLD}COLOR SCHEME:${NC}"
 	echo -e "\t• ${LIGHT_MAGENTA}${BOLD}Date / Time${NC}"
 	echo -e "\t• ${YELLOW}Filesystem / Checksum Changes${NC}"
-	echo -e "\t• ${GREEN}Network Processes${NC}"
-	echo -e "\t• ${RED_MAGENTA}Warnings${NC}"
-	echo -e "\t• ${RED_BLUE}/etc Files${NC}"
+	echo -e "\t• ${LIGHT_GREEN}Network Processes${NC}"
+	echo -e "\t• ${WHITE_RED}Warnings${NC}"
+	echo -e "\t• ${LIGHT_CYAN}/etc Files${NC}"
 	echo -e "\t• ${RED_YELLOW}/boot, /root, /dev/shm, /tmp, /var/tmp, Hidden (dot) Files${NC}"
-	echo -e "\t• ${RED}root User${NC}"
+	echo -e "\t• ${RED}root${NC}"
 	echo -e ""
 
 }
@@ -67,8 +71,8 @@ CheckBaseline() {
 		sed -E "s/root/${SED_RED}/g" | \
 		sed -E "s/\/(dev\/shm|tmp\/|proc\/)/${SED_RED_YELLOW}/" | \
 		sed -E "s/\/\.([[:alnum:]]|[[:punct:]])+/${SED_RED_YELLOW}/g" | \
-		sed -E "s/^.+(W|w)arning.+$/${SED_RED_MAGENTA}/g" | \
-		sed -E "s/^[[:alnum:]]+\: .+$/${SED_GREEN}/g"
+		sed -E "s/^.+(W|w)arning.+$/${SED_WHITE_RED}/g" | \
+		sed -E "s/^[[:alnum:]]+\: .+$/${SED_LIGHT_GREEN}/g"
 		echo -e ""
 		echo -e "======================================================================"
 		echo -e ""
@@ -78,7 +82,7 @@ CheckBaseline() {
 		echo -e ""
 		sudo rkhunter --sk --check --rwo | \
 		sed -E "s/File: .+$/${SED_YELLOW}/g" | \
-		sed -E "s/Warning:.+$/${SED_RED_MAGENTA}/g" | \
+		sed -E "s/Warning:.+$/${SED_WHITE_RED}/g" | \
 		sed -E "s/\/\.([[:alnum:]]|[[:punct:]])+/${SED_RED_YELLOW}/g" | \
 		sed -E "s/\(([[:alnum:]]){2}\-([[:alnum:]]){3}\-([[:alnum:]]){4} (([[:alnum:]]){2}:){2}([[:alnum:]]){2}\)/${SED_LIGHT_MAGENTA}/g"
 		echo -e ""
@@ -106,7 +110,7 @@ CheckBaseline() {
 		sed -E "s/^f...........(C|H).+$/${SED_YELLOW}/g" | \
 		sed -E "s/\/(boot|root|dev\/shm|tmp|var\/tmp)\/.+$/${SED_RED_YELLOW}/g" | \
 		sed -E "s/\/\.([[:alnum:]]|[[:punct:]])[^\/]+$/${SED_RED_YELLOW}/g" | \
-		sed -E "s/\/etc\/.+$/${SED_RED_BLUE}/g"
+		sed -E "s/\/etc\/.+$/${SED_LIGHT_CYAN}/g"
 		echo -e ""
 		echo -e ""
 		echo -e "======================================================================"
