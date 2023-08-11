@@ -111,7 +111,7 @@ deb [arch=$(dpkg --print-architecture)] https://dl.google.com/linux/chrome/deb/ 
 			# Obtaining the public key directly from a keyserver has the latest signature data without the older dsa key:
 			# https://keyserver.ubuntu.com/pks/lookup?search=EB4C1BFD4F042F6DDDCCEC917721F63BD38B4796&fingerprint=on&op=index
 			gpg --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796'
-			gpg --export 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796' | sudo tee /etc/apt/trusted.gpg.d/google-chrome.gpg
+			gpg --export 'EB4C 1BFD 4F04 2F6D DDCC  EC91 7721 F63B D38B 4796' | sudo tee /etc/apt/trusted.gpg.d/google-chrome.gpg > /dev/null
 
 			sudo chown root:root /etc/apt/trusted.gpg.d/google-chrome.gpg
 			sudo chmod 644 /etc/apt/trusted.gpg.d/google-chrome.gpg
