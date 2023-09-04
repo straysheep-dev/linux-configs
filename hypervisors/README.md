@@ -2,6 +2,17 @@
 
 Quick reference for virtualization software usage.
 
+
+### Performance
+
+This [video by IppSec](https://youtu.be/2y68gluYTcc) details the benefits of having an ansible playbook over snapshots for long term VM backups. However, a secondary note was made on using a single file for the virtual disk vs splitting the disk into multiple files.
+
+- Splitting the disk saves space
+- It writes to the drive more frequently
+- Has lower performance
+- Can result in virtual disk errors with snapshots (I have encountered this on Linux hosts, but not Windows hosts)
+
+
 ## Maintaining VM Backups
 
 Tested on:
