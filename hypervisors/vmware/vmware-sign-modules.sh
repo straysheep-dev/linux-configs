@@ -74,9 +74,9 @@ elif [[ "$(modinfo -F signature vmnet)" == '' ]] || [[ "$(modinfo -F signature v
 	if ! [[ -e "$(modinfo -n vmnet)" ]] || ! [[ -e "$(modinfo -n vmmon)" ]]; then
 		echo ""
 		echo -e "[${BLUE}>${RESET}] Building new kernel modules..."
-		echo -e "[${BLUE}*${RESET}] Click INSTALL when prompted to start the build process."
-		echo -e "Looking for error message: ${BOLD}'Unable to install all modules. See log /tmp/vmware-$USERNAME/... for details. (Exit code 1)'.${RESET}"
-		echo -e "[${BLUE}*${RESET}] Next, click CANCEL. The kernel modules were built but need signed next to be installed."
+		echo -e "[${BLUE}*${RESET}] First, ${GREEN}Click INSTALL${RESET} when prompted to start the build process."
+		echo -e "Looking for error message: ${YELLOW}'Unable to install all modules. See log /tmp/vmware-$USERNAME/... for details. (Exit code 1)'.${RESET}"
+		echo -e "[${BLUE}*${RESET}] Next, ${GREEN}click CANCEL${RESET}. The kernel modules were built but need signed next to be installed."
 		if (command -v vmware > /dev/null); then
 			vmware ; if [ "$?" -eq 1 ]; then echo -e "[${BLUE}i${RESET}]Error code is 1, which is expected."; fi
 		else
@@ -151,13 +151,24 @@ sudo make install"
 		exit 1
 	fi
 
-	echo "Signing vmmon..."
+	echo -e "[${GREEN}+${RESET}]Signing vmmon..."
 	sudo /usr/src/linux-headers-"$(uname -r)"/scripts/sign-file sha256 /var/lib/shim-signed/mok/VMw.priv /var/lib/shim-signed/mok/VMw.der "$(modinfo -n vmmon)"
-	echo "Signing vmnet..."
+	echo -e "[${GREEN}+${RESET}]Signing vmnet..."
 	sudo /usr/src/linux-headers-"$(uname -r)"/scripts/sign-file sha256 /var/lib/shim-signed/mok/VMw.priv /var/lib/shim-signed/mok/VMw.der "$(modinfo -n vmnet)"
 
 	echo -e ""
-	echo -e "[${GREEN}✓${RESET}]Kernel modules signed."
+	echo -e "[${BLUE}*${RESET}]Kernel modules signed."
+
+	# This should work with Ubuntu's Livepatch, but VMware's networking has issues if you manually load the new kmods with modprobe.
+	# The kmods also need compiled again after rebooting if you do this.
+	# Needs reviewed.
+#	if ! [ -e '/var/run/reboot-required' ]; then
+#		if (sudo modprobe vmnet) && (sudo modprobe vmmon); then
+#			echo -e "[${GREEN}✓${RESET}]vmmon / vmnet modules are loaded into the kernel."
+#		else
+#			echo -e "[${YELLOW}i${RESET}]Error loading signed modules into running kernel, reboot first."
+#		fi
+#	fi
 
 else
 
