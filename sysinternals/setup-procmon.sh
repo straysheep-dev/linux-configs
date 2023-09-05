@@ -14,7 +14,7 @@ RED="\033[01;31m"    # errors
 BOLD="\033[01;01m"   # highlight
 RESET="\033[00m"     # reset
 
-OS_ID="$(cat /etc/os-release | grep '^ID=' | cut -d '=' -f 2)"
+OS_ID="$(grep '^ID=' /etc/os-release | cut -d '=' -f 2)"
 OS_VERSION="$(lsb_release -rs)"
 
 function isRoot() {
@@ -69,7 +69,7 @@ function AddMicrosoftFeed() {
 
 function InstallProcmon() {
 	sudo apt-get update
-	sudo apt-get install procmon
+	sudo apt-get install -y procmon
 }
 
 AddMicrosoftKey
