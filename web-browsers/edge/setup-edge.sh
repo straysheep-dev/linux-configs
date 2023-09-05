@@ -36,7 +36,7 @@ function SetupPolicies() {
 		echo -e "[${BLUE}>${RESET}]Downloading README.md..."
 		curl -Lf 'https://raw.githubusercontent.com/straysheep-dev/linux-configs/main/web-browsers/edge/README.md' | sudo tee /etc/opt/edge/policies/README.md > /dev/null
 
-		if (sha256sum /etc/opt/edge/policies/managed/policies.json | grep -qx '2aa9a971c952a3fc96acc2b67eca467b5fb207d736690c31262e2347d1080813  /etc/opt/edge/policies/managed/policies.json'); then
+		if (sha256sum /etc/opt/edge/policies/managed/policies.json | grep -qx '78860b3077adf3a06a35ef9e1fd47304cba89d6359f4594e7d0753557fba1522  /etc/opt/edge/policies/managed/policies.json'); then
 			echo -e "[${GREEN}OK${RESET}]"
 		else
 			echo -e "${RED}[\!]Bad signature for policies.json${RESET}"
