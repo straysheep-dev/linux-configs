@@ -3,8 +3,9 @@
 # Prepare the latest blocklist and check for parsing errors
 # Run as root via cron to install automatically or run as root manually to update immediately
 
-# Crontab to run every 12 hours:
-# 0 */12 * * * /bin/bash /opt/unbound-update-blocklist.sh
+# Cron task to run every 12 hours:
+# /etc/cron.d/unbound-update-blocklist
+# 0 */12 * * * root /bin/bash /opt/unbound-update-blocklist.sh
 # Do not run more often than once every 5 minutes: <https://urlhaus.abuse.ch/api/#tos>
 
 LOGFILE='unbound-update-blocklist'
@@ -98,11 +99,17 @@ checkFormatting
 
 # Automatically install the updated conf via cron, or by running manually
 # Backup current blocklist and check new list to be installed for any additional errors
-if [ -e '/etc/unbound/unbound.conf.d/blocklist.conf' ]; then
-	mv /etc/unbound/unbound.conf.d/blocklist.conf /tmp/blocklist.conf.bkup
+if [ -e '/etc/unbound/unbound.conf.d' ]; then
+	# Ubuntu
+	mv /etc/unbound/unbound.conf.d/blocklist.conf /tmp/blocklist.conf.bkup 2>/dev/null
+	cp ./blocklist.conf /etc/unbound/unbound.conf.d/blocklist.conf
 fi
 
-cp ./blocklist.conf /etc/unbound/unbound.conf.d/blocklist.conf
+if [ -e '/var/unbound/conf.d' ]; then
+	# pfSense
+	mv /var/unbound/conf.d/blocklist.conf /tmp/blocklist.conf.bkup 2>/dev/null
+	cp ./blocklist.conf /var/unbound/conf.d/blocklist.conf
+fi
 
 # Specify full command path else execution fails, and use the exit code `$?` environment variable to check output
 /usr/sbin/unbound-checkconf
