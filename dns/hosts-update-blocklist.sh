@@ -112,6 +112,11 @@ rm -rf "$UPDATE_DIR"
 
 # Reload the hosts file, clear DNS cache
 # https://github.com/StevenBlack/hosts#reloading-hosts-file
-service network-manager restart
+if (systemctl is-active network-manager > /dev/null); then
+	service network-manager restart
+elif (systemctl is-active networking.service > /dev/null); then
+	systemctl restart networking.service
+fi
+
 
 exit
