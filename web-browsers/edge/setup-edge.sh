@@ -75,7 +75,7 @@ function AddEdgeRepo() {
 		sudo chown root:root /etc/apt/trusted.gpg.d/microsoft.gpg
 		sudo chmod 644 /etc/apt/trusted.gpg.d/microsoft.gpg
 
-		if ! (gpg /etc/apt/trusted.gpg.d/microsoft.gpg | grep 'BC52 8686 B50D 79E3 39D3  721C EB3E 94AD BE12 29CF'); then
+		if ! (gpg /etc/apt/trusted.gpg.d/microsoft.gpg 2>/dev/null | grep -P "BC52(\s)?8686(\s)?B50D(\s)?79E3(\s)?39D3(\s+)?721C(\s)?EB3E(\s)?94AD(\s)?BE12(\s)?29CF"); then
 			echo -e "${RED}BAD SIGNATURE${RESET}"
 			exit
 		else
