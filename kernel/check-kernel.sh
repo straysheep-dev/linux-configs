@@ -1,6 +1,15 @@
 #!/bin/bash
 
-# Function taken directly from https://github.com/straysheep-dev/setup-ubuntu
+# BSD-3 License
+# Copyright (c) 2023, straysheep-dev
+# Copyright (c) 2012-2017, Red Hat, Inc.
+
+# Thanks to the following projects for code, ideas, and guidance:
+# https://static.open-scap.org/ssg-guides/ssg-ubuntu2004-guide-stig.html
+# https://github.com/ComplianceAsCode/content
+# https://github.com/ComplianceAsCode/content/blob/master/LICENSE
+# https://github.com/g0tmi1k/OS-Scripts
+# https://github.com/angristan/wireguard-install
 
 RED="\033[01;31m"      # Errors
 GREEN="\033[01;32m"    # Success
@@ -8,6 +17,8 @@ YELLOW="\033[01;33m"   # Warnings
 BLUE="\033[01;34m"     # Success
 BOLD="\033[01;01m"     # Highlight
 RESET="\033[00m"       # Normal
+
+USERNAME="$(grep "$EUID" /etc/passwd | cut -d ':' -f 1)"
 
 function CheckKernel() {
 	
