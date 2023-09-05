@@ -16,6 +16,8 @@ Client and server configuration examples for:
 
 # iptables-persistent
 
+A general overview of how iptables-persistent works for reference (`ufw` simplifies much of this).
+
 **The following description has only been tested on Ubuntu 20.04**
 
 1. `sudo apt install -y iptables-persistent`
