@@ -1,5 +1,6 @@
 
 # setup-firefox
+
 Automatically generate a hardened policy for Firefox / Firefox-ESR.
 
 Tested on:
@@ -25,7 +26,9 @@ or
 /usr/lib/firefox/distribution/policies.json
 ```
 
-NOTE: Previously the [Firefox Snap package](https://snapcraft.io/firefox) required a `user.js` file to be configured. This was before it could read the policy file at `/etc/firefox/policies/*.json` (there's now an automatic snap connection to provide it read access to this location, however it still cannot read any syspref.js or other .js files in the /etc/firefox* directories).
+## Snap Package
+
+Previously the [Firefox Snap package](https://snapcraft.io/firefox) required a `user.js` file to be configured. This was before it could read the policy file at `/etc/firefox/policies/*.json` (there's now an automatic snap connection to provide it read access to this location, however it still cannot read any syspref.js or other .js files in the /etc/firefox* directories).
 
 If you still need/want to create a user.js file, create it within your `~/snap/firefox/common/.mozilla/firefox/<string>.default-release` folder, then to lock the policy file:
 ```bash
@@ -39,16 +42,15 @@ rm: cannot remove 'user.js': Operation not permitted
 
 ## Policy Overview:
 
-`To do`
+The main policy file is based on the STIG profile for firefox.
 
-## Thanks and References:
-* https://github.com/OpenSCAP/openscap
-* https://github.com/ComplianceAsCode/content
-* https://static.open-scap.org/ssg-guides/ssg-firefox-guide-stig.html
-* https://public.cyber.mil/stigs/downloads/?_dl_facet_stigs=app-security%2Cbrowser-guidance
-* https://github.com/mozilla/policy-templates
+The `firefox-policies-kali.json` is meant to be used for web applicaton testing. It has similar defaults, but a few key differences and everything is unlocked:
 
-## Differences from [SSG-Firefox-Guide-STIG](https://static.open-scap.org/ssg-guides/ssg-firefox-guide-stig.html)
+- All locked policies are unlocked, but most are still set to a specific default
+- Wappalyzer extension
+- Checks `/home/kali/` for both the burpsuite and OWASP ZAP CA certificates, installs them
+
+### Differences from [SSG-Firefox-Guide-STIG](https://static.open-scap.org/ssg-guides/ssg-firefox-guide-stig.html)
 
 The main change in Firefox 81/78.3-ESR policy configuration has been moving all of the "*.cfg" settings into the "Preferences" policy contained within the larger "policies.json". Many of the edits you can make to about:config are able to be entered there now. 
 
@@ -79,3 +81,12 @@ lockPref("signon.rememberSignons", false);
 # Enable Firefox Pop-up Blocker (enabled and locked by "PopupBlocking" since v60/v60-ESR, https://github.com/mozilla/policy-templates#popupblocking
 lockPref("dom.disable_window_open_feature.status", true);
 ```
+
+## Thanks and References:
+
+* https://github.com/OpenSCAP/openscap
+* https://github.com/ComplianceAsCode/content
+* https://static.open-scap.org/ssg-guides/ssg-firefox-guide-stig.html
+* https://github.com/mozilla/policy-templates
+* https://www.blackhillsinfosec.com/towards-quieter-firefox/
+* https://github.com/IppSec/parrot-build/blob/master/roles/customize-browser/templates/policies.json.j2
