@@ -1,0 +1,302 @@
+{
+  "policies": {
+    "BlockAboutAddons": false,
+    "BlockAboutConfig": false,
+    "BlockAboutProfiles": false,
+    "BlockAboutSupport": false,
+    "CaptivePortal": false,
+    "DisableDeveloperTools": false,
+    "DisableFeedbackCommands": false,
+    "DisableFirefoxAccounts": true,
+    "DisableFirefoxScreenshots": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "DisableProfileImport": true,
+    "DisableSafeMode": true,
+    "DisableSetDesktopBackground": true,
+    "DisableTelemetry": true,
+    "DisplayBookmarksToolbar": true,
+    "DontCheckDefaultBrowser": true,
+    "DownloadDirectory": "${home}/Downloads",
+    "HardwareAcceleration": false,
+    "NetworkPrediction": false,
+    "NewTabPage": true,
+    "OfferToSaveLogins": false,
+    "OverrideFirstRunPage": "",
+    "OverridePostUpdatePage": "",
+    "PromptForDownloadLocation": true,
+    "SanitizeOnShutdown": true,
+    "SearchBar": "separate",
+    "SearchSuggestEnabled": false,
+    "Homepage": {
+      "Locked": true,
+      "StartPage": "none"
+    },
+    "SearchEngines": {
+      "Default": "DuckDuckGo",
+      "PreventInstalls": true
+    },
+    "Certificates": {
+      "Install": ["/home/kali/burp.der", "/home/kali/owasp_zap_root_ca.cer"]
+    },
+    "DNSOverHTTPS": {
+      "Enabled": false
+    },
+    "Cookies": {
+      "Default": true,
+      "AcceptThirdParty": "always",
+      "ExpireAtSessionEnd": true,
+      "RejectTracker": true,
+      "Locked": false
+    },
+    "EnableTrackingProtection": {
+      "Value": true,
+      "Locked": false,
+      "Cryptomining": true,
+      "Fingerprinting": true,
+      "Exceptions": []
+    },
+    "FirefoxHome": {
+      "Search": false,
+      "TopSites": false,
+      "Highlights": false,
+      "Pocket": false,
+      "Snippets": false,
+      "Locked": false
+    },
+    "PDFjs": {
+      "Enabled": false,
+      "EnablePermissions": false
+    },
+    "FlashPlugin": {
+      "Allow": [],
+      "Block": [],
+      "Default": false,
+      "Locked": false
+    },
+    "PopupBlocking": {
+      "Allow":[],
+      "Default": true,
+      "Locked": false
+    },
+    "Permissions": {
+      "Camera": {
+        "Allow": [],
+        "Block": [],
+        "BlockNewRequests": false,
+        "Locked": false
+      },
+      "Microphone": {
+        "Allow": [],
+        "Block": [],
+        "BlockNewRequests": false,
+        "Locked": false
+      },
+      "Location": {
+        "Allow": [],
+        "Block": [],
+        "BlockNewRequests": false,
+        "Locked": false
+      },
+      "Notifications": {
+        "Allow": [],
+        "Block": [],
+        "BlockNewRequests": false,
+        "Locked": false
+      },
+      "Autoplay": {
+        "Allow": [],
+        "Block": [],
+        "Default": "block-audio-video",
+        "Locked": false
+      }
+    },
+    "Handlers": {
+      "mimeTypes": {
+        "application/msword": {
+          "action": "useSystemDefault",
+          "ask": true
+        }
+      },
+      "schemes": {
+        "mailto": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "irc": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "ircs": {
+          "action": "useSystemDefault",
+          "ask": true
+        }
+      },
+      "extensions": {
+        "avif": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "pdf": {
+          "action": "useHelperApp",
+          "ask": true,
+          "handlers": [{
+            "name": "Evince",
+            "path": "/usr/bin/evince"
+          }]
+        },
+        "svg": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "webp": {
+          "action": "useSystemDefault",
+          "ask": true
+        },
+        "xml": {
+          "action": "useSystemDefault",
+          "ask": true
+        }
+      }
+    },
+    "EncryptedMediaExtensions": {
+      "Enabled": false,
+      "Locked": false
+    },
+    "PictureInPicture": {
+      "Enabled": false,
+      "Locked": false
+    },
+    "ExtensionUpdate": false,
+    "ExtensionSettings": {
+      "*": {
+        "blocked_install_message": "Extension blocked by policy",
+        "install_sources": ["https://addons.mozilla.org/"],
+        "installation_mode": "blocked",
+        "allowed_types": ["extension"]
+      },
+      "uBlock0@raymondhill.net": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+      },
+      "@testpilot-containers": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/multi-account-containers/latest.xpi"
+      },
+      "wappalyzer@crunchlabz.com": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/wappalyzer/latest.xpi"
+      }
+    },
+    "Preferences": {
+      "browser.fixup.dns_first_for_single_words": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.safebrowsing.phishing.enabled": {
+        "Value": true,
+        "Status": "default"
+      },
+      "browser.safebrowsing.malware.enabled": {
+        "Value": true,
+        "Status": "default"
+      },
+      "browser.search.update": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.urlbar.suggest.bookmark": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.urlbar.suggest.history": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.urlbar.suggest.openpage": {
+        "Value": false,
+        "Status": "default"
+      },
+      "browser.urlbar.suggest.topsites": {
+        "Value": false,
+        "Status": "default"
+      },
+      "dom.allow_scripts_to_close_windows": {
+        "Value": false,
+        "Status": "default"
+      },
+      "dom.disable_window_flip": {
+        "Value": true,
+        "Status": "default"
+      },
+      "dom.disable_window_move_resize": {
+        "Value": true,
+        "Status": "default"
+      },
+      "dom.disable_window_open_feature.status": {
+        "Value": true,
+        "Status": "default"
+      },
+      "dom.event.contextmenu.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "dom.security.https_only_mode": {
+        "Value": true,
+        "Status": "default"
+      },
+      "extensions.blocklist.enabled": {
+        "Value": true,
+        "Status": "default"
+      },
+      "extensions.htmlaboutaddons.recommendations.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "geo.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "media.gmp-gmpopenh264.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "media.gmp-widevinecdm.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "media.peerconnection.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "network.captive-portal-service.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "network.protocol-handler.external.shell": {
+        "Value": false,
+        "Status": "default"
+      },
+      "places.history.enabled": {
+        "Value": false,
+        "Status": "default"
+      },
+      "security.default_personal_cert": {
+        "Value": "Ask Every Time",
+        "Status": "default"
+      },
+      "security.mixed_content.block_active_content": {
+        "Value": true,
+        "Status": "default"
+      },
+      "security.tls.hello_downgrade_check": {
+        "Value": true,
+        "Status": "default"
+      },
+      "signon.autofillForms": {
+        "Value": false,
+        "Status": "default"
+      }
+    }
+  }
+}
