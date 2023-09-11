@@ -80,7 +80,7 @@ sed -E "s/\/(\w+[-_]?){1,}\w+(\s|$)/${SED_LIGHT_MAGENTA}/" | \
 # Root processes
 sed -E "s/^root/${SED_RED}/"| \
 # Interesting commands
-sed -E "s/$CMD_LIST/${SED_RED_YELLOW}/"
+sed -E "s/\b$CMD_LIST\b/${SED_RED_YELLOW}/"
 
 # Summarize process information
 echo "================================================================================"
