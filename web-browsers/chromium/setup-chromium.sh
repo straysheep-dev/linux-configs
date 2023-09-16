@@ -48,7 +48,7 @@ function SetupPolicies() {
 		echo -e "[${BLUE}>${RESET}]Downloading README.md..."
 		curl -Lf 'https://raw.githubusercontent.com/straysheep-dev/linux-configs/main/web-browsers/chromium/README.md' | sudo tee /etc/chromium-browser/policies/README.md > /dev/null
 
-		if (sha256sum /etc/chromium-browser/policies/managed/policies.json | grep -qx 'ed6ecbbb6b190311e65be67771c5aa3d257dd41a19a552d3c54d96866a282418  /etc/chromium-browser/policies/managed/policies.json'); then
+		if (sha256sum /etc/chromium-browser/policies/managed/policies.json | grep -qx 'd0c448cdfaf81913ff4bad0b79d635b47e6c2fb68598fc8532bb72b6adc5d0cf  /etc/chromium-browser/policies/managed/policies.json'); then
 			echo -e "[${GREEN}OK${RESET}]"
 		else
 			echo -e "${RED}[\!]Bad signature for policies.json${RESET}"

@@ -48,6 +48,10 @@
   "MetricsReportingEnabled": false,
   "NetworkPredictionOptions": 2,
   "PasswordManagerEnabled": false,
+  "PrivacySandboxAdMeasurementEnabled": false,
+  "PrivacySandboxAdTopicsEnabled": false,
+  "PrivacySandboxPromptEnabled": false,
+  "PrivacySandboxSiteEnabledAdsEnabled": false,
   "RemoteAccessHostFirewallTraversal": false,
   "RestoreOnStartup": 1,
   "SafeBrowsingProtectionLevel": 1,
@@ -56,7 +60,6 @@
   "ShowFullUrlsInAddressBar": true,
   "SitePerProcess": true,
   "SpellcheckEnabled": false,
-  "SSLVersionMin": "tls1.2",
   "SyncDisabled": true,
   "URLBlocklist": ["javascript://*"]
 }
