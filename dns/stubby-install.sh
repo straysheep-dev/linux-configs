@@ -79,6 +79,8 @@ function ConfigureNetworking() {
 		#sudo ip route add default via "$IP4_GATEWAY" dev "$DEV_NAME" || exit 1
 		sudo nmcli connection modify "$CONN_NAME" ipv4.gateway "$IP4_GATEWAY"
 		sudo nmcli connection modify "$CONN_NAME" connection.autoconnect yes
+		sudo nmcli connection modify "$CONN_NAME" ipv4.method manual
+		sudo systemctl restart NetworkManager
 	fi
 }
 ConfigureNetworking
