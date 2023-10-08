@@ -52,7 +52,7 @@ function InitializeRkhunter() {
 	sudo rkhunter --propupd
 }
 function InitializeAide() {
-	# Install the aide confs based on version, if none exists exit for user to proceed as needed
+	# Look for a conf filename matching the installed version of aide in the current directory
 	echo -e "[${BLUE}>${RESET}]${BOLD}Configuring aide...${RESET}"
 	AIDE_VERSION="$(aide -v 2>&1 | grep -oP "\d+\.\d+\.\d+")"
 	if [ -e ./aide-"$AIDE_VERSION".conf ]; then
@@ -62,14 +62,17 @@ function InitializeAide() {
 		for conf in ./aide-"$AIDE_VERSION".conf; do
 			sudo cp "$conf" /etc/aide/
 		done
+	fi
+
+	# Initialize aide, initializing an IDS database should be the last thing you do
+	if [ -e /etc/aide/aide.conf ]; then
+		sudo aide --init -c /etc/aide/aide.conf
+		sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 	else
 		echo -e "[${YELLOW}i${RESET}]${BOLD}No configuration file for aide. Quitting.${RESET}"
 		exit 1
 	fi
 
-	# Initialize aide, initializing an IDS database should be the last thing you do so it gets the other IDS tool files
-	sudo aide --init -c /etc/aide/aide.conf
-	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
 }
 InitializeRkhunter
 InitializeAide
