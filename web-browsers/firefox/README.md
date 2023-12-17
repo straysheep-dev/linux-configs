@@ -82,6 +82,49 @@ lockPref("signon.rememberSignons", false);
 lockPref("dom.disable_window_open_feature.status", true);
 ```
 
+## Security Notes
+
+Both Chrome and Firefox will prompt the user before a website is able to read the user's clipboard data.
+
+Firefox will also block attempts by a website to automatically set data into the clipboard without user interaction, and notify the user this occurred.
+
+
+## Useful Extensions
+
+These lines can be added to the policies.json file to automatically install the extension(s) listed.
+
+- [uBlock Origin](https://github.com/gorhill/uBlock)
+- [DuckDuckGo](https://github.com/duckduckgo/duckduckgo-privacy-extension)
+- [Wappalyzer](https://web.archive.org/web/20230822001120/https://github.com/wappalyzer/wappalyzer)
+- [Firefox Containers](https://github.com/mozilla/multi-account-containers/#readme)
+
+```json
+    "ExtensionSettings": {
+      "*": {
+        "blocked_install_message": "Extension blocked by policy",
+        "install_sources": ["https://addons.mozilla.org/"],
+        "installation_mode": "blocked",
+        "allowed_types": ["extension"]
+      },
+      "uBlock0@raymondhill.net": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/ublock-origin/latest.xpi"
+      },
+      "jid1-ZAdIEUB7XOzOJw@jetpack": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/duckduckgo-for-firefox/latest.xpi"
+      },
+      "wappalyzer@crunchlabz.com": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/wappalyzer/latest.xpi"
+      },
+      "@testpilot-containers": {
+        "installation_mode": "force_installed",
+        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/multi-account-containers/latest.xpi"
+      }
+    },
+```
+
 ## Thanks and References:
 
 * https://github.com/OpenSCAP/openscap
