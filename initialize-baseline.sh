@@ -26,16 +26,19 @@ IDS_TOOLS='aide
 rkhunter
 chkrootkit'
 
-# Install IDS tools
-echo -e "[${BLUE}>${RESET}]${BOLD}Installing IDS tools...${RESET}"
-sudo apt install -y $IDS_TOOLS # Don't quote this
+function InstallIDSTools() {
+	echo -e "[${BLUE}>${RESET}]${BOLD}Installing IDS tools...${RESET}"
+	sudo apt update
+	sudo apt install -y $IDS_TOOLS # Don't quote this
 
-# Prevent cron from automatically changing and updating the databases
-echo -e "[${BLUE}>${RESET}]${BOLD}Disabling cron tasks for:
-$IDS_TOOLS${RESET}"
-for crontask in $IDS_TOOLS; do
-	find /etc/cron* -name "$crontask" -print0 | xargs -0 sudo chmod -x
-done
+	# Prevent cron from automatically modifying and updating the databases
+	# You'll want to write and schedule your own cron task for checking baselines
+	# Send the results to a logging server or alert channel
+        for crontask in $IDS_TOOLS; do
+                echo -e "[${BLUE}>${RESET}]${BOLD}Disabling cron tasks for: $crontask${RESET}"
+                find /etc/cron* -name "$crontask" -print0 | xargs -0 sudo chmod -x 2>/dev/null
+        done
+}
 
 function InitializeRkhunter() {
 	# rkhunter
@@ -51,28 +54,32 @@ function InitializeRkhunter() {
 	sudo rkhunter -C
 	sudo rkhunter --propupd
 }
+
 function InitializeAide() {
 	# Look for a conf filename matching the installed version of aide in the current directory
+	# The conf syntax changed from version 16 to 17, so multiple files may be present
+	# Version 16 is the default in Ubuntu 20.04 while 22.04 uses aide version 17
 	echo -e "[${BLUE}>${RESET}]${BOLD}Configuring aide...${RESET}"
 	AIDE_VERSION="$(aide -v 2>&1 | grep -oP "\d+\.\d+\.\d+")"
 	if [ -e ./aide-"$AIDE_VERSION".conf ]; then
 		# Backup default conf
 		sudo cp /etc/aide/aide.conf /etc/aide/aide.conf.bkup
+
 		# Install new conf
 		for conf in ./aide-"$AIDE_VERSION".conf; do
-			sudo cp "$conf" /etc/aide/
+			sudo cp "$conf" /etc/aide/aide.conf
 		done
+        else
+                echo -e "[${YELLOW}i${RESET}]${BOLD}No configuration file for aide found in current directory. Quitting.${RESET}"
+                exit 1
 	fi
 
 	# Initialize aide, initializing an IDS database should be the last thing you do
-	if [ -e /etc/aide/aide.conf ]; then
-		sudo aide --init -c /etc/aide/aide.conf
-		sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
-	else
-		echo -e "[${YELLOW}i${RESET}]${BOLD}No configuration file for aide. Quitting.${RESET}"
-		exit 1
-	fi
-
+	sudo aide --init -c /etc/aide/aide.conf
+	sudo cp /var/lib/aide/aide.db.new /var/lib/aide/aide.db
+	echo -e "[${YELLOW}i${RESET}] ${BOLD}Save the above values to your password manager${RESET}"
 }
+
+InstallIDSTools
 InitializeRkhunter
 InitializeAide
