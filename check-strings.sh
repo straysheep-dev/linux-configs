@@ -188,15 +188,15 @@ SummarizeFiles () {
 	echo ""
 	# Highlight possible Visual Studio project files
 	echo -e "  ${BOLD}PROJECT FILES${NC}"
-	grep -iP "(\.sln|\.csproj)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
+	grep -iP "(\.sln|\.(\w+)?proj\.?(\w+)?|\.targets)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
 	echo ""
 	echo -e "  ${BOLD}BUILD SCRIPTS${NC}"
 	# Highlight possible build scripts
 	grep -iP "(\.bat|\.ps1|\.sh|\.vbs)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
 	echo ""
-	# Highlight executable files
+	# Highlight executable files or binary data
 	echo -e "  ${BOLD}EXECUTABLE OR BINARY DATA${NC}"
-	grep -iP "(executable|binary)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_MAGENTA}/g"
+	grep -iP "(\bexecutable\b|\bbinary\b|\bdata\b)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_MAGENTA}/g"
 	rm filetypes.tmp
 	echo -e "${BLUE}╚═══════════════════════════════════════════════════════${NC}"
 }
