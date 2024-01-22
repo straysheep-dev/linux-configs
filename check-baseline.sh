@@ -60,7 +60,7 @@ function PrintBanner() {
 
 }
 
-CheckBaseline() {
+function RunRootkitChecks () {
 	echo -e "[${BLUE}>${NC}] ${BOLD}${UNDERLINED}Running rootkit checks...${NC}"
 	echo -e ""
 	if (command -v chkrootkit > /dev/null); then
@@ -92,6 +92,9 @@ CheckBaseline() {
 	echo -e "[${BLUE}✓${NC}]rootkit checks complete."
 	echo -e ""
 	echo -e "======================================================================"
+}
+
+function RunIDSChecks () {
 	echo -e ""
 	echo -e "[${BLUE}>${NC}] ${BOLD}${UNDERLINED}Running intrusion detection checks...${NC}"
 	echo -e ""
@@ -120,7 +123,81 @@ CheckBaseline() {
 	echo -e "[${BLUE}✓${NC}]Done."
 }
 
-LOG_NAME=baseline_"$(date +%F_%T)".log
+function PrintHelp () {
+        echo "[i]Usage: $0 --ids --rootkits"
+        echo ""
+        echo "     -i, --ids"
+        echo "             Run all IDS checks (aide)."
+        echo ""
+        echo "     -r, --rootkits"
+        echo "             Run all rootkit checks (chkrootkit, rkhunter)"
+        echo ""
+        echo "     -a, --all"
+        echo "             Run all checks."
+}
+
+# Show help if there aren't any arguments
+if [[ $# -eq 0 ]]; then
+	PrintHelp
+        exit 1
+fi
+
+# This is the easiest way to do this in bash, but it won't work in other shells
+# See getopt-parse under /usr/share/doc/util-linux/examples
+# https://stackoverflow.com/questions/192249/how-do-i-parse-command-line-arguments-in-bash
+POSITIONAL_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+        case $1 in
+                -r|--rootkits)
+                        CHECK_ROOTKITS="1"
+                        shift # past argument
+                        shift # past value
+                        ;;
+                -i|--ids)
+                        CHECK_IDS="1"
+                        shift # past argument
+                        shift # past value
+                        ;;
+                -a|--all)
+                        CHECK_ALL="1"
+                        shift # past argument
+                        shift # past value
+                        ;;
+                -h|--help)
+			PrintHelp
+                        shift
+                        shift
+                        ;;
+                -*|--*)
+                        echo "Unknown option $1"
+                        exit 1
+                        ;;
+                *)
+                        POSITIONAL_ARGS+=("$1") # save positional arg
+                        shift # past argument
+                        ;;
+        esac
+done
+
+# Argument logic
+CheckBaseline() {
+	# Run all checks
+	if [[ "$CHECK_ALL" == '1' ]]; then
+		RunRootkitChecks
+		RunIDSChecks
+	else
+		# Only run checks specified as arguments
+		if [[ "$CHECK_ROOTKITS" == '1' ]]; then
+			RunRootkitChecks
+		fi
+		if [[ "$CHECK_IDS" == '1' ]]; then
+			RunIDSChecks
+		fi
+	fi
+}
+
+LOG_NAME=baseline_"$(date +%Y%m%d_%H%M%S)".log
 
 PrintBanner
 CheckBaseline | tee ~/"$LOG_NAME"
