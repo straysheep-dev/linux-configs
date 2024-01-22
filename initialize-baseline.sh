@@ -29,7 +29,18 @@ chkrootkit'
 function InstallIDSTools() {
 	echo -e "[${BLUE}>${RESET}]${BOLD}Installing IDS tools...${RESET}"
 	sudo apt update
-	sudo apt install -y $IDS_TOOLS # Don't quote this
+
+	# The local mail applications break on WSL, use --no-install-recommends to avoid installing them
+	# This includes aide-common, the directories for aide must be created manually
+	# The directory paths below are for Debian based systems (Ubuntu, Kali) Fedora will have different paths
+	if [ -e /etc/wsl.conf ]; then
+	        sudo apt install -y --no-install-recommends $IDS_TOOLS # Don't quote this
+	        sudo mkdir /etc/aide
+	        sudo mkdir /var/lib/aide/
+	        sudo mkdir /var/log/aide
+	else
+		sudo apt install -y $IDS_TOOLS # Don't quote this
+	fi
 
 	# Prevent cron from automatically modifying and updating the databases
 	# You'll want to write and schedule your own cron task for checking baselines
@@ -60,13 +71,13 @@ function InitializeAide() {
 	# The conf syntax changed from version 16 to 17, so multiple files may be present
 	# Version 16 is the default in Ubuntu 20.04 while 22.04 uses aide version 17
 	echo -e "[${BLUE}>${RESET}]${BOLD}Configuring aide...${RESET}"
-	AIDE_VERSION="$(aide -v 2>&1 | grep -oP "\d+\.\d+\.\d+")"
-	if [ -e ./aide-"$AIDE_VERSION".conf ]; then
+	AIDE_VERSION="$(aide -v 2>&1 | grep -oP "\d+\.\d+\.")"
+	if [ -e ./aide-"$AIDE_VERSION"[0-9].conf ]; then
 		# Backup default conf
 		sudo cp /etc/aide/aide.conf /etc/aide/aide.conf.bkup
 
 		# Install new conf
-		for conf in ./aide-"$AIDE_VERSION".conf; do
+		for conf in ./aide-"$AIDE_VERSION"[0-9].conf; do
 			sudo cp "$conf" /etc/aide/aide.conf
 		done
         else
