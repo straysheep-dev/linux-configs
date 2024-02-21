@@ -95,7 +95,6 @@ These lines can be added to the policies.json file to automatically install the 
 
 - [uBlock Origin](https://github.com/gorhill/uBlock)
 - [DuckDuckGo](https://github.com/duckduckgo/duckduckgo-privacy-extension)
-- [Wappalyzer](https://web.archive.org/web/20230822001120/https://github.com/wappalyzer/wappalyzer)
 - [Firefox Containers](https://github.com/mozilla/multi-account-containers/#readme)
 
 ```json
@@ -113,10 +112,6 @@ These lines can be added to the policies.json file to automatically install the 
       "jid1-ZAdIEUB7XOzOJw@jetpack": {
         "installation_mode": "force_installed",
         "install_url": "https://addons.mozilla.org/firefox/downloads/latest/duckduckgo-for-firefox/latest.xpi"
-      },
-      "wappalyzer@crunchlabz.com": {
-        "installation_mode": "force_installed",
-        "install_url": "https://addons.mozilla.org/firefox/downloads/latest/wappalyzer/latest.xpi"
       },
       "@testpilot-containers": {
         "installation_mode": "force_installed",
