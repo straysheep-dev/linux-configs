@@ -58,7 +58,7 @@ function InitializeRkhunter() {
 		# Backup default conf
 		sudo cp /etc/rkhunter.conf /etc/rkhunter.conf.bkup
 		# Install new conf
-		sudo cp ./rkhunter.conf /etc
+		sudo cp ./rkhunter/rkhunter.conf /etc
 	fi
 
 	# Check config, update database
@@ -77,7 +77,7 @@ function InitializeAide() {
 		sudo cp /etc/aide/aide.conf /etc/aide/aide.conf.bkup
 
 		# Install new conf
-		for conf in ./aide-"$AIDE_VERSION"[0-9].conf; do
+		for conf in ./aide/aide-"$AIDE_VERSION"[0-9].conf; do
 			sudo cp "$conf" /etc/aide/aide.conf
 		done
         else
