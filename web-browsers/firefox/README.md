@@ -1,12 +1,12 @@
 
 # setup-firefox
 
-Automatically generate a hardened policy for Firefox / Firefox-ESR.
+Apply a hardened policy for Firefox / Firefox-ESR.
 
 Tested on:
 
-* Ubuntu 18.04 => 20.04
-* Kali 2020.1 => 2021.2
+* Ubuntu 18.04 -> 22.04
+* Kali 2020.1 -> 2024.1
 * Fedora 34
 
 ```
@@ -24,6 +24,17 @@ or
 /usr/lib/firefox/firefox.cfg
 /usr/lib/firefox/defaults/pref/autoconfig.js
 /usr/lib/firefox/distribution/policies.json
+```
+
+## Install a policy file on Kali:
+
+- Use `/etc/firefox` instead of `/etc/firefox-esr`
+- You only need the policy file, no other configuration files are necessary
+
+```bash
+sudo rm -rf /etc/firefox-esr/*
+sudo mkdir -p /etc/firefox/policies
+sudo cp ./firefox-policies-kali.json /etc/firefox/policies/policies.json
 ```
 
 ## Snap Package
