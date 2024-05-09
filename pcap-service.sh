@@ -81,7 +81,6 @@ function checkOS() {
 				exit 1
 			fi
 		fi
-		exit 1
 	fi
 }
 checkOS
@@ -120,14 +119,16 @@ function DefinePCAPPath() {
 	if [ "$PCAP_PATH" == '' ]; then
 		if ! [ -e /var/log/pcaps ]; then
 			echo -e "[${GREEN}>${RESET}]Creating /var/log/pcaps..."
-			mkdir -p /var/log/pcaps
+			mkdir -m 750 -p /var/log/pcaps
+			chown -R nobody:nobody /var/log/pcaps
 		else
 			echo -e "[${GREEN}✓${RESET}]/var/log/pcaps already exits."
 		fi
 	else
 		if ! [ -e "$PCAP_PATH" ]; then
 			echo -e "[${GREEN}>${RESET}]Creating $PCAP_PATH..."
-			mkdir "$PCAP_PATH"
+			mkdir -m 750 -p "$PCAP_PATH"
+			chown -R nobody:nobody "$PCAP_PATH"
 		else
 			echo -e "[${GREEN}✓${RESET}]$PCAP_PATH exists."
 		fi
