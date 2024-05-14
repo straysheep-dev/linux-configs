@@ -6,6 +6,8 @@
 # Many of these tools have no built in terminal color options, this script is meant to make summarizing and reading them easier.
 
 # shellcheck disable=SC2034
+# shellcheck disable=SC2221
+# shellcheck disable=SC2222
 # https://en.wikipedia.org/wiki/ANSI_escape_code
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
@@ -43,28 +45,9 @@ ITALIC="${C}[3m"
 BOLD="${C}[01;01m"
 SED_BOLD="${C}[01;01m&${C}[0m"
 
-function PrintBanner() {
-
-	echo -e ""
-	echo -e "${LIGHT_MAGENTA}${ITALIC}${BOLD}check-baseline.sh${NC}; a wrapper to summarize ${LIGHT_MAGENTA}${ITALIC}${BOLD}local IDS${NC} data."
-	echo -e ""
-	echo -e "${ITALIC}${BOLD}COLOR SCHEME:${NC}"
-	echo -e "\t• ${LIGHT_MAGENTA}${BOLD}Date / Time${NC}"
-	echo -e "\t• ${YELLOW}Filesystem / Checksum Changes${NC}"
-	echo -e "\t• ${LIGHT_GREEN}Network Processes${NC}"
-	echo -e "\t• ${WHITE_RED}Warnings${NC}"
-	echo -e "\t• ${LIGHT_CYAN}/etc Files${NC}"
-	echo -e "\t• ${RED_YELLOW}/boot, /root, /dev/shm, /tmp, /var/tmp, Hidden (dot) Files${NC}"
-	echo -e "\t• ${RED}root${NC}"
-	echo -e ""
-
-}
-
 function RunRootkitChecks () {
-	echo -e "[${BLUE}>${NC}] ${BOLD}${UNDERLINED}Running rootkit checks...${NC}"
-	echo -e ""
 	if (command -v chkrootkit > /dev/null); then
-		echo -e "[${YELLOW}i${NC}] ${BOLD}${ITALIC}chkrootkit summary${NC}"
+		echo -e "${ITALIC_BLUE}CHKROOTKIT SUMMARY${NC}"
 		echo -e ""
 		sudo chkrootkit -q | \
 		sed -E "s/^\! RUID.+$/${SED_BOLD}/" | \
@@ -78,7 +61,7 @@ function RunRootkitChecks () {
 		echo -e ""
 	fi
 	if (command -v rkhunter > /dev/null); then
-		echo -e "[${YELLOW}i${NC}] ${BOLD}${ITALIC}rkhunter summary${NC}"
+		echo -e "${ITALIC_BLUE}RKHUNTER SUMMARY${NC}"
 		echo -e ""
 		sudo rkhunter --sk --check --rwo | \
 		sed -E "s/File: .+$/${SED_YELLOW}/g" | \
@@ -92,12 +75,10 @@ function RunRootkitChecks () {
 	echo -e "[${BLUE}✓${NC}]rootkit checks complete."
 	echo -e ""
 	echo -e "======================================================================"
+	echo -e ""
 }
 
 function RunIDSChecks () {
-	echo -e ""
-	echo -e "[${BLUE}>${NC}] ${BOLD}${UNDERLINED}Running intrusion detection checks...${NC}"
-	echo -e ""
 	if (command -v aide > /dev/null); then
 		if [ -f /etc/aide.conf ]; then
 			# fedora
@@ -106,7 +87,7 @@ function RunIDSChecks () {
 			# debian / ubuntu
 			AIDE_CONF='/etc/aide/aide.conf'
 		fi
-		echo -e "[${YELLOW}i${NC}] ${BOLD}${ITALIC}aide summary${NC}"
+		echo -e "${ITALIC_BLUE}AIDE SUMMARY${NC}"
 		echo -e ""
 		# The C or H indicates a change in the file's hash, depending on the version of AIDE.
 		sudo aide -c "$AIDE_CONF" -C | \
@@ -123,23 +104,35 @@ function RunIDSChecks () {
 	echo -e "[${BLUE}✓${NC}]Done."
 }
 
-function PrintHelp () {
-        echo "[i]Usage: $0 --ids --rootkits"
-        echo ""
-        echo "     -i, --ids"
-        echo "             Run all IDS checks (aide)."
-        echo ""
-        echo "     -r, --rootkits"
-        echo "             Run all rootkit checks (chkrootkit, rkhunter)"
-        echo ""
-        echo "     -a, --all"
-        echo "             Run all checks."
+function HelpMenu () {
+	echo -e ""
+	echo -e "${LIGHT_MAGENTA}${ITALIC}${BOLD}check-baseline.sh${NC}; a wrapper to summarize ${LIGHT_MAGENTA}${ITALIC}${BOLD}local IDS${NC} data."
+	echo -e ""
+	echo -e "${ITALIC}Color scheme:${NC}"
+	echo -e " * ${LIGHT_MAGENTA}${BOLD}Date/Time${NC}"
+	echo -e " * ${YELLOW}Filesystem/Checksum Changes${NC}"
+	echo -e " * ${LIGHT_GREEN}Network Processes${NC}"
+	echo -e " * ${WHITE_RED}Warnings${NC}"
+	echo -e " * ${LIGHT_CYAN}/etc Files${NC}"
+	echo -e " * ${RED}root${NC}"
+	echo -e " * ${RED_YELLOW}/boot${NC}, ${RED_YELLOW}/root${NC}, ${RED_YELLOW}/dev/shm${NC}, ${RED_YELLOW}/tmp${NC}, ${RED_YELLOW}/var/tmp${NC}, ${RED_YELLOW}Hidden (dot) Files${NC}"
+	echo -e ""
+	echo -e "${LIGHT_MAGENTA}[*]Usage: $0 --ids --rootkits${NC}"
+	echo -e ""
+	echo -e "     -i, --ids"
+	echo -e "             Run all IDS checks (aide)."
+	echo -e ""
+	echo -e "     -r, --rootkits"
+	echo -e "             Run all rootkit checks (chkrootkit, rkhunter)"
+	echo -e ""
+	echo -e "     -a, --all"
+	echo -e "             Run all checks."
 }
 
 # Show help if there aren't any arguments
 if [[ $# -eq 0 ]]; then
-	PrintHelp
-        exit 1
+	HelpMenu
+	exit 1
 fi
 
 # This is the easiest way to do this in bash, but it won't work in other shells
@@ -148,36 +141,36 @@ fi
 POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
-        case $1 in
-                -r|--rootkits)
-                        CHECK_ROOTKITS="1"
-                        shift # past argument
-                        shift # past value
-                        ;;
-                -i|--ids)
-                        CHECK_IDS="1"
-                        shift # past argument
-                        shift # past value
-                        ;;
-                -a|--all)
-                        CHECK_ALL="1"
-                        shift # past argument
-                        shift # past value
-                        ;;
-                -h|--help)
-			PrintHelp
-                        shift
-                        shift
-                        ;;
-                -*|--*)
-                        echo "Unknown option $1"
-                        exit 1
-                        ;;
-                *)
-                        POSITIONAL_ARGS+=("$1") # save positional arg
-                        shift # past argument
-                        ;;
-        esac
+	case $1 in
+		-r|--rootkits)
+			CHECK_ROOTKITS="1"
+			shift # past argument
+			shift # past value
+			;;
+		-i|--ids)
+			CHECK_IDS="1"
+			shift # past argument
+			shift # past value
+			;;
+		-a|--all)
+			CHECK_ALL="1"
+			shift # past argument
+			shift # past value
+			;;
+		-h|--help)
+			HelpMenu
+			shift # past argument
+			shift # past value
+			;;
+		-*|--*)
+			echo "Unknown option $1"
+			exit 1
+			;;
+		*)
+			POSITIONAL_ARGS+=("$1") # save positional arg
+			shift # past argument
+			;;
+	esac
 done
 
 # Argument logic
@@ -199,7 +192,6 @@ CheckBaseline() {
 
 LOG_NAME=baseline_"$(date +%Y%m%d_%H%M%S)".log
 
-PrintBanner
 CheckBaseline | tee ~/"$LOG_NAME"
 
 echo -e "[${BLUE}>${NC}]Log written to ~/$LOG_NAME"
