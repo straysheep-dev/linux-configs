@@ -251,6 +251,8 @@ For example, take the following code block containing our shell modifications:
 ```bash
 #!/bin/bash
 
+# GPL-3.0-or-later
+
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')
