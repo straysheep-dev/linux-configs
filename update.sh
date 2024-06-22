@@ -29,20 +29,24 @@ function PrintUpdatingFirmware() {
 
 if (grep -Pqx '^ID=kali$' /etc/os-release); then
 	PrintUpdatingSystemPackages
-	sudo apt update
-	sudo apt full-upgrade -y
-	sudo apt autoremove --purge -y
+	export PATH=$PATH:/usr/bin
+	export DEBIAN_FRONTEND=noninteractive
+	sudo apt update -q
+	sudo apt full-upgrade -yq
+	sudo apt autoremove --purge -yq
 	sudo apt-get clean
 elif (command -v apt > /dev/null); then
 	PrintUpdatingSystemPackages
-	sudo apt update
-	sudo apt upgrade -y
-	sudo apt autoremove --purge -y
+	export PATH=$PATH:/usr/bin
+	export DEBIAN_FRONTEND=noninteractive
+	sudo apt update -q
+	sudo apt upgrade -yq
+	sudo apt autoremove --purge -yq
 	sudo apt-get clean
 elif (command -v dnf > /dev/null); then
 	PrintUpdatingSystemPackages
-	sudo dnf upgrade -y
-	sudo dnf autoremove -y
+	sudo dnf upgrade -yq
+	sudo dnf autoremove -yq
 	sudo dnf clean all
 fi
 
@@ -55,7 +59,7 @@ fi
 if (command -v flatpak > /dev/null); then
 	true
 	PrintUpdatingFlatpakApps
-	sudo flatpak update
+	sudo flatpak update  # Need to check for a -yq option
 fi
 
 if (sudo dmesg | grep -iPq 'hypervisor'); then
