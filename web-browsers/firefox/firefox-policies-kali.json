@@ -37,7 +37,7 @@
       "PreventInstalls": true
     },
     "Certificates": {
-      "Install": ["/home/kali/burp.der", "/home/kali/owasp_zap_root_ca.cer"]
+      "Install": ["/usr/local/share/ca-certificates/burpsuite.der", "/usr/local/share/ca-certificates/zaproxy.cer"]
     },
     "DNSOverHTTPS": {
       "Enabled": false
