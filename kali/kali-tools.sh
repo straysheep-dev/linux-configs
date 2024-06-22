@@ -33,11 +33,9 @@ function InstallAPTPackages() {
     # nishang
     # ssdeep
 
-    APT_LIST='aide
-    apparmor-profiles
+    APT_LIST='apparmor-profiles
     apparmor-profiles-extra
     apparmor-utils
-    auditd
     bettercap
     binwalk
     bloodhound
@@ -45,7 +43,6 @@ function InstallAPTPackages() {
     braa
     burpsuite
     cadaver
-    chkrootkit
     cifs-utils
     code-oss
     crackmapexec
@@ -105,7 +102,6 @@ function InstallAPTPackages() {
     python3-venv
     rdesktop
     redis-tools
-    rkhunter
     ridenum
     rsmangler
     screen
@@ -201,7 +197,7 @@ function DownloadGitHubReleases() {
     antonioCoco/JuicyPotatoNG
     ropnop/kerbrute'
 
-    IGNORE_LIST='(mac|darwin|arm|mips|ia32|ppc)'
+    IGNORE_LIST='(mac|darwin|arm|mips|ia32|ppc|s390x)'
 
     for AUTHOR_REPO in $AUTHOR_REPO_LIST
     do
@@ -237,7 +233,7 @@ function DownloadGitHubProjects() {
 
 function InstallPipTools() {
 
-    python3 -m pip install --user wsgidav
+    pipx install wsgidav
 
 }
 
