@@ -106,15 +106,7 @@ function InstallStubby() {
 	echo ""
 	echo -e "[${BLUE}*${RESET}]${BOLD}Downloading quad9's stubby.yml config...${RESET}"
 	sudo mv /etc/stubby/stubby.yml /etc/stubby/stubby.yml.bkup && \
-	sudo wget -qO /etc/stubby/stubby.yml https://support.quad9.net/hc/en-us/article_attachments/4411087149453/stubby.yml
-
-	# Check the hash of the configuration file based on a previously reviewed copy
-	if (sha256sum /etc/stubby/stubby.yml | grep -qx '4feef862e416bfcf9f95052f9b5397ab2f4eff7285fc46a985ed7ddd64401856  /etc/stubby/stubby.yml'); then
-		echo -e "[${GREEN}*${RESET}]${BOLD}stubby.yml checksum OK${RESET}"
-	else
-		echo -e "[${RED}*${RESET}]${BOLD}Bad checksum for stubby.yml. Quitting${RESET}"
-		exit 1
-	fi
+	sudo mv ./stubby.yml /etc/stubby/stubby.yml
 
 	# Start stubby systemd service
 	sudo systemctl restart stubby
@@ -136,6 +128,7 @@ echo "# This is a static file with DNS entries for a local stubby resolver
 # sudo rm /etc/resolv.conf; sudo ln -s /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 nameserver $STUBBY_IP4
 nameserver $STUBBY_IP6" | sudo tee /etc/resolv.conf > /dev/null
+sudo chattr +i /etc/resolv.conf
 sudo nmcli connection modify "$CONN_NAME" ipv4.dns "$STUBBY_IP4"
 #sudo nmcli connection modify "$CONN_NAME" ipv6.dns "$STUBBY_IP6"
 sudo nmcli connection modify "$CONN_NAME" connection.autoconnect yes
