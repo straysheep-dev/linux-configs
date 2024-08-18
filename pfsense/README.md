@@ -6,13 +6,13 @@ Pcap files are generated that can be ingested by [RITA](https://github.com/activ
 
 # pfSense Configs
 
-This collection of configuration files are useful for provisioning a pfSense machine in a lab environment.
+This collection of configuration files is useful for provisioning a pfSense machine in a lab environment.
 
 These files were produced from a virtual machine created in Proxmox. This is useful to know if you're deploying to, for example, VirtualBox. You will want to change the virtual network interface names as needed.
 
-Files are separate based on what they configure, so you can choose one or more to apply based on your requirements.
+Files are separated based on what they configure, so you can choose one or more to apply based on your requirements.
 
-The primary `config-pfsense-ce.lab.internal.xml` file just contains all of the configuration files in a single file.
+The primary `config-pfsense-ce.lab.internal.xml` file just contains all of the configuration files in a single file, along with the defaults a new install of pfSense includes.
 
 *Changes are detailed below, otherwise the defaults are left in place.*
 
@@ -23,7 +23,7 @@ The following is a list of sections or values you can safely remove when exporti
 **It is not exhaustive, your config may have secrets or credentials through use of OpenVPN or Wireguard, adding users, and more. Review everything before publishing.**
 
 - SSL / TLS Cert References
-    - entire <cert/> section can be removed
+    - entire `<cert/>` section can be removed
     - unbound: `<sslcertref>STRING</sslcertref>`
 - Firewall Rules
     - filter: `<updated>`, `<created>`, `<time>STRING</time>`
@@ -33,7 +33,7 @@ The following is a list of sections or values you can safely remove when exporti
 - SSH
     - `<ssh>` data may contain the public key
 - Packages
-    - OpenVPN, Tailscale, Wireguard data will have keys in the backups
+    - OpenVPN, Tailscale, Wireguard data will have keys in their backup files
 
 ## Domain, Hostname
 
@@ -57,25 +57,27 @@ In Proxmox, create 3 new Linux Bridge devices for your network with all default 
 
 **VMware / Virtualbox / Hyper-V**
 
-In the case of these desktop hypervisors, you want to create their equivalent of a VM-to-VM virtual network interface. It's an interface that's purely virtual, that the host cannot talk to, but VM's can communicate with other VM's over.
+In the case of these desktop hypervisors, you want to create their equivalent of a VM-to-VM virtual network interface. It's an interface that's purely virtual, that the host cannot talk to, but allows VM's to communicate with each other.
 
-- Hyper-V: Virtual switch, "Private" network
-- VMWare: LAN Segment
-- VirtualBox: Internal network
+- **Hyper-V**: Virtual switch, "Private" network
+- **VMWare**: LAN Segment
+- **VirtualBox**: Internal network
 
 ## Addresses
 
-- LAN: 192.168.1.1/24
-- OPT1: 172.20.20.1/24
-- OPT2: 10.99.99.1/24
+These addresses were chosen for readability, to try and avoid mistaking which subnet a host is in.
+
+- **LAN**: `192.168.1.1/24`
+- **OPT1**: `172.20.20.1/24`
+- **OPT2**: `10.99.99.1/24`
 
 ## Firewall
 
 Firewall rules were written based on the purprose for each interface.
 
-WAN accepts SSH to the firewall (self), however you will need to start the openssh-server yourself.
+WAN accepts SSH to the firewall (self), however **you will need to start the openssh service first**.
 
-LAN has all the default rules, it's assumed anything in this network is trusted and able to manage the machine + talk to all other subnets.
+LAN has all the default rules, it's assumed anything in this network is trusted and able to manage the firewall + talk to all other subnets.
 
 OPT1 and OPT2 are for regular use:
 
@@ -93,9 +95,9 @@ OPT1 and OPT2 are for regular use:
 
 Three aliases were created for easy firewall rule management.
 
-- RFC1918: 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, used to isolate subnets
-- CGNAT: 100.64.0.0/10, use to limit access to Tailnets
-- Management: 22/tcp, 80/tcp, 443/tcp, used to limit access to the pfSense management interfaces
+- **RFC1918**: `10.0.0.0/8`, `172.16.0.0/12`, `192.168.0.0/16`, used to isolate private subnets
+- **CGNAT**: `100.64.0.0/10`, use to limit access to Tailnets
+- **Management**: `22/tcp`, `80/tcp`, `443/tcp`, used to limit access to the pfSense management interfaces
 
 ## DNS
 
@@ -154,7 +156,7 @@ The entire TLS cert section has been removed, along with any references to the S
 After applying a full `config-*` file, check to ensure the following are still set:
 
 - System > Certificates > Certificates: "GUI Default" created during install should still be there
-- Services > DNS Resolver > SSL / TLS Certificate: "GUI Default (<string>)" should be set here
+- Services > DNS Resolver > SSL / TLS Certificate: "GUI Default (`<string>`)" should be set here
     - Note the DNS setting only matters if you're using unbound to resolve internal subnet queries over TLS
     - This does not affect pfSense forwarding those queries upstream over TLS
 
