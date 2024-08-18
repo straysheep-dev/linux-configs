@@ -1,0 +1,24 @@
+
+<aliases>
+	<alias>
+		<name>RFC1918</name>
+		<type>network</type>
+		<address>10.0.0.0/8 172.16.0.0/12 192.168.0.0/16</address>
+		<descr><![CDATA[Private network ranges]]></descr>
+		<detail><![CDATA[Class A||Class B||Class C]]></detail>
+	</alias>
+	<alias>
+		<name>CGNAT</name>
+		<type>network</type>
+		<address>100.64.0.0/10</address>
+		<descr><![CDATA[CGNAT range (used by Tailscale)]]></descr>
+		<detail><![CDATA[CGNAT]]></detail>
+	</alias>
+	<alias>
+		<name>Management</name>
+		<type>port</type>
+		<address>22 80 443</address>
+		<descr><![CDATA[Ports running services for (remote) administration]]></descr>
+		<detail><![CDATA[SSH||HTTP||HTTPS]]></detail>
+	</alias>
+</aliases>
