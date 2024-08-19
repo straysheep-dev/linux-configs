@@ -7,7 +7,9 @@
 
 # https://github.com/drduh/YubiKey-Guide#switching-between-two-or-more-yubikeys
 
-pkill gpg-agent ; pkill ssh-agent ; pkill pinentry
+echo "[*]Stopping gpg-agent, ssh-agent, and pinentry..."
+sudo pkill gpg-agent ; pkill ssh-agent ; pkill pinentry
 #eval $(gpg-agent --daemon --enable-ssh-support)
+echo "[*]Reconnecting card to gpg-agent..."
 gpg-connect-agent "scd serialno" "learn --force" /bye
 gpg-connect-agent updatestartuptty /bye

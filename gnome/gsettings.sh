@@ -19,7 +19,7 @@ gsettings set org.gnome.desktop.screensaver lock-enabled 'true'
 
 # Blank screen delay, how long until screen turns blank on idle
 # 0 = immediately
-gsettings set org.gnome.desktop.screensaver lock-delay 'uint 0'
+gsettings set org.gnome.desktop.screensaver lock-delay 'uint32 0'
 
 # Idle delay before system is considered "idle"
 # 300 = 5 minutes

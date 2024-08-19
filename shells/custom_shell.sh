@@ -34,7 +34,7 @@ END{
             printf interfaces[i] " "
         } else if (interfaces[i] ~ /^eth/) {
             printf interfaces[i] " "
-        } else if (interfaces[i] ~ /^wl[a-z]+[0-9]$|^ath[0-9]/) {
+        } else if (interfaces[i] ~ /^wl[a-z0-9]+$|^ath[0-9]/) {
             printf interfaces[i] " "
         }
     }
@@ -55,11 +55,11 @@ get_net_info() {
 }
 
 # Plain text prompt string
-if [ "$PS1" ]; then
-    PS1="┌──[\u@\h:\l]-[\D{%Y-%m-%d}•\t]-[$(get_net_info)]-[ \W]\n└─\\$ "
-fi
+#if [ "$PS1" ]; then
+#    PS1="┌──[\u@\h:\l]-[\D{%Y-%m-%d}•\t]-[$(get_net_info)]-[ \W]\n└─\\$ "
+#fi
 
 # Color prompt string
-#if [ "$PS1" ]; then
-#    PS1="┌──[${GREEN}\u${NC}@${GREEN}\h${NC}:${LIGHT_MAGENTA}\l${NC}]-[${LIGHT_CYAN}\D{%Y-%m-%d}${NC}•${LIGHT_CYAN}\t${NC}]-[${YELLOW}$(get_net_info)${NC}]-[${GREEN}\w${NC}]\n└─\\$ "
-#fi
+if [ "$PS1" ]; then
+    PS1="┌──[${GREEN}\u${NC}@${GREEN}\h${NC}:${LIGHT_MAGENTA}\l${NC}]-[${LIGHT_CYAN}\D{%Y-%m-%d}${NC}•${LIGHT_CYAN}\t${NC}]-[${YELLOW}$(get_net_info)${NC}]-[${GREEN}\w${NC}]\n└─\\$ "
+fi
