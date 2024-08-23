@@ -8,6 +8,8 @@ Pcap files are generated that can be ingested by [RITA](https://github.com/activ
 
 This collection of configuration files is useful for provisioning a pfSense machine in a lab environment.
 
+**WARNING: Restoring the entire `config-*` file appears to break the install. For now it's best to restore each component one at a time, and monitor the system from the admin dashboard. This can be done by either using the individual `.xml` files, or limiting the restore function to a specific area (e.g. Firewall Rules) when using the full `config-*.xml`.**
+
 These files were produced from a virtual machine created in Proxmox. This is useful to know if you're deploying to, for example, VirtualBox. You will want to change the virtual network interface names as needed.
 
 Files are separated based on what they configure, so you can choose one or more to apply based on your requirements.
