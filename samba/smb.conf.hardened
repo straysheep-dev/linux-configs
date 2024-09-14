@@ -1,0 +1,107 @@
+# /etc/samba/smb.conf
+# https://wiki.samba.org/index.php/Main_Page
+# This is a hardened samba configuration file for Ubuntu 22.04
+# Use /usr/bin/testparm to review a the configuration at /etc/samba/smb.conf
+# testparm will still complain that "Weak crypto is allowed", see: https://bugzilla.samba.org/show_bug.cgi?id=14583
+
+[global]
+   workgroup = INTERNAL
+   server string = %h server (Fileshare, Linux)
+   log file = /var/log/samba/log.%m
+   # log level = 3 shows who logs in, and what files they touch
+   log level = 3
+   max log size = 1000
+   logging = file
+   panic action = /usr/share/samba/panic-action %d
+   server role = standalone server
+   obey pam restrictions = yes
+   unix password sync = yes
+   passwd program = /usr/bin/passwd %u
+   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+   pam password change = yes
+   #usershare path = /path/to/a/custom/share
+   #usershare max shares = 100
+   #usershare prefix allow list = /srv /var/samba
+   usershare allow guests = no
+   map to guest = bad user
+   #guest account = guest_user
+   # "server smb encrypt = off" reveals samba data transfers, but not necessarily what's typed in an smbclient shell, in plaintext
+   server smb encrypt = required
+   server min protocol = SMB3
+   client min protocol = SMB3
+   # client protection = encrypt can break some client connections
+   client protection = sign
+   client smb encrypt = required
+   #cups server = cups.domain.internal:1631
+   #cups encrypt = yes
+   #encrypt password = yes # default, deprecated since 4.11, will be enforced
+   #kdc supported enctypes = aes256-cts
+   #kerberos encryption types = strong
+   # For macOS clients, see: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_using_network_file_services/assembly_using-samba-as-a-server_configuring-and-using-network-file-services#optimizing-the-samba-configuration-for-providing-file-shares-for-macos-clients_assembly_configuring-samba-for-macos-clients
+
+[printers]
+   comment = All Printers
+   browseable = no
+   path = /var/spool/samba
+   printable = yes
+   guest ok = no
+   read only = yes
+   create mask = 0700
+
+[print$]
+   comment = Printer Drivers
+   path = /var/lib/samba/printers
+   browseable = yes
+   read only = yes
+   guest ok = no
+
+[devops]
+    # 1. Create the share: $ sudo mkdir -m 2770 -p /srv/devops
+    # 2. Create the group: $ sudo addgroup devops
+    # 3. Modify ownership: $ sudo chown root:devops /srv/devops
+    #    See also: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_using_network_file_services/assembly_using-samba-as-a-server_configuring-and-using-network-file-services#proc_enabling-the-user-shares-feature_assembly_enabling-users-to-share-directories-on-a-samba-server
+    # 4. Create a test user: $ sudo adduser alice
+    #    See also: https://docs.redhat.com/en/documentation/red_hat_enterprise_linux/9/html/configuring_and_using_network_file_services/assembly_using-samba-as-a-server_configuring-and-using-network-file-services#proc_creating-and-enabling-local-user-accounts_assembly_setting-up-samba-as-a-standalone-server
+    # 5. Add test user to devops: $ sudo usermod -aG devops alice
+    # 6. Samba uses its own user database, separate from the OS's
+    #    user database in /etc/shadow. This means you can give
+    #    accounts access to samba using different passwords than
+    #    their unix login password.
+    #    Create a samba login password for existing user alice:
+    #    $ sudo smbpasswd -a alice
+    # 7. Create a sample file as alice:
+    #    $ su alice
+    #    $ touch /srv/devops/vault.yml
+    # 8. Try to access the share
+    #    $ enum4linux-ng -As smb.domain.internal
+    #    $ smbclient -U "INTERNAL\alice" //smb.domain.internal/devops
+    # Additonal Notes:
+    #   MFA via libpam-google-authenticator isn't possible with Samba.
+    #   Without AD / Kerberos, one option is ssh portforwarding.
+    #    $ ssh -L 127.0.0.1:445:127.0.0.1:445 alice@smb.domain.internal
+    #    $ smbclient -U "INTERNAL\alice" //127.0.0.1/devops
+    #   Without making additional changes to this config, just drop
+    #   all connections besides 22/tcp to the samba server with ufw.
+    #    $ sudo ufw allow ssh; sudo ufw enable
+	comment = DevOps automation tools
+	path = /srv/devops
+	browseable = no
+	read only = no
+	writable = yes
+	guest ok = no
+    # https://wiki.samba.org/index.php/Setting_up_a_Share_Using_POSIX_ACLs#Setting_Standard_UNIX_permissions
+	create mask = 0640
+	directory mask = 0750
+
+    # Windows focused ACL settings, not enabled by default
+    # https://wiki.samba.org/index.php/Setting_up_a_Share_Using_POSIX_ACLs#Setting_Extended_ACLs
+    #map acl inherit = yes
+    #inherit acls = yes
+
+    invalid users = root admin @wheel
+    valid users = @devops
+    force group = devops
+
+    # "hosts deny" takes precedence over "hosts allow"
+    #hosts allow = 10.10.10.0/24
+    #hosts deny = badhost 172.16.0.0/12

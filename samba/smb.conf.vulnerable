@@ -1,0 +1,56 @@
+# /etc/samba/smb.conf
+# https://wiki.samba.org/index.php/Main_Page
+# This is a vulnerable samba configuration file for Ubuntu 22.04
+# Use /usr/bin/testparm to review a the configuration at /etc/samba/smb.conf
+
+[global]
+   workgroup = WORKGROUP
+   server string = %h server (Samba, Ubuntu)
+   log file = /var/log/samba/log.%m
+   max log size = 1000
+   logging = file
+   panic action = /usr/share/samba/panic-action %d
+   server role = standalone server
+   obey pam restrictions = yes
+   unix password sync = yes
+   passwd program = /usr/bin/passwd %u
+   passwd chat = *Enter\snew\s*\spassword:* %n\n *Retype\snew\s*\spassword:* %n\n *password\supdated\ssuccessfully* .
+   pam password change = yes
+   map to guest = bad user
+   usershare allow guests = yes
+
+[printers]
+   comment = All Printers
+   browseable = no
+   path = /var/spool/samba
+   printable = yes
+   guest ok = no
+   read only = yes
+   create mask = 0700
+
+[print$]
+   comment = Printer Drivers
+   path = /var/lib/samba/printers
+   browseable = yes
+   read only = yes
+   guest ok = no
+
+[devops]
+    # 1. Create the vulnerable share
+    # Requires /srv/devops exists: $ sudo mkdir -m 0777 /srv/devops
+    # This is a vulnerable share that's writable by anyone.
+    # 2. Set anonymous read access
+    # For guest users to obtain files here, even if you
+    # create the files as root, they can be read as long as
+    # o=r, so: $ sudo chmod +r /srv/devops/*
+    # 3. Set anonymous write access
+    # For guest users to write files here, the devops folder
+    # must be at least o=rwX, so: $ sudo chmod 777 /srv/devops
+    # https://wiki.samba.org/index.php/Setting_up_a_Share_Using_POSIX_ACLs#Adding_a_Share
+    # Note that the default masks for created files and directories are:
+    #   Default: create mask = 0744
+    #   Default: directory mask = 0755
+	comment = DevOps automation tools
+	path = /srv/devops
+	read only = no
+	guest ok = yes
