@@ -2,6 +2,14 @@
 # https://github.com/getdnsapi/stubby/tree/develop#create-custom-configuration-file
 # https://support.quad9.net/hc/en-us/articles/4409217364237
 # https://www.blackhillsinfosec.com/the-dns-over-https-doh-mess/
+# https://wiki.archlinux.org/title/Stubby
+
+# Validate a config, and get SSL/TLS certificate bundle and openssl information using:
+# stubby -i ./stubby.yml
+
+# Note that stubby does not cache responses, but can run perfectly fine on its own.
+# For caching you can use bind9, unbound, or dnsmasq, and point them to stubby.
+# Be sure to change the port stubby listens on so both DNS services can run simultaneously.
 
 resolution_type: GETDNS_RESOLUTION_STUB
 dns_transport_list:
@@ -12,8 +20,18 @@ edns_client_subnet_private: 1
 round_robin_upstreams: 1
 idle_timeout: 10000
 listen_addresses:
-  - 127.0.0.1
-  - 0::1
+  - 127.0.0.1@53
+  - 0::1@53
+
+# These options store the Zero-config Trust anchor.
+# They only apply if stubby needs to perform DNSSEC.
+# In the case of Quad9 and Cloudflare, both perform DNSSEC for you.
+# Authenticating to both with TLS makes performing DNSSEC twice unnecessary.
+# sudo mkdir -p 0755 /var/cache/stubby
+# sudo chown stubby:stubby /var/cache/stubby
+# https://dnsprivacy.org/dns_privacy_daemon_-_stubby/configuring_stubby/#dnssec
+#dnssec_return_status: GETDNS_EXTENSION_TRUE
+appdata_dir: "/var/cache/stubby"
 
 upstream_recursive_servers:
 
