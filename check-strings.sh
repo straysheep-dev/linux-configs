@@ -2,13 +2,16 @@
 
 # GPL-3.0-or-later
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC2221
+# shellcheck disable=SC2222
+
 # SYNOPSIS
 #
 # Review the strings in a file or a directory of files for interesting or malicious content.
-# You can pipe this out to `... | tee out.log` and run it again on the log file to get a meta summary.
 # This script is designed to quickly drop in and get a sense of what to look for in files. There is likely a much better paid solution for code review like this.
 # It currently does not do decoding, decrypting, or deobfuscation / reassembling obfuscated pieces such as variables or strings that are assembled during execution.
-# The goal is to try and find files where this might be happening for manual review before compiling / dynamic analysis.
+# The goal is to try and find files where that might be happening for manual review before compiling / dynamic analysis.
 #
 # REFERENCES
 #
@@ -25,8 +28,13 @@
 # - https://github.com/carlospolop/PEASS-ng
 # - https://github.com/g0tmi1k/OS-Scripts
 # - https://github.com/angristan/openvpn-install
+#
+# AI USAGE
+#
+# This script was uploaded to GPT 4o and o1-mini for analysis and suggestions on how to improve, optimize, or refactor the existing code.
+# Other features and ideas were attempted and tested. This eventually led to making an entirely separate tool with those changes.
+# Any suggestions implemented here though, were sourced back to public examples or existing documentation. Links have been included in comments.
 
-# shellcheck disable=SC2034
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')
@@ -82,6 +90,11 @@ while [[ $# -gt 0 ]]; do
 			shift # past argument
 			shift # past value
 			;;
+		-f|--files)
+			SHOW_FILES="1"
+			shift # past argument
+			shift # past value
+			;;
 		-h|--help)
 			echo "[i]Usage: $0 -i <input_file> [-n <min_string_length>] [-s]"
 			echo ""
@@ -90,6 +103,9 @@ while [[ $# -gt 0 ]]; do
 			echo ""
 			echo "     -n, --minlength <int>"
 			echo "             Minimum string length. Sends this option as the argument to 'strings -n <int>'"
+			echo ""
+			echo "     -f, --files"
+			echo "             Include and print the source file name for each match."
 			echo ""
 			echo "     -s, --summary"
 			echo "             Summarize the file(s) based on type (magic bytes) and characteristics"
@@ -124,8 +140,17 @@ APIS_WINDOWS='(URL|VirtualAlloc|VirtualProtect|WriteProcessMemory|NtWriteVirtual
 # To do
 APIS_LINUX=''
 
-# Find the file(s), put them into a variable to use
-FILES=$(find "$INPUT" -type f)
+# Find the file(s), put them into a variable (indexed array) to use.
+# Uses -print0 to handle special characters in file names. See "UNUSUAL FILENAMES" in `man find`.
+# Uses IFS read on null-delimited strings from -print0 to generate the indexed array (-a) list,
+# similar to the associative array (-A) declared for the regex dictionary below.
+# https://stackoverflow.com/questions/8677546/reading-null-delimited-strings-through-a-bash-loop
+# https://www.gnu.org/software/bash/manual/html_node/Arrays.html
+# https://github.com/denysdovhan/bash-handbook#array-declaration
+declare -a file_list
+while IFS= read -r -d $'\0' found_file; do
+	file_list+=("$found_file")
+done < <(find "$INPUT" -type f -print0)
 
 # Declare an associative array to emulate the behavior of a python dictionary
 # You can make additions or changes here to expand the usage of this script
@@ -152,28 +177,56 @@ regex_dict['WINDOWS_APIS']="$APIS_WINDOWS"
 regex_dict['LINUX_APIS']="$APIS_LINUX"
 regex_dict['BITCOIN_ADDRESS']='\b[13][a-km-zA-HJ-NP-Z1-9]{25,34}\b'
 
-# Function to get information about the file itself
-FileInfo () {
-	echo -e "${BLUE}╔═══════════════════════════════════════════════════════${NC}"
-	echo -e "${BLUE}╚[◢]${NC}${LIGHT_CYAN}$file${NC}"
-	echo ""
-	basename "$file" | sed "s/.*/ ${SED_LIGHT_CYAN}/g"
-	file "$file" | cut -d ':' -f 2 | sed -E "s/.*$/${SED_YELLOW}/g" | sed -E "s/executable/${SED_RED_YELLOW}/g"
-}
-
 # Function to parse strings
 StringInfo () {
-	# Iterate over the file(s)
-	for file in $FILES; do
-		# Print the file information banner once per file
-		FileInfo
-		# Iterate over the associative array
-		for key in "${!regex_dict[@]}"; do
-			echo ""
-			echo -e "${BLUE}      ╔═════════════════════════════════════════════════${NC}"
-			echo -e "${BLUE}      ╚[◢]${NC}${BOLD} $key${NC}"
-			strings -n "$MIN_LENGTH" "$file" | grep -ioP --color "${regex_dict[$key]}" | sort | uniq -c | sort -n -r | sed -E "s/.*/${SED_GREEN}/g"
+	# Loop through regex keys first, then files, to search all files at once per key.
+	# Iterate over the associative array.
+	for key in "${!regex_dict[@]}"; do
+		# Make a temporary file to append results to for each key.
+		temp_file=$(mktemp)
+		echo ""
+		echo -e "${BLUE}    ╔═════════════════════════════════════════════════${NC}"
+		echo -e "${BLUE}    ╚[◢]${NC}${BOLD} $key${NC}"
+		# Iterate over the file(s).
+		for file_name in "${file_list[@]}"; do
+			if [[ "$SHOW_FILES" == "1" ]]; then
+				strings -n "$MIN_LENGTH" "$file_name" | \
+				grep -ioP --color "${regex_dict[$key]}" | \
+				while IFS= read -r matching_string; do
+					echo "$matching_string [$file_name]"
+				done >> "$temp_file"
+				# Originally awk was used to write the matching line + the filename in brackets [] to the temp_file.
+				# However, when testing this script with file names using special characters, this would cause awk
+				# to interpret those characters. Using bash with IFS alone was an easier alternative to trying to
+				# manually sanitized input for awk.
+				# Previous line:
+				#awk -v file_name="$file_name" '{print $0 " [" file_name "]"}' >> "$temp_file"
+				# Use awk to append the $file_name, in brackets, to the entire line ($0 means the entire line in awk).
+				# the -v argument is required to tell awk to ingest the bash variable correctly.
+				# https://www.gnu.org/software/gawk/manual/gawk.html#index-_002dv-option
+				# https://stackoverflow.com/questions/19075671/how-do-i-use-shell-variables-in-an-awk-script
+			else
+				# This block is the same as above, but without the IFS block, and simply prints all matching strings.
+				strings -n "$MIN_LENGTH" "$file_name" | \
+				grep -ioP --color "${regex_dict[$key]}" >> "$temp_file"
+			fi
 		done
+		# Sort numerically by count... (at this point the results are going to be printed to screen).
+		sort "$temp_file" | uniq -c | sort -n -r | \
+		# ...then format output (since we're now seeing the results in our terminal).
+		# How this works:
+		# - First match on the numeric total to make it GREEN.
+		# - Next if file_names are printed they'll be contained within brackets [] on the end of each line.
+		# - If we find brackets with text in them, change the brackets to GREEN and the embedded text to BLUE.
+		# This is all accomplished with IFS, then subgroup matching in sed using backreferences.
+		# Using semicolons to separate the sed operations ensures all the color formatting operations can be applied.
+		# When piping sed expressions (e.g. sed <cmd1> | sed <cmd2> |...), you can lose formatting applied in previous pipes.
+		# https://stackoverflow.com/questions/38833768/multiple-sed-commands-when-semicolon-when-pipeline
+		# https://www.gnu.org/software/sed/manual/html_node/Multiple-commands-syntax.html
+		# https://www.gnu.org/software/sed/manual/sed.html#index-Backreferences_002c-in-regular-expressions
+		sed -E "s/^(\s+)([0-9]+)\s/\1${GREEN}\2${NC} /; s/\s\[(.*)\]$/ ${GREEN}\[${NC}${BLUE}\1${NC}${GREEN}\]${NC}/;"
+		# Delete the temporary file, another one will be written for the next key.
+		rm "$temp_file"
 	done
 }
 
@@ -181,23 +234,25 @@ StringInfo () {
 SummarizeFiles () {
 	echo ""
 	echo -e "${BLUE}╔═══════════════════════════════════════════════════════${NC}"
+	# Make a temporary file to append results to for each key.
+	temp_file=$(mktemp)
 	# Sort and count all discovered filetypes
 	echo -e "  ${BOLD}FILETYPE_SUMMARY${NC}"
-	find "$INPUT" -type f -print0 | xargs -0 file > filetypes.tmp # Find is run again here since it's outside of the loop, maybe there's a way to only run it once
-	awk -F: '{print $2}' filetypes.tmp| sed -E 's/^\s+//g' | sort | uniq -c | sort -nr | sed -E "s/(executable|binary)/${SED_RED_YELLOW}/g"
+	find "$INPUT" -type f -print0 | xargs -0 file > "$temp_file" # Find is run again here since it's outside of the loop, maybe there's a way to only run it once
+	awk -F: '{print $2}' "$temp_file"| sed -E 's/^\s+//g' | sort | uniq -c | sort -nr | sed -E "s/^(\s+)([0-9]+)\s/\1${GREEN}\2${NC} /; s/(executable|binary|script)/${SED_RED_YELLOW}/g"
 	echo ""
 	# Highlight possible Visual Studio project files
 	echo -e "  ${BOLD}PROJECT FILES${NC}"
-	grep -iP "(\.sln|\.(\w+)?proj\.?(\w+)?|\.targets)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
+	grep -iP "(\.sln|\.(\w+)?proj\.?(\w+)?|\.targets)" "$temp_file" | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
 	echo ""
 	echo -e "  ${BOLD}BUILD SCRIPTS${NC}"
 	# Highlight possible build scripts
-	grep -iP "(\.bat|\.ps1|\.sh|\.vbs)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
+	grep -iP "(\.bat|\.ps1|\.sh|\.vbs)" "$temp_file" | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_CYAN}/g"
 	echo ""
 	# Highlight executable files or binary data
 	echo -e "  ${BOLD}EXECUTABLE OR BINARY DATA${NC}"
-	grep -iP "(\bexecutable\b|\bbinary\b|\bdata\b)" filetypes.tmp | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_MAGENTA}/g"
-	rm filetypes.tmp
+	grep -iP "(\bexecutable\b|\bbinary\b|\bdata\b)" "$temp_file" | sed -E 's/^/      /g' | sed -E "s/^.*:/${SED_LIGHT_MAGENTA}/g"
+	rm "$temp_file"
 	echo -e "${BLUE}╚═══════════════════════════════════════════════════════${NC}"
 }
 
