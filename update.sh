@@ -25,7 +25,7 @@ function PrintUpdatingFirmware() {
 if (grep -Pqx '^ID=kali$' /etc/os-release); then
 	PrintUpdatingSystemPackages
 	sudo apt update -q
-	sudo PATH=$PATH:/usr/bin \
+	sudo PATH="$PATH":/usr/bin \
 	DEBIAN_FRONTEND=noninteractive \
 	apt full-upgrade -yq
 	sudo apt autoremove --purge -yq
@@ -33,7 +33,7 @@ if (grep -Pqx '^ID=kali$' /etc/os-release); then
 elif (command -v apt > /dev/null); then
 	PrintUpdatingSystemPackages
 	sudo apt update -q
-	sudo PATH=$PATH:/usr/bin \
+	sudo PATH="$PATH":/usr/bin \
 	DEBIAN_FRONTEND=noninteractive \
 	NEEDRESTART_MODE=a \
 	apt upgrade -yq
