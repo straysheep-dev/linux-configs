@@ -4,7 +4,7 @@
 # Place this script in /opt
 # sudo ln -s /opt/.../Host2Guest.sh /usr/local/bin/Host2Guest
 
-VM="$(find $HOME -type f -name "$1".vmx)"
+VM="$(find "$HOME" -type f -name "$1".vmx)"
 SRC="$2"
 DST="$3"
 

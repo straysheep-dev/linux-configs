@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # Link back to the original Fedora docs:
 # Fedora Docs: https://docs.fedoraproject.org/en-US/quick-docs/how-to-use-vmware/
 # License: CC BY-SA 4.0
@@ -25,12 +27,12 @@ ret=0
 
 case "${COMMAND}" in
     add)
-       [ -z ${VMWARE_VERSION} ] && exit 0
+       [ -z "${VMWARE_VERSION}" ] && exit 0
 
-       git clone -b workstation-${VMWARE_VERSION} https://github.com/mkubecek/vmware-host-modules.git /opt/vmware-host-modules-${VMWARE_VERSION}/
-       cd /opt/vmware-host-modules-${VMWARE_VERSION}/
-       make VM_UNAME=${KERNEL_VERSION}
-       make install VM_UNAME=${KERNEL_VERSION}
+       git clone -b workstation-"${VMWARE_VERSION}" https://github.com/mkubecek/vmware-host-modules.git /opt/vmware-host-modules-"${VMWARE_VERSION}"/
+       cd /opt/vmware-host-modules-"${VMWARE_VERSION}"/ || exit 1
+       make VM_UNAME="${KERNEL_VERSION}"
+       make install VM_UNAME="${KERNEL_VERSION}"
 
        ((ret+=$?))
        ;;
