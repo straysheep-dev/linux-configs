@@ -3,6 +3,9 @@
 # This is a post install script for an Ubuntu 18.04 or later workstation, vm, or server.
 # The goal is to provide a minimal and hardened baseline environment with auditing capability
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC2016
+
 # Thanks to the following projects for code, ideas, and guidance:
 # https://github.com/Disassembler0/Win10-Initial-Setup-Script
 # https://github.com/g0tmi1k/OS-Scripts

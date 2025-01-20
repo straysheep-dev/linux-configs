@@ -1,3 +1,4 @@
+#!/bin/bash
 # refresh-smartcard.sh
 
 # MIT License

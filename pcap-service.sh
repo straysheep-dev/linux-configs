@@ -5,6 +5,7 @@
 # GPL-3.0-or-later
 
 # shellcheck disable=SC2034
+# shellcheck disable=SC2174
 
 # Works with:
 # - Ubuntu

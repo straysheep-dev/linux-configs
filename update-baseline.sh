@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # Run this after reviewing the integrity of the system
 # Updates all system packages, then IDS databases
 # Running in a VM has the option to write freespace with /dev/zero to prepare the VM disk image for compression

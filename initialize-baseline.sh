@@ -13,6 +13,7 @@
 
 # shellcheck disable=SC2086
 # shellcheck disable=SC2034
+# shellcheck disable=SC2144
 
 RED="\033[01;31m"      # Errors
 GREEN="\033[01;32m"    # Success

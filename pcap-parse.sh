@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # Parse a large number of pcap files into zeek logs for analysis with RITA.
 # This loops through every pcap file, creating a directory named after the pcap file, and generating zeek logs in that directory.
 # It's done this way rather than merging all pcaps into a single file, in case there's a corrupt pcap that makes the merged file unreadable.
@@ -13,7 +15,7 @@ RESET="\033[00m"     # reset
 
 
 ANALYSIS_DIR=/tmp/analysis
-PCAP_COUNT="$(ls -l "$ANALYSIS_DIR"/pcaps | wc -l)"
+PCAP_COUNT="$(find "$ANALYSIS_DIR"/pcaps -type f | wc -l)"
 
 if ! [ -e "$ANALYSIS_DIR"/pcaps ]; then
 	echo -e "[${YELLOW}i${RESET}]Copy all pcap files for analysis into $ANALYSIS_DIR/pcaps for this script to parse."

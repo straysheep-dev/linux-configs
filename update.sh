@@ -2,6 +2,8 @@
 
 # Run this weekly or daily as part of normal system maintenance
 
+# shellcheck disable=SC2034
+
 BLUE="\033[01;34m"
 GREEN="\033[01;32m"
 YELLOW="\033[01;33m"

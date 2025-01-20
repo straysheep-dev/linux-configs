@@ -5,6 +5,8 @@
 # - Ubuntu 20.04+
 # - Kali 2023.3
 
+# shellcheck disable=SC2034
+
 RED="\033[01;31m"      # Issues/Errors
 GREEN="\033[01;32m"    # Success
 YELLOW="\033[01;33m"   # Warnings
