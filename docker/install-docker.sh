@@ -2,6 +2,9 @@
 
 # Installs docker on Ubuntu
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC1091
+
 BLUE="\033[01;34m"   # information
 GREEN="\033[01;32m"  # information
 YELLOW="\033[01;33m" # warnings
@@ -29,7 +32,7 @@ function InstallDocker() {
 	sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
 	# Add the repository information:
-	echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
 	# If the key changes, review the following link for references to the new key:
 	# https://keyserver.ubuntu.com/pks/lookup?search=9DC858229FC7DD38854AE2D88D81803C0EBFCD88&fingerprint=on&op=index

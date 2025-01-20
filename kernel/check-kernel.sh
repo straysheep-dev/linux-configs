@@ -4,6 +4,9 @@
 # Copyright (c) 2023, straysheep-dev
 # Copyright (c) 2012-2017, Red Hat, Inc.
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC1091
+
 # This script will apply these kernel parameters at runtime and also make them persistent under:
 # - /etc/sysctl.d/
 # - /etc/systemd/
