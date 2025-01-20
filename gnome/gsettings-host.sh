@@ -35,10 +35,18 @@ gsettings set org.gnome.desktop.privacy remove-old-trash-files 'true'
 gsettings set org.gnome.desktop.privacy remove-old-temp-files 'true'
 gsettings set org.gnome.desktop.privacy old-files-age 'uint32 7'
 
+# System Theme
+gsettings set org.gnome.desktop.interface gtk-theme Yaru-dark
+#gsettings set org.gnome.desktop.interface gtk-theme default
+
+# Apps in the dock
+gsettings set org.gnome.shell favorite-apps "['firefox_firefox.desktop', 'google-chrome.desktop', 'org.gnome.Nautilus.desktop', 'code.desktop', 'org.gnome.Terminal.desktop']"
+
 # Gedit Preferences
 #gsettings set org.gnome.gedit.preferences.editor scheme 'solarized-light'
-#gsettings set org.gnome.gedit.preferences.editor scheme 'oblivion'
+gsettings set org.gnome.gedit.preferences.editor scheme 'oblivion'
 #gsettings set org.gnome.gedit.preferences.editor scheme 'kate'
+#gsettings set org.gnome.gedit.preferences.editor scheme 'yaru-dark'
 #gsettings set org.gnome.gedit.preferences.editor wrap-mode 'none'
 
 # Disable autorun of software and media
