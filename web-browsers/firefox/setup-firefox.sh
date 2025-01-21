@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC2044
+# Review SC2044 on next edit
+
 # MIT License
 # Copyright (c) 2023, straysheep-dev
 
@@ -56,7 +60,7 @@ function RemoveConfigs() {
 		for file in $(find "$FF_DIR" -type f); do
 			echo -e "[${YELLOW}*${RESET}]${YELLOW}Removing $file...${RESET}"
 			sudo rm -f "$file"
-		done 
+		done
 	fi
 	# We cannot safely remove all files discovered in /usr/lib with "find" here like in /etc, only known configuration files
 	libPath
@@ -78,7 +82,7 @@ function CheckPath() {
 	# Check to make sure the firefox path requested exists, exit if not.
 	if [ "$FF_DIR" == "" ]; then
 		echo -e "[${YELLOW}i${RESET}]${YELLOW}No Firefox path found under $CONFIG_DIR. Quitting."
-		exit 1	
+		exit 1
 	fi
 }
 

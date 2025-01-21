@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC2024
+
 # Set "EnableMediaRouter": false, then add the following to stop mdns listener:
 # chrome://flags => enable-webrtc-hide-local-ips-with-mdns => false
 

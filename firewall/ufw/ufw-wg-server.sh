@@ -3,8 +3,10 @@
 # Manage wireguard server firewall rules
 # Logs wireguard client authentications to /var/log/syslog
 
+# shellcheck disable=SC2034
+
 GTWY="$(ip route | grep 'default' | grep -Po '(?<=via )(\S+)' | head -1)"
-WG="$(ip a | grep -o wg[0-9] | head -1)"
+WG="$(ip a | grep -o "wg[0-9]" | head -1)"
 
 SERVER_PUB_NIC="$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)"
 SERVER_WG_NIC="$(grep SERVER_WG_NIC /etc/wireguard/params | cut -d '=' -f 2)"
@@ -45,14 +47,14 @@ function definePaths() {
 		until [[ $SET_POSTUP_PATH =~ ^(/[a-zA-Z0-9_-]+){1,}\.sh$ ]]; do
 			read -rp "PostUp script path: " SET_POSTUP_PATH
 		done
-		WG_POSTUP_PATH="$(echo $SET_POSTUP_PATH | sed 's/\//\\\//g' | sed 's/\./\\./g')"
+		WG_POSTUP_PATH="$(echo "$SET_POSTUP_PATH" | sed 's/\//\\\//g' | sed 's/\./\\./g')"
 		echo "WG_POSTUP_PATH=$WG_POSTUP_PATH"
 
 		# PostDown
 		until [[ $SET_POSTDOWN_PATH =~ ^(/[a-zA-Z0-9_-]+){1,}\.sh$ ]]; do
 			read -rp "PostDown script path: " SET_POSTDOWN_PATH
 		done
-		WG_POSTDOWN_PATH="$(echo $SET_POSTDOWN_PATH | sed 's/\//\\\//g' | sed 's/\./\\./g')"
+		WG_POSTDOWN_PATH="$(echo "$SET_POSTDOWN_PATH" | sed 's/\//\\\//g' | sed 's/\./\\./g')"
 		echo "WG_POSTDOWN_PATH=$WG_POSTDOWN_PATH"
 	fi
 }
@@ -101,8 +103,8 @@ function setFirewall() {
 	# Wireguard server and client rules
 
 	# PostUp|Down commands use their own bash script for readability / portability
-	sed -i "s/^PostUp =.*$/PostUp = "${WG_POSTUP_PATH}"/" "/etc/wireguard/${SERVER_WG_NIC}.conf"
-	sed -i "s/^PostDown =.*$/PostDown = "${WG_POSTDOWN_PATH}"/" "/etc/wireguard/${SERVER_WG_NIC}.conf"
+	sed -i "s/^PostUp =.*$/PostUp = ${WG_POSTUP_PATH}/" "/etc/wireguard/${SERVER_WG_NIC}.conf"
+	sed -i "s/^PostDown =.*$/PostDown = ${WG_POSTDOWN_PATH}/" "/etc/wireguard/${SERVER_WG_NIC}.conf"
 
 	systemctl restart "wg-quick@${SERVER_WG_NIC}"
 

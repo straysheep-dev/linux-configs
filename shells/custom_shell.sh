@@ -2,6 +2,10 @@
 
 # GPL-3.0-or-later
 
+# shellcheck disable=SC2034
+# shellcheck disable=SC2116
+# shellcheck disable=SC2086
+
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')

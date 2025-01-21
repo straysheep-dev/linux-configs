@@ -2,6 +2,8 @@
 
 # Applies apparmor to firefox[-esr]
 
+# shellcheck disable=SC2034
+
 # Firefox apparmor profile source:
 # https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/view/head:/debian/usr.bin.firefox.apparmor.14.10
 

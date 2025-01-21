@@ -1,13 +1,16 @@
 #!/bin/bash
 
+# shellcheck disable=SC1091
+# shellcheck disable=SC2034
+
 # Thanks & Acknowledgements
-# https://github.com/linux-audit		#source
-# https://people.redhat.com/sgrubb/audit/	#source
-# https://github.com/bfuzzy1/auditd-attack	#rule-mapping
-# https://github.com/Neo23x0/auditd		#configuration
-# https://attack.mitre.org/			#attack-framework
-# https://github.com/g0tmi1k/os-scripts/blob/master/kali2.sh				#code
-# https://github.com/angristan/wireguard-install/blob/master/wireguard-install.sh	#code
+# https://github.com/linux-audit		                                                #source
+# https://people.redhat.com/sgrubb/audit/	                                                #source
+# https://github.com/bfuzzy1/auditd-attack	                                                #rule-mapping
+# https://github.com/Neo23x0/auditd		                                                #configuration
+# https://attack.mitre.org/			                                                #attack-framework
+# https://github.com/g0tmi1k/os-scripts/blob/master/kali2.sh				        #code
+# https://github.com/angristan/wireguard-install/blob/master/wireguard-install.sh	        #code
 # https://github.com/IppSec/parrot-build/blob/master/roles/configure-logging/tasks/auditd.yml	#automation
 # https://github.com/threathunters-io/laurel							#augmentation
 

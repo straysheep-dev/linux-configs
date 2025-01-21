@@ -3,6 +3,7 @@
 # Checks the official go website for the latest version + hash and downloads it.
 
 # shellcheck disable=SC2016
+# shellcheck disable=SC1091
 
 DL='https://go.dev/dl/'
 GO_INFO='/tmp/go-downloads.txt'

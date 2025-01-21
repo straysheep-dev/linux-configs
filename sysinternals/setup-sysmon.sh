@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # MIT License
 # Copyright (c) 2023, straysheep-dev
 # Copyright (c) Microsoft Corporation.

@@ -5,7 +5,6 @@
 # GPL-3.0-or-later
 
 # shellcheck disable=SC2034
-# shellcheck disable=SC2174
 
 # Works with:
 # - Ubuntu
@@ -120,7 +119,8 @@ function DefinePCAPPath() {
 	if [ "$PCAP_PATH" == '' ]; then
 		if ! [ -e /var/log/pcaps ]; then
 			echo -e "[${GREEN}>${RESET}]Creating /var/log/pcaps..."
-			mkdir -m 750 -p /var/log/pcaps
+			mkdir -p /var/log/pcaps
+			chmod 750 /var/log/pcaps
 			chown -R nobody:nobody /var/log/pcaps
 		else
 			echo -e "[${GREEN}✓${RESET}]/var/log/pcaps already exits."
@@ -128,7 +128,8 @@ function DefinePCAPPath() {
 	else
 		if ! [ -e "$PCAP_PATH" ]; then
 			echo -e "[${GREEN}>${RESET}]Creating $PCAP_PATH..."
-			mkdir -m 750 -p "$PCAP_PATH"
+			mkdir -p "$PCAP_PATH"
+			chmod 750 "$PCAP_PATH"
 			chown -R nobody:nobody "$PCAP_PATH"
 		else
 			echo -e "[${GREEN}✓${RESET}]$PCAP_PATH exists."

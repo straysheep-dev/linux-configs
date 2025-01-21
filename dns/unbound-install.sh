@@ -64,10 +64,8 @@ function ApplyConfigFiles() {
 	done
 
   # Takes the default unbond.conf file
-	for file in ./unbound.conf; do
-		echo -e "${BLUE}[>]${RESET}Installing $file..."
-		sudo cp "$file" "$UNBOUND_CONF_PATH"/
-	done
+	echo -e "${BLUE}[>]${RESET}Installing $file..."
+	sudo cp ./unbound.conf "$UNBOUND_CONF_PATH"/
 
   # Assumes any additional config files are named unbound-<something>.conf
 	for file in ./unbound-*.conf; do

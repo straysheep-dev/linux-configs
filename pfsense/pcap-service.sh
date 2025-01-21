@@ -33,7 +33,8 @@ if ! [ "$(whoami)" = 'root' ]; then
 fi
 
 if ! [ -e "$SCRIPT_PATH"/"$SCRIPT_NAME" ]; then
-	mkdir -p -m 755 "$SCRIPT_PATH"
+	mkdir -p "$SCRIPT_PATH"
+	chmod 755 "$SCRIPT_PATH"
 	if ! (cp "$SCRIPT_NAME" "$SCRIPT_PATH"; chmod 755 "$SCRIPT_PATH"/"$SCRIPT_NAME"); then
 		echo "Script not found. Quitting."
 		exit 1
@@ -41,7 +42,8 @@ if ! [ -e "$SCRIPT_PATH"/"$SCRIPT_NAME" ]; then
 fi
 
 if ! [ -e "$PCAP_PATH" ]; then
-	mkdir -p -m 770 "$PCAP_PATH"
+	mkdir -p "$PCAP_PATH"
+	chmod 770 "$PCAP_PATH"
 fi
 
 # Create a logsync group

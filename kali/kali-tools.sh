@@ -1,5 +1,6 @@
 #!/bin/bash
 
+# shellcheck disable=SC2086
 
 # MIT License 2024 straysheep-dev
 

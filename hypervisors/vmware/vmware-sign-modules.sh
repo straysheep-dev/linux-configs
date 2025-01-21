@@ -3,6 +3,7 @@
 # GPL-3.0-or-later
 
 # shellcheck disable=SC2034
+# shellcheck disable=SC2028
 
 # https://kb.vmware.com/s/article/2146460
 # https://docs.fedoraproject.org/en-US/fedora/latest/system-administrators-guide/kernel-module-driver-configuration/Working_with_Kernel_Modules/#sect-generating-a-public-private-x509-key-pair

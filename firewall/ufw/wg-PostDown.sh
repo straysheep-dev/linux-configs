@@ -2,8 +2,10 @@
 
 # Wireguard PostDown script
 
+# shellcheck disable=SC2034
+
 GTWY="$(ip route | grep 'default' | grep -Po '(?<=via )(\S+)' | head -1)"
-WG="$(ip a | grep -o wg[0-9] | head -1)"
+WG="$(ip a | grep -o "wg[0-9]" | head -1)"
 
 SERVER_PUB_NIC="$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)"
 SERVER_WG_NIC="$(grep SERVER_WG_NIC /etc/wireguard/params | cut -d '=' -f 2)"

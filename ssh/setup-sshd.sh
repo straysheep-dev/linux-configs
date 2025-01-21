@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2034
+
 # Setup and configure an openssh server.
 # This script takes functions from https://github.com/straysheep-dev/setup-ubuntu
 # Currently the MFA function only applies to desktop GUI logins, and not ssh logins - this will need revised.
