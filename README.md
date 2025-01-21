@@ -1,4 +1,7 @@
 # linux-configs
+
+![shellcheck workflow](https://github.com/straysheep-dev/linux-configs/actions/workflows/shellcheck.yml/badge.svg)
+
 Various configuration files for unix/linux operating systems
 
 ### Licenses
