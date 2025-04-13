@@ -2,7 +2,6 @@
 
 # GPL-3.0-or-later
 
-# shellcheck disable=SC2317
 # shellcheck disable=SC2034
 # shellcheck disable=SC2221
 # shellcheck disable=SC2222
