@@ -111,8 +111,6 @@ while [[ $# -gt 0 ]]; do
 			echo "     -s, --summary"
 			echo "             Summarize the file(s) based on type (magic bytes) and characteristics"
 			exit 0
-			shift
-			shift
 			;;
 		-*|--*)
 			echo "Unknown option $1"
