@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-2.0-or-later
+# Copyright (c) apparmor https://gitlab.com/apparmor/apparmor
+
 # This file is updated by 'aa-update-browser' and may be overwritten on
 # upgrades.
 

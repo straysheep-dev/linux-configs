@@ -1,6 +1,10 @@
 # vim:syntax=apparmor
 # Author: Jamie Strandboge <jamie@canonical.com>
 
+# SPDX-License-Identifier: MPL-2.0
+# See the current copyright file here: https://git.launchpad.net/~mozillateam/firefox/tree/debian/copyright
+# Originally obtained from here: https://bazaar.launchpad.net/~mozillateam/firefox/firefox.focal/view/head:/debian/usr.bin.firefox.apparmor.14.10
+
 # Declare an apparmor variable to help with overrides
 @{MOZ_LIBDIR}=/usr/lib/firefox-esr
 
