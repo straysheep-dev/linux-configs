@@ -1,7 +1,11 @@
 #!/bin/bash
 
-# MIT License
+# SPDX-License-Identifier: MIT
 # Copyright (c) 2023, straysheep-dev
+
+# shellcheck disable=SC2086
+# shellcheck disable=SC2034
+# shellcheck disable=SC2144
 
 # Initializes IDS tools for a system baseline
 # Currently only uses aide + rkhunter + chkrootkit
@@ -10,10 +14,6 @@
 # Thanks to the following projects for code, ideas, and guidance:
 # https://github.com/g0tmi1k/OS-Scripts
 # https://github.com/angristan/wireguard-install
-
-# shellcheck disable=SC2086
-# shellcheck disable=SC2034
-# shellcheck disable=SC2144
 
 RED="\033[01;31m"      # Errors
 GREEN="\033[01;32m"    # Success

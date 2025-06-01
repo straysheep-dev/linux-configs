@@ -1,13 +1,15 @@
 #!/bin/bash
 
-# GPL-3.0-or-later
-
-# Review the system's current baseline using local IDS databases.
-# Many of these tools have no built in terminal color options, this script is meant to make summarizing and reading them easier.
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2024 straysheep-dev
 
 # shellcheck disable=SC2034
 # shellcheck disable=SC2221
 # shellcheck disable=SC2222
+
+# Review the system's current baseline using local IDS databases.
+# Many of these tools have no built in terminal color options, this script is meant to make summarizing and reading them easier.
+
 # https://en.wikipedia.org/wiki/ANSI_escape_code
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh

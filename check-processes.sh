@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2024 straysheep-dev
+
+# shellcheck disable=SC2034
 
 # This script is meant to make reviewing system processes quicker and easier.
 
@@ -12,8 +15,6 @@
 # https://github.com/Neo23x0/auditd
 # https://github.com/bfuzzy1/auditd-attack
 # https://github.com/carlospolop/PEASS-ng
-
-# shellcheck disable=SC2034
 
 # Regular expressions are used from bstrings by Eric Zimmerman:
 # https://github.com/EricZimmerman/bstrings/blob/master/LICENSE.md
@@ -90,7 +91,7 @@ top -b -n 1 | head -n 3
 echo ""
 echo -e "${ITALIC}${YELLOW}RAM (GB)${NC}"
 free -h
-# Parsing UIDS should come before adding lsof network files to the $PS_LIST file, else it parses applications listed by lsof as users 
+# Parsing UIDS should come before adding lsof network files to the $PS_LIST file, else it parses applications listed by lsof as users
 echo ""
 echo -e "${ITALIC}${YELLOW}UIDS IN USE${NC}"
 cut -d ' ' -f 1 "$PS_LIST" | sort | uniq -c | sort -nr

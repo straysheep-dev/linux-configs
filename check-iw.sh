@@ -1,11 +1,13 @@
 #!/bin/bash
 
-# MIT License (c) 2024 straysheep-dev
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2024 straysheep-dev
+
+# shellcheck disable=SC2034
 
 # check-iw.sh
 # Tracks each interface's state and channel
 
-# shellcheck disable=SC2034
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')

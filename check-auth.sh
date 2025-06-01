@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2024 straysheep-dev
+
+# shellcheck disable=SC2034
 
 # This script is meant to make querying auth logs easier.
 # It searches both text and gzip compressed logs.
@@ -11,7 +14,6 @@
 # https://github.com/angristan/openvpn-install
 # https://github.com/carlospolop/PEASS-ng
 
-# shellcheck disable=SC2034
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')

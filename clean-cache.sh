@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# MIT License
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2024 straysheep-dev
 
 # VMware's drag and drop feature can (over time) cache a large number of files consuming disk space.
 # On Linux, Ctrl+C copying a file within a guest VM can cause a copy of the file to be cached on the host.

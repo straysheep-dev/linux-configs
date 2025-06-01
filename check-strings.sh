@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2024 straysheep-dev
 
 # shellcheck disable=SC2034
 # shellcheck disable=SC2221

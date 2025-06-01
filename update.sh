@@ -1,8 +1,11 @@
 #!/bin/bash
 
-# Run this weekly or daily as part of normal system maintenance
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2024 straysheep-dev
 
 # shellcheck disable=SC2034
+
+# Run this weekly or daily as part of normal system maintenance
 
 BLUE="\033[01;34m"
 GREEN="\033[01;32m"

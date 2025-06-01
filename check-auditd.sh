@@ -1,6 +1,12 @@
 #!/bin/bash
 
-# GPL-3.0-or-later
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (c) 2024 straysheep-dev
+
+# shellcheck disable=SC2034
+# shellcheck disable=SC2221
+# shellcheck disable=SC2222
+# shellcheck disable=SC2317
 
 # This script is meant to make querying auditd logs easier with some granularity.
 
@@ -13,10 +19,6 @@
 # https://github.com/bfuzzy1/auditd-attack
 # https://github.com/carlospolop/PEASS-ng
 
-# shellcheck disable=SC2034
-# shellcheck disable=SC2221
-# shellcheck disable=SC2222
-# shellcheck disable=SC2317
 # Colors and color printing code taken directly from:
 # https://github.com/carlospolop/PEASS-ng/blob/master/linPEAS/builder/linpeas_parts/linpeas_base.sh
 C=$(printf '\033')

@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2024 straysheep-dev
+
 # shellcheck disable=SC2034
 
 # Run this after reviewing the integrity of the system
