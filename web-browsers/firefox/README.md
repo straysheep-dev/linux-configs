@@ -118,6 +118,7 @@ Replace `ProviderURL` with any DoH endpoint. For example:
 - [Cloudflare](https://developers.cloudflare.com/1.1.1.1/setup/): `https://family.cloudflare-dns.com/dns-query`
 - [Quad9](https://dns.quad9.net/dns-query): `https://dns.quad9.net/dns-query`
 - [NextDNS](https://my.nextdns.io/account): `https://dns.nextdns.io/<profile-id>`
+- [DNS4EU](https://noads.joindns4.eu/dns-query): `https://noads.joindns4.eu/dns-query`
 
 ## Useful Extensions
 

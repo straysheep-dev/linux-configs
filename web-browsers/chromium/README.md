@@ -198,6 +198,9 @@ Differences have been noted below, and made either for compatability / usability
 // NextDNS (GET) https://my.nextdns.io/account
 "DnsOverHttpsTemplates": "https://dns.nextdns.io/<profile-id>"
 
+// DNS4EU (GET) https://www.joindns4.eu/for-public#resolver-options
+"DnsOverHttpsTemplates": "https://noads.joindns4.eu/dns-query"
+
 // Use the {$dns} variable to make a (POST) request
 "DnsOverHttpsTemplates": "https://dns.example.net/dns-query{?dns}"
 ```
