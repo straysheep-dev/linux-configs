@@ -1,12 +1,12 @@
 
-# setup-firefox
+# Firefox
 
 Apply a hardened policy for Firefox / Firefox-ESR.
 
 Tested on:
 
-* Ubuntu 18.04 -> 22.04
-* Kali 2020.1 -> 2024.1
+* Ubuntu 18.04 - 24.04
+* Kali 2020.1 - 2025.2
 * Fedora 34
 
 ```
@@ -63,7 +63,7 @@ The `firefox-policies-kali.json` is meant to be used for web applicaton testing.
 
 ### Differences from [SSG-Firefox-Guide-STIG](https://static.open-scap.org/ssg-guides/ssg-firefox-guide-stig.html)
 
-The main change in Firefox 81/78.3-ESR policy configuration has been moving all of the "*.cfg" settings into the "Preferences" policy contained within the larger "policies.json". Many of the edits you can make to about:config are able to be entered there now. 
+The main change in Firefox 81/78.3-ESR policy configuration has been moving all of the "*.cfg" settings into the "Preferences" policy contained within the larger "policies.json". Many of the edits you can make to about:config are able to be entered there now.
 
 Review which prefixes are available here: https://github.com/mozilla/policy-templates#preferences
 
@@ -99,6 +99,25 @@ Both Chrome and Firefox will prompt the user before a website is able to read th
 
 Firefox will also block attempts by a website to automatically set data into the clipboard without user interaction, and notify the user this occurred.
 
+## DNS Settings
+
+[You can configure DNS-over-HTTPS (DoH) via the policies.json file](https://mozilla.github.io/policy-templates/#dnsoverhttps). Here's an example block:
+
+```json
+    "DNSOverHTTPS": {
+      "Enabled": true,
+      "ProviderURL": "https://dns.quad9.net/dns-query",
+      "Locked": false,
+      "ExcludedDomains": [],
+      "Fallback": false
+    },
+```
+
+Replace `ProviderURL` with any DoH endpoint. For example:
+
+- [Cloudflare](https://developers.cloudflare.com/1.1.1.1/setup/): `https://family.cloudflare-dns.com/dns-query`
+- [Quad9](https://dns.quad9.net/dns-query): `https://dns.quad9.net/dns-query`
+- [NextDNS](https://my.nextdns.io/account): `https://dns.nextdns.io/<profile-id>`
 
 ## Useful Extensions
 

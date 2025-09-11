@@ -36,7 +36,11 @@
       "StartPage": "none"
     },
     "DNSOverHTTPS": {
-      "Enabled": false
+      "Enabled": true,
+      "ProviderURL": "https://dns.quad9.net/dns-query",
+      "Locked": false,
+      "ExcludedDomains": [],
+      "Fallback": false
     },
     "Cookies": {
       "Default": true,

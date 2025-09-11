@@ -1,10 +1,11 @@
-# setup-chromium
+# Chromium-based Browsers
 
 Automatically generate a hardened policy file and the [correct](https://bugs.launchpad.net/ubuntu/+source/chromium-browser/+bug/1714244) [directories](https://forum.snapcraft.io/t/auto-connecting-the-system-files-interface-for-the-chromium-snap/20245) for the [Chromium Snap package](https://snapcraft.io/chromium), as well as the [directories](https://support.google.com/chrome/a/answer/9027408?hl=en) used by the [official deb/rpm packages](https://www.google.com/linuxrepositories/) of [Google Chrome](https://www.google.com/chrome/).
 
-Tested on: 
-* Ubuntu 20.04, 22.04
+Tested on:
+* Ubuntu 20.04, 22.04, 24.04
 * Fedora 34, 35
+* Kali 2025.1c
 
 Install Chromium:
 
@@ -179,6 +180,28 @@ Differences have been noted below, and made either for compatability / usability
 
 ## Policies that you should change to your requirements:
 
+#### DnsOverHttpsMode | DnsOverHttpsTemplates
+
+- [`DnsOverHttpsMode`](https://chromeenterprise.google/policies/#DnsOverHttpsMode) Accepts `off`, `automatic` (meaning fallback allowed), and `secure` (no fallback allowed)
+- [`DnsOverHttpsTemplates`](https://chromeenterprise.google/policies/?policy=DnsOverHttpsTemplates) Takes a DoH URL endpoint, see the examples below
+
+> [!NOTE]
+> [Chrome will always use the built-in resolver when you configure DNS-over-HTTPS](https://chromeenterprise.google/policies/#BuiltInDnsClientEnabled), even if you set `BuiltInDnsClientEnabled` to `false`.
+
+```json
+// Cloudflare (GET) https://developers.cloudflare.com/1.1.1.1/setup/
+"DnsOverHttpsTemplates": "https://family.cloudflare-dns.com/dns-query"
+
+// Quad9 (GET) https://dns.quad9.net/dns-query
+"DnsOverHttpsTemplates": "https://dns.quad9.net/dns-query"
+
+// NextDNS (GET) https://my.nextdns.io/account
+"DnsOverHttpsTemplates": "https://dns.nextdns.io/<profile-id>"
+
+// Use the {$dns} variable to make a (POST) request
+"DnsOverHttpsTemplates": "https://dns.example.net/dns-query{?dns}"
+```
+
 #### DefaultCookiesSetting | RestoreOnStartup | ClearBrowsingDataOnExitList
 
 By default the policy in this repo clears all data when closing the browser. If you want your login sessions and previous tabs to restore, you'll need to change the following:
@@ -190,7 +213,7 @@ By default the policy in this repo clears all data when closing the browser. If 
 #### CookiesAllowedForUrls | URLBlockList | URLAllowList
 
 This is an example for Microsoft Teams. When blocking 3rd Party Cookies, SSO and similar technologies will need allow-listed like in this example. Listing URL's in this format will also apply to other allow / blocklist policies as well.
-```
+```json
   "CookiesAllowedForUrls": [
     "https://[*.]microsoft.com",
     "https://[*.]microsoftonline.com",
@@ -209,7 +232,7 @@ Example configuration for extensions, using uBlock Origin.
 - All other extensions are blocked
 - uBlock Origin is automatically installed
 
-```
+```json
   "ExtensionInstallAllowlist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
   "ExtensionInstallBlocklist": ["*"],
   "ExtensionInstallForcelist": ["cjpalhdlnbpafiamejdnhcphjbkeiagm"],
@@ -224,7 +247,7 @@ https://chromeenterprise.google/policies/#DefaultJavaScriptJitSetting
 
 Example configuration allowing a list of sites to run JavaScript JIT:
 
-```
+```json
   "DefaultJavaScriptJitSetting": 2,
 
   "JavaScriptJitAllowedForSites":[
@@ -248,7 +271,7 @@ https://chromeenterprise.google/policies/#Disable3DAPIs
 
 https://chromeenterprise.google/policies/#HardwareAccelerationModeEnabled
 
-```
+```json
   "Disable3DAPIs": true,
   "HardwareAccelerationModeEnabled": false,
 ```
