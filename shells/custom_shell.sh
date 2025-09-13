@@ -77,5 +77,5 @@ get_net_info() {
 
 # Color prompt string without brackets
 if [ "$PS1" ]; then
-    PS1="┌──/${GREEN}\u${NC}@${GREEN}\h${NC}:${LIGHT_MAGENTA}\l${NC}/ ${LIGHT_CYAN}\D{%Y%m%d%H%M%S}${NC} ${YELLOW}$(get_net_info)${NC} (${GREEN}\w${NC})\n└─\\$"
+    PS1="┌──/${GREEN}\u${NC}@${GREEN}\h${NC}:${LIGHT_MAGENTA}\l${NC}/ ${LIGHT_CYAN}\D{%Y%m%d%H%M%S}${NC} ${YELLOW}$(get_net_info)${NC} (${GREEN}\w${NC})\n└─\\$ "
 fi
