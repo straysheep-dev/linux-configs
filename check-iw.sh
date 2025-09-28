@@ -31,12 +31,13 @@ do
 	echo -e "${DG}╔═══════════════════════════════════════════════════════════════════${NC}"
 	echo -e "${DG}║ Viewing Wireless Interface Information${NC}"
 	echo -e "${DG}║ • This will run conitnuously with the latest interface information${NC}"
-	echo -e "${DG}║ • Run with ./check-iw.sh wlanX to list nearby Wi-Fi APs with wlanX${NC}"
+	echo -e "${DG}║ • Run with ./check-iw.sh wlanX to list nearby Wi-Fi APs with nmcli${NC}"
 	echo -e "${DG}║ • Ctrl+c to quit${NC}"
 	echo -e "${DG}╚ Hostname: $(hostname) | ${NC}${LM}$(iw reg get | grep -A 1 '^global$' | grep 'country')${NC}${DG} | $(date +%F) $(date +%T)${NC}"
 
-	iw dev | grep -P "(Interface|type|channel)" | \
+	iw dev | grep -P "(Interface|addr|type|channel)" | \
 	sed 's/Interface/\n[◢]/g' | sed -E 's/^\s+//g' | \
+	sed -E 's/^addr/   ➤ MAC /g' | \
 	sed -E 's/^type/   ➤ Type/g' | \
 	sed -E 's/^channel/   ➤ Channel/g' | \
 	sed -E "s/.*mon$/${SED_YELLOW}/g" | \
