@@ -44,6 +44,7 @@ ITALIC="${C}[3m"
 # Shell variables
 export PROMPT_DIRTRIM=1
 export VIRTUAL_ENV_DISABLE_PROMPT=1
+export EDITOR=nano
 
 interface_list=$(ip link show | awk -F ': ' '{
     if ($0 !~ /state DOWN/ && $2 ~ /[a-z]+[0-9]/) {
