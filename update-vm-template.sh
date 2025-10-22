@@ -41,7 +41,7 @@ SED_BOLD="${C}[01;01m&${C}[0m"
 # Usage options
 function HelpMenu() {
     echo -e "${BOLD}NAME${NC}"
-    echo -e "      ${LIGHT_MAGENTA}update-vm-templates${NC}"
+    echo -e "      ${LIGHT_MAGENTA}update-vm-template${NC}"
     echo -e ""
     echo -e "${BOLD}SYNOPSIS${NC}"
     echo -e "      A wrapper to automate updating virtual machine templates."
@@ -66,7 +66,7 @@ function HelpMenu() {
     echo -e ""
     echo -e "${BOLD}MAIN ARGUMENTS${NC}"
     echo -e ""
-    echo -e "     -hv, --hypervisor <hypervisor>"
+    echo -e "     -hv, --hypervisor [qemu|virtualbox|vmware|hyper-v]"
     echo -e "             The hypervisor you're using. This is often VMware, VirtualBox, Hyper-V, or QEMU. Currently only QEMU is supported."
     echo -e ""
     echo -e "     -vm, --vm-name <vm-name>"
@@ -81,12 +81,16 @@ function HelpMenu() {
     echo -e "     -sn, --snapshot-name <snapshot-name>"
     echo -e "             The name of the snapshot."
     echo -e ""
+    echo -e "${BOLD}OPTIONAL ARGUMENTS${NC}"
+    echo -e ""
+    echo -e "     -v, --verbose"
+    echo -e "             Show the output of commands being executed on the guest. Without -v this is sent to /dev/null."
+	exit 0
 }
 
 # Show help if there aren't any arguments
 if [[ $# -eq 0 ]]; then
     HelpMenu
-    exit 1
 fi
 
 # This is the easiest way to do this in bash, but it won't work in other shells
@@ -128,8 +132,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         -h|--help)
             HelpMenu
-            shift # past argument
-            shift # past value
             ;;
         -*|--*)
             echo "Unknown option $1"
@@ -146,7 +148,6 @@ done
 if [[ -z "$HYPERVISOR" ]] || [[ -z "$VM_NAME" ]] || [[ -z "$USERNAME" ]] || [[ -z "$COMMAND" ]] || [[ -z "$SNAPSHOT_NAME" ]]
 then
     HelpMenu
-    exit 1
 fi
 
 if ! dpkg -S "$HYPERVISOR" >/dev/null
