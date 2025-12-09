@@ -178,8 +178,12 @@ then
     echo -e "[${BLUE}*${NC}]Starting $VM_NAME..."
     virsh start "$VM_NAME" >/dev/null
 
-    # Pause for the VM to boot
-    sleep 10
+    # Pause for the VM to boot and obtain an IP
+    while ! virsh domifaddr "$VM_NAME" --source lease >/dev/null
+    do
+        echo "[${BLUE}*${NC}] Waiting 10 seconds for VM to boot..."
+        sleep 10
+    done
 
     # Obtain the guest's IP, this PCRE is imprecise but works fine for now
     VM_IP=$(virsh domifaddr "$VM_NAME" --source lease | awk '{print $4}' | grep -Po "(([0-9]){1,3}\.){3}([0-9]){1,3}")
@@ -190,17 +194,15 @@ then
     echo -e "[${BLUE}*${NC}]Connecting via ${LIGHT_MAGENTA}$USERNAME${NC}${BOLD}@${NC}${LIGHT_CYAN}$VM_IP${NC}..."
     if [[ "$VERBOSE" == "1" ]]
     then
-        if ! ssh "$USERNAME"@"$VM_IP" "$COMMAND"
-        then
-            echo -e "[${RED}*${NC}]SSH command failed."
-            exit 2
-        fi
+        while ! ssh "$USERNAME"@"$VM_IP" "$COMMAND"
+        do
+            echo -e "[${BLUE}*${NC}]Waiting 10 seconds for SSH to become available..."
+        done
     else
-        if ! ssh "$USERNAME"@"$VM_IP" "$COMMAND" > /dev/null
-        then
-            echo -e "[${RED}*${NC}]SSH command failed."
-            exit 2
-        fi
+        while ! ssh "$USERNAME"@"$VM_IP" "$COMMAND" > /dev/null
+        do
+            echo -e "[${BLUE}*${NC}]Waiting 10 seconds for SSH to become available..."
+        done
     fi
 
     # TO DO: Try qemu-agent-command first, then fall back to SSH
