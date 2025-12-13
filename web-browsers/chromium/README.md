@@ -60,13 +60,14 @@ In either case, run the [setup-chromium](/web-browsers/chromium/setup-chromium.s
 ---
 
 ## Policy Overview:
+
 * Based on the [OpenSCAP security guide for Google Chrome STIG configuration](https://static.open-scap.org/ssg-guides/ssg-chromium-guide-stig.html)
 * DuckDuckGo default search engine
   - Examples for Google as default search engine provided below
 * Clear all browser data on shutdown (auth / login, cookies, storage, history)
 * Prevents account sign-in, and account sync
   - Local profiles can still be created and used
-  - Incognito mode is disabled
+  - ~~Incognito mode is disabled~~
   - Guest mode is disabled
 * Block all third-party cookies
 * Block filesystem api read/write
@@ -83,7 +84,7 @@ In either case, run the [setup-chromium](/web-browsers/chromium/setup-chromium.s
 
 Guest and Incognito modes are disabled by default in this policy. This prevents opening browser sessions without extensions that you may want to always be installed.
 
-If you want to enabled these modes:
+If you want to modify these settings:
 
 ```
   # https://chromeenterprise.google/policies/?policy=BrowserGuestModeEnabled
@@ -228,6 +229,17 @@ This is an example for Microsoft Teams. When blocking 3rd Party Cookies, SSO and
 ```
 
 #### Extensions
+
+[chrome://extensions/](chrome://extensions/)
+
+Extensions should be obtained from a trusted source, whether they're hosted on the Chrome Web Store or GitHub. Ensure you trust the developer and consider the lifecycle of the extension as well as where it will be installed, before adding it to your software inventory.
+
+Obtaining extension ID's for administration can be done from the URL of the extension:
+
+```
+https://chromewebstore.google.com/detail/<extension_name>/<extension_id>
+                                                          ^^^^^^^^^^^^^^
+```
 
 Example configuration for extensions, using uBlock Origin.
 
