@@ -4,7 +4,7 @@
 # - https://www.shellcheck.net/wiki/GitHub-Actions
 # - https://github.com/geerlingguy/ansible-role-docker/blob/master/.github/workflows/ci.yml
 
-name: YAML
+name: yaml
 on:
   push:
     branches: ["main"]

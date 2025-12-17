@@ -5,7 +5,7 @@
 # - https://www.shellcheck.net/wiki/SC2013
 # - https://github.com/geerlingguy/ansible-role-docker/blob/master/.github/workflows/ci.yml
 
-name: JSON
+name: json
 on:
   push:
     branches: ["main"]
@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - name: Install jq
-        run: apt update; apt install -y jq
+        run: sudo apt update; sudo apt install -y jq
       - name: Process files
         run: |
           find . -type f -name "*.json" | while IFS= read -r file
