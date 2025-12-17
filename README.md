@@ -1,6 +1,6 @@
 # linux-configs
 
-![shellcheck workflow](https://github.com/straysheep-dev/linux-configs/actions/workflows/shellcheck.yml/badge.svg)
+![shellcheck workflow](https://github.com/straysheep-dev/linux-configs/actions/workflows/shellcheck.yml/badge.svg) ![yaml workflow](https://github.com/straysheep-dev/linux-configs/actions/workflows/yaml.yml/badge.svg) ![json workflow](https://github.com/straysheep-dev/linux-configs/actions/workflows/json.yml/badge.svg)
 
 Various configuration files for unix/linux operating systems
 
