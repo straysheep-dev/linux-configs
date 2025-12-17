@@ -1,0 +1,15 @@
+{
+    "workbench.colorTheme": "Visual Studio Dark",
+    "extensions.allowed": {},
+    "files.trimTrailingWhitespace": true,
+    "files.eol": "\n",
+    "telemetry.telemetryLevel": "off",
+    "json.schemaDownload.enable": false,
+    "npm.fetchOnlinePackageInfo": false,
+    "workbench.enableExperiments": false,
+    "security.workspace.trust.emptyWindow": false,
+    "security.allowedUNCHosts": [
+        "wsl.localhost"
+    ],
+    "chat.disableAIFeatures": true
+}
