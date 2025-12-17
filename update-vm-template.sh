@@ -197,6 +197,7 @@ then
         while ! ssh "$USERNAME"@"$VM_IP" "$COMMAND"
         do
             echo -e "[${BLUE}*${NC}]Waiting 10 seconds for SSH to become available..."
+            sleep 10
         done
     else
         while ! ssh "$USERNAME"@"$VM_IP" "$COMMAND" > /dev/null
