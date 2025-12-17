@@ -30,12 +30,12 @@ listen_addresses:
 # sudo mkdir -p 0755 /var/cache/stubby
 # sudo chown stubby:stubby /var/cache/stubby
 # https://dnsprivacy.org/dns_privacy_daemon_-_stubby/configuring_stubby/#dnssec
-#dnssec_return_status: GETDNS_EXTENSION_TRUE
+# dnssec_return_status: GETDNS_EXTENSION_TRUE
 appdata_dir: "/var/cache/stubby"
 
 upstream_recursive_servers:
 
-## Quad 9
+  # Quad 9
   - address_data: 9.9.9.9
     tls_auth_name: "dns.quad9.net"
   - address_data: 149.112.112.112
@@ -46,8 +46,8 @@ upstream_recursive_servers:
   - address_data: 2620:fe::9
     tls_auth_name: "dns.quad9.net"
 
-## Cloudflare
-## (NOTE: recommend reducing idle_timeout to 9000 if using Coudflare)
+  # Cloudflare
+  # (NOTE: recommend reducing idle_timeout to 9000 if using Coudflare)
   - address_data: 1.1.1.1
     tls_auth_name: "cloudflare-dns.com"
   - address_data: 1.0.0.1
