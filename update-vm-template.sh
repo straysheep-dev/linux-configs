@@ -186,6 +186,11 @@ then
     done
 
     # Obtain the guest's IP, this PCRE is imprecise but works fine for now
+    while ! virsh domifaddr "$VM_NAME" --source lease | awk '{print $4}' | grep -Po "(([0-9]){1,3}\.){3}([0-9]){1,3}" >/dev/null
+    do
+        echo "[${BLUE}*${NC}] Waiting 10 seconds for VM to obtain an IP..."
+        sleep 10
+    done
     VM_IP=$(virsh domifaddr "$VM_NAME" --source lease | awk '{print $4}' | grep -Po "(([0-9]){1,3}\.){3}([0-9]){1,3}")
 
     # Prefer SSH, it's universally available
