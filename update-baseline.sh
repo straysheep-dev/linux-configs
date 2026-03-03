@@ -1,12 +1,18 @@
 #!/bin/bash
 
 # SPDX-License-Identifier: MIT
-# Copyright (c) 2024 straysheep-dev
+# Copyright (c) 2026 straysheep-dev
 
 # shellcheck disable=SC2034
 
-# Run this after reviewing the integrity of the system
-# Updates all system packages, then IDS databases
+# Designed for local use on systems without some type of remote monitoring and integrity tool installed.
+# Currently supports:
+#   - aide
+#   - rkhunter
+#
+# Run this after reviewing the integrity of the system. All local IDS databases are updated. Ensure the updated
+# databases are moved to some type of write-protected storage.
+#
 # Running in a VM has the option to write freespace with /dev/zero to prepare the VM disk image for compression
 
 BLUE="\033[01;34m"
@@ -16,36 +22,6 @@ RED="\033[01;31m"
 BOLD="\033[01;01m"
 RESET="\033[00m"
 
-
-echo -e "[${BLUE}>${RESET}] ${BOLD}Updating all system packages...${RESET}"
-
-# Package managers
-if (grep -Pqx '^ID=kali$' /etc/os-release); then
-	sudo apt update
-	sudo apt full-upgrade -y
-	sudo apt autoremove --purge -y
-	sudo apt-get clean
-elif (command -v apt > /dev/null); then
-	sudo apt update
-	sudo apt upgrade -y
-	sudo apt autoremove --purge -y
-	sudo apt-get clean
-elif (command -v dnf > /dev/null); then
-	sudo dnf upgrade -y
-	sudo dnf autoremove -y
-	sudo dnf clean all
-fi
-
-# Additional package Managers
-if (command -v snap > /dev/null); then
-	true
-	sudo snap refresh
-fi
-
-if (command -v flatpak > /dev/null); then
-	true
-	sudo flatpak update
-fi
 
 # IDS
 if (command -v rkhunter > /dev/null); then
