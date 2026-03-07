@@ -88,7 +88,11 @@ fi
 if (command -v flatpak > /dev/null); then
 	true
 	PrintUpdatingFlatpakApps
-	sudo flatpak update  # Need to check for a -yq option
+	# Automating updates through flatpak has some risk. See the post the Arch Linux Wiki points to.
+	# https://wiki.archlinux.org/title/Flatpak#Automatic_updates_via_systemd
+	# Applications can gain new permissions that you may not have a preconfigured setting for.
+	# This needs reviewed.
+	sudo flatpak update --noninteractive --assumeyes
 fi
 
 if (sudo dmesg | grep -iPq 'hypervisor'); then
