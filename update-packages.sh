@@ -11,6 +11,8 @@
 # m h  dom mon dow   command
 # 0 3 * * * /bin/bash /usr/local/bin/update-packages.sh
 # 0 4 * * * /bin/bash -c 'if [[ -e /run/reboot-required ]]; then sudo systemctl reboot; fi'
+#
+# For systemd-timer examples: https://github.com/straysheep-dev/ansible-role-configure_updates
 
 BLUE="\033[01;34m"
 GREEN="\033[01;32m"
@@ -30,6 +32,9 @@ function PrintUpdatingFlatpakApps() {
 }
 function PrintUpdatingFirmware() {
 	echo -e "[${BLUE}>${RESET}] ${BOLD}Checking for available firmware updates...${RESET}"
+}
+function PrintSkippingFirmware() {
+	echo -e "[${YELLOW}*${RESET}] ${BOLD}Skipping firmware updates, detected incompatible system or non-interactive session...${RESET}"
 }
 function PrintUpdatingSystemPackagesError() {
 	echo -e "[${RED}*${RESET}] ${BOLD}Package manager not detected. Exiting.${RESET}"
@@ -95,8 +100,27 @@ if (command -v flatpak > /dev/null); then
 	sudo flatpak update --noninteractive --assumeyes
 fi
 
-if (sudo dmesg | grep -iPq 'hypervisor'); then
-	true
+if [ -e /proc/device-tree/compatible ]; then
+	# Check Raspberry Pi model and CPU across distributions (better than /proc/cpuinfo)
+	# https://www.raspberrypi.com/documentation/computers/raspberry-pi.html#best-practices-for-revision-code-usage
+	if tr '\0' '\n' < /proc/device-tree/compatible | grep -iq 'raspberrypi'; then
+		PrintSkippingFirmware
+		# TODO: Check Raspberry Pi firmware update methods
+	fi
+elif (command -v systemd-detect-virt > /dev/null); then
+	# Detect execution in a virtualized environment, this also works on containers
+	if systemd-detect-virt --quiet; then
+		PrintSkippingFirmware
+	fi
+elif [ ! -t 0 ]; then
+	# `-t fd`, True if file descriptor "fd" is open and refers to a terminal.
+	# It also appears to work in other shells like /bin/sh and /bin/dash.
+	# This is better here than `if [[ $- == *i* ]]; then...`, because executing `bash -i`, will break this.
+	# Both are more reliable than checking `if [ -z "$PS1" ]; then...`, which is not always guaranteed.
+	# It's effectively the same as using `tty -s` and checking the exit code, but does not require /bin/tty.
+	# https://www.gnu.org/software/bash/manual/bash.html#Interactive-Shells-1
+	# https://www.gnu.org/software/bash/manual/bash.html#Bash-Conditional-Expressions-1
+	PrintSkippingFirmware
 else
 	# [BHIS | Firmware Enumeration with Paul Asadoorian](https://www.youtube.com/watch?v=G0hF76nBE7E)
 	if (command -v fwupdmgr > /dev/null); then
