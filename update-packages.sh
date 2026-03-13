@@ -64,7 +64,7 @@ if (grep -Pqx '^ID=kali$' /etc/os-release); then
 	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
 	sudo apt autoremove --purge -yq
 	sudo apt-get clean
-elif (command -v apt > /dev/null); then
+elif command -v apt > /dev/null; then
 	PrintUpdatingSystemPackages
 	sudo apt update -q
 	sudo PATH="$PATH":/usr/bin \
@@ -74,7 +74,7 @@ elif (command -v apt > /dev/null); then
 	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
 	sudo apt autoremove --purge -yq
 	sudo apt-get clean
-elif (command -v dnf > /dev/null); then
+elif command -v dnf > /dev/null; then
 	PrintUpdatingSystemPackages
 	sudo dnf upgrade -yq
 	sudo dnf autoremove -yq
@@ -84,13 +84,13 @@ else
 	exit 1
 fi
 
-if (command -v snap > /dev/null); then
+if command -v snap > /dev/null; then
 	true
 	PrintUpdatingSnapPackages
 	sudo snap refresh
 fi
 
-if (command -v flatpak > /dev/null); then
+if command -v flatpak > /dev/null; then
 	true
 	PrintUpdatingFlatpakApps
 	# Automating updates through flatpak has some risk. See the post the Arch Linux Wiki points to.
@@ -107,11 +107,9 @@ if [ -e /proc/device-tree/compatible ]; then
 		PrintSkippingFirmware
 		# TODO: Check Raspberry Pi firmware update methods
 	fi
-elif (command -v systemd-detect-virt > /dev/null); then
+elif command -v systemd-detect-virt > /dev/null && systemd-detect-virt --quiet; then
 	# Detect execution in a virtualized environment, this also works on containers
-	if systemd-detect-virt --quiet; then
-		PrintSkippingFirmware
-	fi
+	PrintSkippingFirmware
 elif [ ! -t 0 ]; then
 	# `-t fd`, True if file descriptor "fd" is open and refers to a terminal.
 	# It also appears to work in other shells like /bin/sh and /bin/dash.
@@ -123,8 +121,8 @@ elif [ ! -t 0 ]; then
 	PrintSkippingFirmware
 else
 	# [BHIS | Firmware Enumeration with Paul Asadoorian](https://www.youtube.com/watch?v=G0hF76nBE7E)
-	if (command -v fwupdmgr > /dev/null); then
-		if (fwupdmgr --version | grep -F 'runtime   org.freedesktop.fwupd' | awk '{print $3}' | grep -P "[1-2]\.[8-9]\.[0-9]" > /dev/null); then
+	if command -v fwupdmgr > /dev/null; then
+		if fwupdmgr --version | grep -F 'runtime   org.freedesktop.fwupd' | awk '{print $3}' | grep -P "[1-2]\.[8-9]\.[0-9]" > /dev/null; then
 			PrintUpdatingFirmware
 			fwupdmgr get-updates && \
 			fwupdmgr update
