@@ -5,7 +5,8 @@
 
 # shellcheck disable=SC2034
 
-# Run this weekly or daily as part of normal system maintenance
+# Run this weekly or daily as part of normal system maintenance. Be sure to shutdown all
+# VMs on Proxmox before automating reboots.
 #
 # Cron Example (run as root) for daily updates at 3a local time, reboot at 4a if needed:
 # m h  dom mon dow   command
@@ -14,6 +15,12 @@
 #
 # For systemd-timer examples: https://github.com/straysheep-dev/ansible-role-configure_updates
 
+# Exit any pipeline failure with a non-zero exit code
+set -euo pipefail
+
+# ANSI-C quoting is valid, but it's a bash-only extension
+# To practice portability, we'll mimic the suggested alternatives
+# https://www.shellcheck.net/wiki/SC3003
 BLUE="\033[01;34m"
 GREEN="\033[01;32m"
 YELLOW="\033[01;33m"
@@ -21,24 +28,37 @@ RED="\033[01;31m"
 BOLD="\033[01;01m"
 RESET="\033[00m"
 
+# printf is more portable and predictable than echo
+# https://www.shellcheck.net/wiki/SC2059
+# https://pubs.opengroup.org/onlinepubs/9799919799/utilities/echo.html#
+# https://pubs.opengroup.org/onlinepubs/9799919799/utilities/printf.html
 function PrintUpdatingSystemPackages() {
-	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating all system packages...${RESET}"
+	printf "[%b>%b] %bUpdating all system packages...%b\n" "${BLUE}" "${RESET}" "${BOLD}" "${RESET}"
 }
 function PrintUpdatingSnapPackages() {
-	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating all snap packages...${RESET}"
+	printf "[%b>%b] %bUpdating all snap packages...%b\n" "${BLUE}" "${RESET}" "${BOLD}" "${RESET}"
 }
 function PrintUpdatingFlatpakApps() {
-	echo -e "[${BLUE}>${RESET}] ${BOLD}Updating all flatpak applications...${RESET}"
+	printf "[%b>%b] %bUpdating all flatpak applications...%b\n" "${BLUE}" "${RESET}" "${BOLD}" "${RESET}"
 }
 function PrintUpdatingFirmware() {
-	echo -e "[${BLUE}>${RESET}] ${BOLD}Checking for available firmware updates...${RESET}"
+	printf "[%b>%b] %bChecking for available firmware updates...%b\n" "${BLUE}" "${RESET}" "${BOLD}" "${RESET}"
+}
+function PrintFwupdVersionInfo() {
+	printf "[%b*%b] fwupd version %b%s%b is lower than the minimum required version (%b%s%b).\n" "${BLUE}" "${RESET}" "${BOLD}" "${FWUPD_VERSION}" "${RESET}" "${BOLD}" "${FWUPD_MIN_VERSION}" "${RESET}"
 }
 function PrintSkippingFirmware() {
-	echo -e "[${YELLOW}*${RESET}] ${BOLD}Skipping firmware updates, detected incompatible system or non-interactive session...${RESET}"
+	printf "[%b*%b] %bSkipping firmware updates, detected incompatible system or non-interactive session...%b\n" "${YELLOW}" "${RESET}" "${BOLD}" "${RESET}"
 }
 function PrintUpdatingSystemPackagesError() {
-	echo -e "[${RED}*${RESET}] ${BOLD}Package manager not detected. Exiting.${RESET}"
+	printf "[%b*%b] %bPackage manager not detected. Exiting.%b\n" "${RED}" "${RESET}" "${BOLD}" "${RESET}"
 }
+
+# Must be run as root
+if [[ "$EUID" -ne 0 ]]; then
+	printf "[%b*%b]Must be run as %broot%b. Exiting.\n" "${YELLOW}" "${RESET}" "${RED}" "${RESET}"
+	exit 1
+fi
 
 # APT Related Settings
 #
@@ -55,49 +75,55 @@ function PrintUpdatingSystemPackagesError() {
 # - https://manpages.debian.org/bullseye/debconf-doc/debconf.7.en.html#Frontends
 # - https://docs.ansible.com/ansible/latest/collections/ansible/builtin/apt_module.html#parameter-dpkg_options
 
-if (grep -Pqx '^ID=kali$' /etc/os-release); then
+if grep -Pqx '^ID=kali$' /etc/os-release; then
 	PrintUpdatingSystemPackages
-	sudo apt update -q
-	sudo PATH="$PATH":/usr/bin \
+	apt update -q
+	PATH="$PATH":/usr/bin \
 	DEBIAN_FRONTEND=noninteractive \
-	apt full-upgrade -y \
+	apt full-upgrade -yq \
 	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
-	sudo apt autoremove --purge -yq
-	sudo apt-get clean
+	apt autoremove --purge -yq
+	apt-get clean
+elif command -v pveversion > /dev/null; then
+	PrintUpdatingSystemPackages
+	apt-get update -q
+	DEBIAN_FRONTEND=noninteractive \
+	apt-get dist-upgrade -yq \
+	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
+	apt autoremove --purge -yq
+	apt-get clean
 elif command -v apt > /dev/null; then
 	PrintUpdatingSystemPackages
-	sudo apt update -q
-	sudo PATH="$PATH":/usr/bin \
+	apt update -q
+	PATH="$PATH":/usr/bin \
 	DEBIAN_FRONTEND=noninteractive \
 	NEEDRESTART_MODE=a \
-	apt full-upgrade -y \
+	apt full-upgrade -yq \
 	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
-	sudo apt autoremove --purge -yq
-	sudo apt-get clean
+	apt autoremove --purge -yq
+	apt-get clean
 elif command -v dnf > /dev/null; then
 	PrintUpdatingSystemPackages
-	sudo dnf upgrade -yq
-	sudo dnf autoremove -yq
-	sudo dnf clean all
+	dnf upgrade -yq
+	dnf autoremove -yq
+	dnf clean all
 else
 	PrintUpdatingSystemPackagesError
 	exit 1
 fi
 
 if command -v snap > /dev/null; then
-	true
 	PrintUpdatingSnapPackages
-	sudo snap refresh
+	snap refresh
 fi
 
 if command -v flatpak > /dev/null; then
-	true
 	PrintUpdatingFlatpakApps
 	# Automating updates through flatpak has some risk. See the post the Arch Linux Wiki points to.
 	# https://wiki.archlinux.org/title/Flatpak#Automatic_updates_via_systemd
 	# Applications can gain new permissions that you may not have a preconfigured setting for.
 	# This needs reviewed.
-	sudo flatpak update --noninteractive --assumeyes
+	flatpak update --noninteractive --assumeyes
 fi
 
 if [ -e /proc/device-tree/compatible ]; then
@@ -121,11 +147,19 @@ elif [ ! -t 0 ]; then
 	PrintSkippingFirmware
 else
 	# [BHIS | Firmware Enumeration with Paul Asadoorian](https://www.youtube.com/watch?v=G0hF76nBE7E)
+	# sort -V can perform a natural sorting of version numbers within text.
+	# if the we match on our minimum version, we know the running version is higher.
 	if command -v fwupdmgr > /dev/null; then
-		if fwupdmgr --version | grep -F 'runtime   org.freedesktop.fwupd' | awk '{print $3}' | grep -P "[1-2]\.[8-9]\.[0-9]" > /dev/null; then
+		FWUPD_MIN_VERSION='1.8.0'
+		FWUPD_VERSION="$(fwupdmgr --version 2>/dev/null | awk '/^runtime\s+org.freedesktop.fwupd\s+/{print $3}')"
+		FWUPD_LOWEST_VERSION="$(printf '%s\n' "${FWUPD_MIN_VERSION}" "${FWUPD_VERSION}" | sort -V | head -1)"
+		if [[ "${FWUPD_LOWEST_VERSION}" == "${FWUPD_MIN_VERSION}" ]]; then
 			PrintUpdatingFirmware
 			fwupdmgr get-updates && \
 			fwupdmgr update
+		else
+			PrintFwupdVersionInfo
+			PrintSkippingFirmware
 		fi
 	fi
 fi
