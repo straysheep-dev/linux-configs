@@ -78,8 +78,8 @@ fi
 if grep -Pqx '^ID=kali$' /etc/os-release; then
 	PrintUpdatingSystemPackages
 	apt update -q
-	PATH="$PATH":/usr/bin \
 	DEBIAN_FRONTEND=noninteractive \
+	NEEDRESTART_MODE=a \
 	apt full-upgrade -yq \
 	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
 	apt autoremove --purge -yq
@@ -88,6 +88,7 @@ elif command -v pveversion > /dev/null; then
 	PrintUpdatingSystemPackages
 	apt-get update -q
 	DEBIAN_FRONTEND=noninteractive \
+	NEEDRESTART_MODE=a \
 	apt-get dist-upgrade -yq \
 	-o Dpkg::Options::='--force-confdef' -o Dpkg::Options::='--force-confold'
 	apt autoremove --purge -yq
@@ -95,7 +96,6 @@ elif command -v pveversion > /dev/null; then
 elif command -v apt > /dev/null; then
 	PrintUpdatingSystemPackages
 	apt update -q
-	PATH="$PATH":/usr/bin \
 	DEBIAN_FRONTEND=noninteractive \
 	NEEDRESTART_MODE=a \
 	apt full-upgrade -yq \
