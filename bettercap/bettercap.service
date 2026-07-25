@@ -1,5 +1,6 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 straysheep-dev
+# Assisted-by: claude-sonnet-5
 
 # /etc/systemd/system/bettercap.service
 
