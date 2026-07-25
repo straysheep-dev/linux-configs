@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 straysheep-dev
+
+# /usr/local/share/bettercap/caplets/operator-ui.cap
+
+# This caplet can be executed by a systemd-service file to start
+# Bettercap's UI on boot, and by binding the UI + API to localhost
+# we can instead use Caddy as a reverse proxy for secure remote
+# access via Tailscale-backed TLS certs.
+#
+# "ui on" is the new method for spinning up the web UI in Bettercap.
+# The http/s caplets are no longer the method to manage it.
+#
+# If you want to skip using Caddy, you can uncomment the lines
+# below pointing to the .crt and .pem files once you generate them.
+# This config uses /etc/bettercap/tls/tailscale.* to store the TLS
+# files, though this is just a preference, and you can store them
+# anywhere.
+
+set ui.address 127.0.0.1
+set ui.port 8080
+set api.rest.port 8081
+set api.rest.address 127.0.0.1
+set api.rest.username operator
+set api.rest.password your-passphrase
+#set api.rest.certificate /etc/bettercap/tls/tailscale.crt
+#set api.rest.key /etc/bettercap/tls/tailscale.pem
+
+set events.stream.output /var/log/bettercap.log
+
+ui on

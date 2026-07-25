@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 straysheep-dev
+
+# /etc/systemd/system/bettercap.service
+
+# Starts the web UI after Tailscale for remote access.
+# Requires the operator-ui.cap caplet in bettercap's path:
+# /usr/local/share/bettercap/caplets/operator-ui.cap
+
+[Unit]
+Description=bettercap web interface access
+Documentation=https://bettercap.org
+Wants=network-online.target
+After=network-online.target tailscaled.service
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/bettercap -no-colors -caplet operator-ui
+Restart=always
+RestartSec=30
+StandardOutput=null
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 straysheep-dev
+
+# /etc/caddy/Caddyfile
+
+# Refer to the Caddy docs for more information:
+# https://caddyserver.com/docs/caddyfile
+
+https://bettercap-hostname.your-tailnet.ts.net {
+
+        # Bind Caddy to the tailscale0 IP (optional).
+        bind 100.x.y.z
+
+        # Tailscale Integration
+        #
+        # Caddy 2.5 and later can automatically manage .ts.net Tailscale certificates.
+        # Set "TS_PERMIT_CERT_UID=caddy" under /etc/default/tailscaled to give Caddy the access
+        # it needs to only fetch and maintain certificates.
+        # These get stored under /var/lib/tailscale/certs/*.
+        # https://tailscale.com/docs/integrations/web-servers/caddy/caddy-certificates?q=TS_PERMIT_CERT_UID
+        #
+        # Otherwise, you may need the acl utils, so caddy can read the TLS files. See `man setfacl`.
+        # $ sudo apt install -y acl
+        # $ sudo setfacl -m u:caddy:rx /etc/bettercap/tls
+        # $ sudo setfacl -m u:caddy:r /etc/bettercap/tls/tailscale.crt /etc/bettercap/tls/tailscale.pem
+        # Then, uncomment this line pointing to your cert files if you want to manage them manually.
+        #tls /etc/bettercap/tls/tailscale.crt /etc/bettercap/tls/tailscale.pem
+
+        # Reverse Proxy Configuration
+        # Match the API and UI ports here to what's in the caplet + bind to localhost.
+        reverse_proxy /api/* 127.0.0.1:8081
+        reverse_proxy 127.0.0.1:8080
+
+}
