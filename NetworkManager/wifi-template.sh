@@ -1,11 +1,17 @@
 #!/bin/bash
 
-CONN_NAME='eth-security'
-IFNAME='eth0'  # Change to match interface name.
-nmcli connection add type ethernet con-name "$CONN_NAME" ifname "$IFNAME"
+SSID="SomeSSID"
+CONN_NAME="${SSID}-wifi-security"
+IFNAME='wlan0'  # Change to match interface name.
+nmcli connection add type wifi con-name "$CONN_NAME" ifname "$IFNAME" ssid "$SSID"
 
 # Random MAC
-nmcli connection modify "$CONN_NAME" 802-3-ethernet.cloned-mac-address "random"
+nmcli connection modify "$CONN_NAME" 802-11-wireless.cloned-mac-address "random"
+
+# Configure connection settings
+# Use `nmcli device wifi list` to determine this value.
+SECURITY="wpa-psk"  # Set to one of: [none | owe | wpa-psk | sae]
+nmcli connection modify "$CONN_NAME" wifi-sec.key-mgmt "$SECURITY"
 
 # Configure DHCP
 nmcli connection modify "$CONN_NAME" ipv4.method "auto"
@@ -33,6 +39,8 @@ nmcli connection modify "$CONN_NAME" ipv6.dns "::1"            # Change to Tails
 nmcli connection modify "$CONN_NAME" connection.llmnr "no"
 nmcli connection modify "$CONN_NAME" connection.mdns "no"
 
-nmcli connection up "$CONN_NAME" ifname "$IFNAME"
 nmcli device status
 nmcli -p con show "$CONN_NAME"  # -p "pretty" output is more readable.
+
+# You will be prompted for the password on the CLI (it's redacted).
+nmcli connection up --ask "$CONN_NAME"
