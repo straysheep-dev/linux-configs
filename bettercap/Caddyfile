@@ -7,10 +7,10 @@
 # Refer to the Caddy docs for more information:
 # https://caddyserver.com/docs/caddyfile
 
-https://bettercap-hostname.your-tailnet.ts.net {
+https://__TAILSCALE_FQDN__ {
 
         # Bind Caddy to the tailscale0 IP (optional).
-        bind 100.x.y.z
+        bind __TAILSCALE_IP__
 
         # Tailscale Integration
         #
@@ -29,7 +29,7 @@ https://bettercap-hostname.your-tailnet.ts.net {
 
         # Reverse Proxy Configuration
         # Match the API and UI ports here to what's in the caplet + bind to localhost.
-        reverse_proxy /api/* 127.0.0.1:8081
-        reverse_proxy 127.0.0.1:8080
+        reverse_proxy /api/* 127.0.0.1:__BETTERCAP_API_PORT__
+        reverse_proxy 127.0.0.1:__BETTERCAP_UI_PORT__
 
 }
