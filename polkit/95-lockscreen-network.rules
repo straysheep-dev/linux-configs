@@ -1,0 +1,35 @@
+// Custom Polkit Rule for NetworkManager
+//
+// Assisted-by: claude-opus-5
+// Assisted-by: claude-sonnet-5
+// https://wiki.archlinux.org/title/Polkit
+//
+// Install to: /etc/polkit-1/rules.d/95-lockscreen-network.rules
+// Apply with: sudo systemctl restart polkit
+//
+// Requires root for NetworkManager modification. This prevents modifying
+// the network settings from the lock screen, but also requires
+// a password for certain actions (not all) while unlocked as well.
+// Practically, you need the nmcli tool + sudo to modify certain things.
+//
+// See all default capabilties with:
+// $ nmcli general permissions
+// Enumerate all actions and what they do:
+// $ pkaction | grep NetworkManager
+// $ pkaction --action-id org.freedesktop.NetworkManager.network-control -v
+
+var req_auth = {
+    // Set these to 0 (false) if you want to exempt them from policy.
+    "org.freedesktop.NetworkManager.settings.modify.system": 1,
+    "org.freedesktop.NetworkManager.settings.modify.own": 1,
+    "org.freedesktop.NetworkManager.network-control": 1,
+    "org.freedesktop.NetworkManager.enable-disable-network": 1,
+    "org.freedesktop.NetworkManager.enable-disable-wifi": 1,
+    "org.freedesktop.NetworkManager.enable-disable-wwan": 1,
+    "org.freedesktop.NetworkManager.enable-disable-wimax": 1
+};
+
+polkit.addRule(function(action, subject) {
+    if (req_auth[action.id]) return polkit.Result.NO;
+    // Change to `polkit.Result.AUTH_ADMIN` if you want to be prompted in the GUI.
+});
