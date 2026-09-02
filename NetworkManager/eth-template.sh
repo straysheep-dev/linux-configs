@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 straysheep-dev
+# Assisted-by: claude-sonnet-5
+#
+# Run with sudo if policykit prevents normal users from modifying netowrks.
+
+set -euo pipefail
+
 CONN_NAME='eth-security'
 IFNAME='eth0'  # Change to match interface name.
 nmcli connection add type ethernet con-name "$CONN_NAME" ifname "$IFNAME"

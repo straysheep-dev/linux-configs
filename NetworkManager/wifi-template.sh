@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 straysheep-dev
+# Assisted-by: claude-sonnet-5
+#
+# Run with sudo if policykit prevents normal users from modifying netowrks.
+
+set -euo pipefail
+
 SSID="SomeSSID"
 CONN_NAME="${SSID}-wifi-security"
 IFNAME='wlan0'  # Change to match interface name.
