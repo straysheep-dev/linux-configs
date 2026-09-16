@@ -101,7 +101,9 @@ if [[ "${INSTALLED_GO_VERSION}" != "${GO_VERSION}" ]]; then
 
     # Add /usr/local/go/bin to your $PATH
     if ! [[ -f /etc/profile.d/golang.sh ]]; then
+        # shellcheck disable=SC2016  # literal $PATH must reach the file; expansion happens on login, not here
         echo 'export PATH=$PATH:/usr/local/go/bin' | sudo tee /etc/profile.d/golang.sh >/dev/null
+        # shellcheck disable=SC1091  # file is written above by this script, not a static input shellcheck can follow
         source /etc/profile.d/golang.sh
     fi
 
