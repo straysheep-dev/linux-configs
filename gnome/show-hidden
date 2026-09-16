@@ -1,0 +1,5 @@
+# Show hidden files and folders (Ubuntu 22.04 and earlier)
+/org/gtk/settings/file-chooser/show-hidden
+
+# Show hidden files and folders (Ubuntu 24.04 or later)
+/org/gtk/gtk4/settings/file-chooser/show-hidden

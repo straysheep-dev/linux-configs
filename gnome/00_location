@@ -1,0 +1,3 @@
+# Disable location settings
+[org/gnome/system/location]
+enabled=false

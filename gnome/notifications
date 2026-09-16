@@ -1,0 +1,2 @@
+# Prevent notifications from appearing in the lock screen
+/org/gnome/desktop/notifications/show-in-lock-screen

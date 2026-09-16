@@ -1,0 +1,3 @@
+# Enable screen locking
+[org/gnome/desktop/screensaver]
+lock-enabled=true

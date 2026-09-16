@@ -1,0 +1,2 @@
+# Prevent restart or shutdown from the lock screen, after you login once, and lock the screen.
+/org/gnome/login-screen/disable-restart-buttons

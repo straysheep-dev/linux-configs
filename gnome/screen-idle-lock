@@ -1,0 +1,2 @@
+# Idle timeout for screen lock
+/org/gnome/desktop/session/idle-delay

@@ -1,0 +1,4 @@
+# Prevent usb devices from being mounted and read while screen is locked
+[org/gnome/desktop/privacy]
+usb-protection-level='lockscreen'
+usb-protection=true

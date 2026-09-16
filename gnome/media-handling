@@ -1,0 +1,4 @@
+# Disable autorun and automount of software and external media
+/org/gnome/desktop/media-handling/automount
+/org/gnome/desktop/media-handling/automount-open
+/org/gnome/desktop/media-handling/autorun-never
