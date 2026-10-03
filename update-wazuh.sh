@@ -199,9 +199,9 @@ upgrade_manager() {
 	## If the /var/ossec/etc/ossec.conf configuration file was modified, it will not be replaced by the upgrade.
 	## You will therefore have to add the settings of the new capabilities manually. More information can be
 	## found in the User manual. https://documentation.wazuh.com/4.14/user-manual/index.html
-	DEBIAN_FRONTEND=noninteractive \
+	sudo DEBIAN_FRONTEND=noninteractive \
 		NEEDRESTART_MODE=l \
-		sudo apt install -y \
+		apt install -y \
 		-o Dpkg::Options::='--force-confdef' \
 		-o Dpkg::Options::="--force-confold" \
 		wazuh-manager
